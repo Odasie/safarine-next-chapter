@@ -43,21 +43,42 @@ export type Database = {
       images: {
         Row: {
           alt: string | null
+          checksum: string | null
+          height: number | null
           id: string
+          mime_type: string | null
           page_id: string | null
+          size_bytes: number | null
+          source_url: string | null
           src: string | null
+          title: string | null
+          width: number | null
         }
         Insert: {
           alt?: string | null
+          checksum?: string | null
+          height?: number | null
           id?: string
+          mime_type?: string | null
           page_id?: string | null
+          size_bytes?: number | null
+          source_url?: string | null
           src?: string | null
+          title?: string | null
+          width?: number | null
         }
         Update: {
           alt?: string | null
+          checksum?: string | null
+          height?: number | null
           id?: string
+          mime_type?: string | null
           page_id?: string | null
+          size_bytes?: number | null
+          source_url?: string | null
           src?: string | null
+          title?: string | null
+          width?: number | null
         }
         Relationships: [
           {
@@ -143,6 +164,7 @@ export type Database = {
       }
       tours: {
         Row: {
+          currency: string
           duration_days: number | null
           hero_image: string | null
           highlights: Json | null
@@ -153,6 +175,7 @@ export type Database = {
           price: number | null
         }
         Insert: {
+          currency?: string
           duration_days?: number | null
           hero_image?: string | null
           highlights?: Json | null
@@ -163,6 +186,7 @@ export type Database = {
           price?: number | null
         }
         Update: {
+          currency?: string
           duration_days?: number | null
           hero_image?: string | null
           highlights?: Json | null

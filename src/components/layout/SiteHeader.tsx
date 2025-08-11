@@ -8,7 +8,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 const SiteHeader = () => {
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-primary text-primary-foreground">
+    <header data-fallback="1" className="sticky top-0 z-40 w-full border-b bg-primary text-primary-foreground">
       <div className="container mx-auto flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-3" aria-label="Safarine Tours home">
           <img

@@ -10,12 +10,15 @@ const SiteHeader = () => {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2" aria-label="Safarine Tours home">
-          <div className="h-8 w-8 rounded-full bg-primary" aria-hidden />
-          <div className="leading-tight">
-            <span className="block font-semibold tracking-wide">SAFARINE</span>
-            <span className="block text-xs text-muted-foreground">Private Tours Thailand</span>
-          </div>
+        <Link to="/" className="flex items-center gap-3" aria-label="Safarine Tours home">
+          <img
+            src="/lovable-uploads/2d6b3de1-d290-4fbf-a4b8-20ae81812df2.png"
+            alt="Safarine Tours — Private Tours Thailand logo"
+            className="h-8 w-auto invert md:h-10"
+            width="162"
+            height="52"
+          />
+          <span className="sr-only">SAFARINE • Private Tours Thailand</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-2" aria-label="Main navigation">

@@ -51,7 +51,7 @@ const SearchBar = () => {
         </SelectContent>
       </Select>
 
-      <Button type="submit" className="w-full">Recherche</Button>
+      <Button type="submit" className="w-full" variant="accent">Recherche</Button>
     </form>
   );
 };

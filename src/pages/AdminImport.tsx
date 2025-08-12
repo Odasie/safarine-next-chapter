@@ -40,6 +40,7 @@ function parseUrls(value: string): string[] {
 const AdminImport = () => {
   const { toast } = useToast();
   const [urlsText, setUrlsText] = useState(DEFAULT_URLS.join("\n"));
+  const [tsvText, setTsvText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<string>("");
 
@@ -71,6 +72,33 @@ const AdminImport = () => {
     }
   };
 
+  const onRunTsv = async () => {
+    try {
+      setIsLoading(true);
+      setResult("");
+
+      console.log("Invoking import-safarine-tours with TSV length:", tsvText.length);
+      const { data, error } = await supabase.functions.invoke("import-safarine-tours", {
+        body: { tsv: tsvText },
+      });
+
+      if (error) {
+        console.error("Edge function error", error);
+        toast({ title: "TSV import failed", description: error.message, variant: "destructive" });
+        return;
+      }
+
+      setResult(typeof data === "string" ? data : JSON.stringify(data, null, 2));
+      toast({ title: "TSV import completed", description: "Tours, pages, images processed." });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Unknown error";
+      console.error("TSV Import error", e);
+      toast({ title: "TSV import failed", description: msg, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto py-10">
       <Helmet>
@@ -89,7 +117,7 @@ const AdminImport = () => {
         <Card className="p-4">
           <h2 className="font-semibold mb-2">URLs to import</h2>
           <Textarea
-            rows={18}
+            rows={10}
             value={urlsText}
             onChange={(e) => setUrlsText(e.target.value)}
             className="font-mono text-xs"
@@ -102,9 +130,26 @@ const AdminImport = () => {
         </Card>
 
         <Card className="p-4">
+          <h2 className="font-semibold mb-2">Tours TSV import</h2>
+          <p className="text-muted-foreground text-sm mb-2">Paste rows copied from your table (tab-separated, first row headers).</p>
+          <Textarea
+            rows={10}
+            value={tsvText}
+            onChange={(e) => setTsvText(e.target.value)}
+            placeholder={"tour_id\tdestination\tcategory_en\tcategory_fr\t..."}
+            className="font-mono text-xs"
+          />
+          <div className="mt-4 flex gap-2">
+            <Button onClick={onRunTsv} disabled={isLoading || !tsvText.trim()}>
+              {isLoading ? "Importing..." : "Run TSV Import"}
+            </Button>
+          </div>
+        </Card>
+
+        <Card className="p-4 md:col-span-2">
           <h2 className="font-semibold mb-2">Result</h2>
           <pre className="max-h-[600px] overflow-auto text-xs bg-muted/40 p-3 rounded">
-            {result || "No result yet. Run the import to see the summary here."}
+            {result || "No result yet. Run an import to see the summary here."}
           </pre>
         </Card>
       </div>

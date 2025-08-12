@@ -5,11 +5,12 @@ const Hero = () => {
     <section className="relative overflow-hidden">
       {/* Background image with overlay */}
       <img
-        src="/placeholder.svg"
-        alt="Vue aérienne de la rivière Kwai en Thaïlande"
+        src="/lovable-uploads/87de8c7b-da41-43a0-977a-34bebb257d93.png"
+        alt=""
         className="absolute inset-0 -z-20 h-full w-full object-cover"
         aria-hidden
-        loading="lazy"
+        loading="eager"
+        fetchPriority="high"
       />
       <div className="absolute inset-0 -z-10 bg-foreground/60" aria-hidden />
 

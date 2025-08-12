@@ -5,7 +5,10 @@ const Hero = () => {
       <img src="/lovable-uploads/2d6b3de1-d290-4fbf-a4b8-20ae81812df2.png" alt="" className="absolute inset-0 -z-20 h-full w-full object-cover" aria-hidden loading="eager" fetchPriority="high" />
       <div className="absolute inset-0 -z-10 bg-foreground/60" aria-hidden />
 
-      <div className="container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-6 py-16 text-center text-primary-foreground">
+      <div
+        className="container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-6 py-16 text-center text-primary-foreground bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/lovable-uploads/2d6b3de1-d290-4fbf-a4b8-20ae81812df2.png')" }}
+      >
         <h1 className="text-4xl md:text-5xl font-bold text-slate-950">
           VIVEZ L'AVENTURE THAÏLANDAISE DEPUIS 30 ANS
         </h1>

@@ -2,3 +2,6 @@ project_id = "mcnzcagvdcoutqdfceai"
 
 [functions.import-safarine-tours]
 verify_jwt = false
+
+[functions.import-safarine]
+verify_jwt = false

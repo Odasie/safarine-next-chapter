@@ -19,7 +19,7 @@ const SearchBar = () => {
   return (
     <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 md:grid-cols-4">
       <Select>
-        <SelectTrigger className="bg-background">
+        <SelectTrigger className="bg-background text-foreground placeholder:text-muted-foreground">
           <SelectValue placeholder="Destination" />
         </SelectTrigger>
         <SelectContent>
@@ -30,7 +30,7 @@ const SearchBar = () => {
       </Select>
 
       <Select>
-        <SelectTrigger className="bg-background">
+        <SelectTrigger className="bg-background text-foreground placeholder:text-muted-foreground">
           <SelectValue placeholder="Activités" />
         </SelectTrigger>
         <SelectContent>
@@ -41,7 +41,7 @@ const SearchBar = () => {
       </Select>
 
       <Select>
-        <SelectTrigger className="bg-background">
+        <SelectTrigger className="bg-background text-foreground placeholder:text-muted-foreground">
           <SelectValue placeholder="Durée" />
         </SelectTrigger>
         <SelectContent>

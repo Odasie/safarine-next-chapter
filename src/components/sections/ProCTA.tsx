@@ -10,7 +10,7 @@ const ProCTA = () => {
           <Button asChild variant="accent">
             <Link to="/contact" aria-label="Inscription Pro">Inscription Pro</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="text-foreground">
             <Link to="/contact" aria-label="Connexion Pro">Connexion Pro</Link>
           </Button>
         </div>

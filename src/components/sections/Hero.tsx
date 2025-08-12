@@ -5,7 +5,7 @@ const Hero = () => {
     <section className="relative overflow-hidden">
       {/* Background image with overlay */}
       <img
-        src="/lovable-uploads/87de8c7b-da41-43a0-977a-34bebb257d93.png"
+        src="/lovable-uploads/2d6b3de1-d290-4fbf-a4b8-20ae81812df2.png"
         alt=""
         className="absolute inset-0 -z-20 h-full w-full object-cover"
         aria-hidden

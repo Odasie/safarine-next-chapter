@@ -7,20 +7,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useLocale } from "@/contexts/LocaleContext";
 
 const SearchBar = () => {
   const navigate = useNavigate();
+  const { locale, t } = useLocale();
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/tours");
+    navigate(`/${locale}/tours`);
   };
 
   return (
     <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 md:grid-cols-4">
       <Select>
         <SelectTrigger className="bg-background text-foreground placeholder:text-muted-foreground">
-          <SelectValue placeholder="Destination" />
+          <SelectValue placeholder={t('search.destination')} />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="kanchanaburi">Kanchanaburi</SelectItem>
@@ -31,7 +33,7 @@ const SearchBar = () => {
 
       <Select>
         <SelectTrigger className="bg-background text-foreground placeholder:text-muted-foreground">
-          <SelectValue placeholder="Activités" />
+          <SelectValue placeholder={t('search.activity')} />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="escooter">E-scooter</SelectItem>
@@ -42,16 +44,16 @@ const SearchBar = () => {
 
       <Select>
         <SelectTrigger className="bg-background text-foreground placeholder:text-muted-foreground">
-          <SelectValue placeholder="Durée" />
+          <SelectValue placeholder={t('search.duration')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="halfday">1/2 journée</SelectItem>
-          <SelectItem value="1d">1 jour</SelectItem>
-          <SelectItem value="2d">2+ jours</SelectItem>
+          <SelectItem value="halfday">1/2 {t('labels.days')}</SelectItem>
+          <SelectItem value="1d">1 {t('labels.days')}</SelectItem>
+          <SelectItem value="2d">2+ {t('labels.days')}</SelectItem>
         </SelectContent>
       </Select>
 
-      <Button type="submit" className="w-full" variant="accent">Recherche</Button>
+      <Button type="submit" className="w-full" variant="accent">{t('search.cta')}</Button>
     </form>
   );
 };

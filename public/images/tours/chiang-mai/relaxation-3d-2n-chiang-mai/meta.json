@@ -1,0 +1,22 @@
+{
+  "title_en": "Relaxation 3 days and 2 nights",
+  "title_fr": "Détente : 3 jours et 2 nuits",
+  "slug": "relaxation-3d-2n-chiang-mai",
+  "destination": "Chiang Mai",
+  "heroAlt": "Relaxation 3 days and 2 nights – hero image",
+  "credit": "Photo © Odasie / Safarine",
+  "gallery": [
+    {
+      "file": "01.webp",
+      "alt": "Relaxation 3 days and 2 nights (1)"
+    },
+    {
+      "file": "02.webp",
+      "alt": "Relaxation 3 days and 2 nights (2)"
+    },
+    {
+      "file": "03.webp",
+      "alt": "Relaxation 3 days and 2 nights (3)"
+    }
+  ]
+}

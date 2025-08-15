@@ -1,0 +1,22 @@
+{
+  "title_en": "Adventure 4 days and 3 nights",
+  "title_fr": "Aventure : 4 jours et 3 nuits",
+  "slug": "adventure-4d-3n-chiang-mai",
+  "destination": "Chiang Mai",
+  "heroAlt": "Adventure 4 days and 3 nights – hero image",
+  "credit": "Photo © Odasie / Safarine",
+  "gallery": [
+    {
+      "file": "01.webp",
+      "alt": "Adventure 4 days and 3 nights (1)"
+    },
+    {
+      "file": "02.webp",
+      "alt": "Adventure 4 days and 3 nights (2)"
+    },
+    {
+      "file": "03.webp",
+      "alt": "Adventure 4 days and 3 nights (3)"
+    }
+  ]
+}

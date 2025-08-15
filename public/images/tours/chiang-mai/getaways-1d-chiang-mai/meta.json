@@ -1,0 +1,22 @@
+{
+  "title_en": "Getaways 1 day",
+  "title_fr": "Escapade : 1 jour",
+  "slug": "getaways-1d-chiang-mai",
+  "destination": "Chiang Mai",
+  "heroAlt": "Getaways 1 day – hero image",
+  "credit": "Photo © Odasie / Safarine",
+  "gallery": [
+    {
+      "file": "01.webp",
+      "alt": "Getaways 1 day (1)"
+    },
+    {
+      "file": "02.webp",
+      "alt": "Getaways 1 day (2)"
+    },
+    {
+      "file": "03.webp",
+      "alt": "Getaways 1 day (3)"
+    }
+  ]
+}

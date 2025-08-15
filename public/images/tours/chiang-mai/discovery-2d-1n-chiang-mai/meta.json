@@ -1,0 +1,22 @@
+{
+  "title_en": "Discovery 2 days and 1 night",
+  "title_fr": "Découverte : 2 jours et 1 nuit",
+  "slug": "discovery-2d-1n-chiang-mai",
+  "destination": "Chiang Mai",
+  "heroAlt": "Discovery 2 days and 1 night – hero image",
+  "credit": "Photo © Odasie / Safarine",
+  "gallery": [
+    {
+      "file": "01.webp",
+      "alt": "Discovery 2 days and 1 night (1)"
+    },
+    {
+      "file": "02.webp",
+      "alt": "Discovery 2 days and 1 night (2)"
+    },
+    {
+      "file": "03.webp",
+      "alt": "Discovery 2 days and 1 night (3)"
+    }
+  ]
+}

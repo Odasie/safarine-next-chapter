@@ -1,0 +1,22 @@
+{
+  "title_en": "Erawan, train and boat",
+  "title_fr": "Erawan, train et bateau",
+  "slug": "erawan-train-and-boat",
+  "destination": "Kanchanaburi",
+  "heroAlt": "Erawan, train and boat – hero image",
+  "credit": "Photo © Odasie / Safarine",
+  "gallery": [
+    {
+      "file": "01.webp",
+      "alt": "Erawan, train and boat (1)"
+    },
+    {
+      "file": "02.webp",
+      "alt": "Erawan, train and boat (2)"
+    },
+    {
+      "file": "03.webp",
+      "alt": "Erawan, train and boat (3)"
+    }
+  ]
+}

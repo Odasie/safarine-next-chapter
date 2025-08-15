@@ -1,0 +1,22 @@
+{
+  "title_en": "Adventure 5 days and 4 nights",
+  "title_fr": "Aventure plus : 5 jours et 4 nuits",
+  "slug": "adventure-5d-4n-kanchanaburi",
+  "destination": "Kanchanaburi",
+  "heroAlt": "Adventure 5 days and 4 nights – hero image",
+  "credit": "Photo © Odasie / Safarine",
+  "gallery": [
+    {
+      "file": "01.webp",
+      "alt": "Adventure 5 days and 4 nights (1)"
+    },
+    {
+      "file": "02.webp",
+      "alt": "Adventure 5 days and 4 nights (2)"
+    },
+    {
+      "file": "03.webp",
+      "alt": "Adventure 5 days and 4 nights (3)"
+    }
+  ]
+}

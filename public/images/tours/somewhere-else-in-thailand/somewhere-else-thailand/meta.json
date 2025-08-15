@@ -1,0 +1,22 @@
+{
+  "title_en": "Somewhere else in Thailand",
+  "title_fr": "Ailleurs en Thaïlande...",
+  "slug": "somewhere-else-thailand",
+  "destination": "Somewhere else in Thailand",
+  "heroAlt": "Somewhere else in Thailand – hero image",
+  "credit": "Photo © Odasie / Safarine",
+  "gallery": [
+    {
+      "file": "01.webp",
+      "alt": "Somewhere else in Thailand (1)"
+    },
+    {
+      "file": "02.webp",
+      "alt": "Somewhere else in Thailand (2)"
+    },
+    {
+      "file": "03.webp",
+      "alt": "Somewhere else in Thailand (3)"
+    }
+  ]
+}

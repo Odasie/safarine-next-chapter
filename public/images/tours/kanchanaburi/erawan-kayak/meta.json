@@ -1,0 +1,22 @@
+{
+  "title_en": "Erawan & kayak",
+  "title_fr": "Erawan & kayak 1 jour",
+  "slug": "erawan-kayak",
+  "destination": "Kanchanaburi",
+  "heroAlt": "Erawan & kayak – hero image",
+  "credit": "Photo © Odasie / Safarine",
+  "gallery": [
+    {
+      "file": "01.webp",
+      "alt": "Erawan & kayak (1)"
+    },
+    {
+      "file": "02.webp",
+      "alt": "Erawan & kayak (2)"
+    },
+    {
+      "file": "03.webp",
+      "alt": "Erawan & kayak (3)"
+    }
+  ]
+}

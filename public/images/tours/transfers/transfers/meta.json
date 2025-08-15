@@ -1,0 +1,22 @@
+{
+  "title_en": "Transfers",
+  "title_fr": "Transferts",
+  "slug": "transfers",
+  "destination": "Transfers",
+  "heroAlt": "Transfers – hero image",
+  "credit": "Photo © Odasie / Safarine",
+  "gallery": [
+    {
+      "file": "01.webp",
+      "alt": "Transfers (1)"
+    },
+    {
+      "file": "02.webp",
+      "alt": "Transfers (2)"
+    },
+    {
+      "file": "03.webp",
+      "alt": "Transfers (3)"
+    }
+  ]
+}

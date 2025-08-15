@@ -1,73 +1,102 @@
-# Welcome to your Lovable project
+Got it ✅
+Here’s your **updated README.md** with your actual GitHub repository URL, plus a note that this project is **private** and belongs to the **Odasie** organization.
 
-## Project info
+---
 
-**URL**: https://lovable.dev/projects/debe0487-581e-4c00-ae86-d3b659844ea4
+# 🚀 Safarine – Next Chapter
 
-## How can I edit this code?
+Welcome to the **Safarine – Next Chapter** project repository!
+This is a **private repository** owned by the **[Odasie](https://github.com/Odasie)** organization.
 
-There are several ways of editing your application.
+🔗 **Live Project:** [View on Lovable](https://lovable.dev/projects/debe0487-581e-4c00-ae86-d3b659844ea4)
+🔒 **GitHub Repo:** [Odasie/safarine-next-chapter](https://github.com/Odasie/safarine-next-chapter.git) *(Private)*
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/debe0487-581e-4c00-ae86-d3b659844ea4) and start prompting.
+## 📂 Project Overview
 
-Changes made via Lovable will be committed automatically to this repo.
+This repository contains the source code for **Safarine – Next Chapter**, built with:
 
-**Use your preferred IDE**
+* **Vite**
+* **TypeScript**
+* **React**
+* **shadcn-ui**
+* **Tailwind CSS**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+The code can be edited directly in **Lovable**, locally in your IDE, or using **GitHub**/**Codespaces**.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 🛠 How to Edit This Project
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 1️⃣ Edit in Lovable (No setup required)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+* Go to the [Lovable Project](https://lovable.dev/projects/debe0487-581e-4c00-ae86-d3b659844ea4) page.
+* Use prompts or the Lovable editor to make changes.
+* All changes are automatically committed to this repository.
 
-# Step 3: Install the necessary dependencies.
-npm i
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### 2️⃣ Edit Locally with Your IDE
+
+Requires **Node.js** & **npm** installed.
+👉 [Install Node.js using nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+
+```bash
+# Step 1: Clone the repository (requires Odasie organization access)
+git clone https://github.com/Odasie/safarine-next-chapter.git
+
+# Step 2: Enter the project folder
+cd safarine-next-chapter
+
+# Step 3: Install dependencies
+npm install
+
+# Step 4: Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The dev server supports **auto-reloading** and **instant preview**.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+### 3️⃣ Edit Directly on GitHub
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. Open the file you want to edit in the GitHub repo.
+2. Click the ✏️ **Edit** button.
+3. Make your changes.
+4. Commit the changes.
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+### 4️⃣ Edit with GitHub Codespaces
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+1. Open the repository in GitHub.
+2. Click **Code** → **Codespaces** tab.
+3. Click **New codespace**.
+4. Edit and commit changes in the cloud IDE.
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/debe0487-581e-4c00-ae86-d3b659844ea4) and click on Share -> Publish.
+## 🌍 Deployment
 
-## Can I connect a custom domain to my Lovable project?
+To publish:
 
-Yes, you can!
+1. Open [Lovable](https://lovable.dev/projects/debe0487-581e-4c00-ae86-d3b659844ea4).
+2. Click **Share → Publish**.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🔗 Custom Domain Setup
+
+You can connect a custom domain by:
+
+1. Going to **Project → Settings → Domains** in Lovable.
+2. Clicking **Connect Domain**.
+3. Following this guide: [Custom Domain Setup](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+---
+
+## 📄 License
+
+This repository is **private** and access is restricted to members of the **Odasie** organization.

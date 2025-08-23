@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
@@ -39,7 +39,7 @@ const TourDetail = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("tours")
-        .select("price,currency,duration_days,hero_image,highlights")
+        .select("id,price,currency,duration_days,hero_image,highlights")
         .eq("page_id", page!.id as string)
         .maybeSingle();
       return data ?? null;
@@ -47,25 +47,62 @@ const TourDetail = () => {
     enabled: !!page?.id,
   });
 
-  // Fetch images for mosaic
+  // Fetch images for mosaic using the new hybrid approach
   const { data: imagesRows } = useQuery({
-    queryKey: ["images", page?.id],
+    queryKey: ["images", tourRow?.id],
     queryFn: async () => {
+      if (!tourRow?.id) return [];
+      
       const { data } = await supabase
         .from("images")
-        .select("src,alt,title")
-        .eq("page_id", page!.id as string)
+        .select(`
+          id, src, alt, alt_en, alt_fr, 
+          title, title_en, title_fr,
+          description_en, description_fr,
+          width, height, size_bytes, webp_size_kb,
+          image_type, category, subcategory,
+          position, featured, loading_strategy, priority,
+          tags, keywords_en, keywords_fr
+        `)
+        .eq("tour_id", tourRow.id)
+        .order('position', { ascending: true })
         .limit(5);
       return data ?? [];
     },
-    enabled: !!page?.id,
+    enabled: !!tourRow?.id,
   });
 
   const displayTitle = page?.title ?? localTour?.title ?? "Tour";
   const metaDesc = page?.meta_desc ?? `${localTour?.title ?? ""} – ${localTour?.location ?? ""}.`;
   const durationText = tourRow?.duration_days != null ? durationToText(tourRow.duration_days, localTour?.duration) : localTour?.duration;
   const priceText = tourRow?.price != null ? formatPrice(tourRow.price, tourRow.currency) : localTour?.price;
-  const imageList = (imagesRows && imagesRows.length > 0 ? imagesRows.map((i) => i?.src || "/placeholder.svg") : localTour?.images) ?? ["/placeholder.svg"];
+  
+  // Create ImageRecord array for the new ImageMosaic component
+  const imageRecords = useMemo(() => {
+    if (imagesRows && imagesRows.length > 0) {
+      return imagesRows;
+    }
+    
+    // Fallback to local tour images if no database images
+    if (localTour?.images && localTour.images.length > 0) {
+      return localTour.images.map((src, index) => ({
+        id: `fallback-${index}`,
+        src,
+        alt: `${localTour.title} ${index + 1}`,
+        loading_strategy: 'lazy',
+        priority: index === 0 ? 'high' : 'medium'
+      }));
+    }
+    
+    // Final fallback to placeholder
+    return [{
+      id: 'placeholder',
+      src: '/placeholder.svg',
+      alt: displayTitle,
+      loading_strategy: 'lazy',
+      priority: 'medium'
+    }];
+  }, [imagesRows, localTour, displayTitle]);
 
   const highlights = (tourRow?.highlights as any) ?? {};
   const included: string[] = Array.isArray(highlights?.included) ? highlights.included : [
@@ -138,7 +175,7 @@ const TourDetail = () => {
             </div>
           </div>
           <div>
-            <ImageMosaic images={imageList} altPrefix={displayTitle} />
+            <ImageMosaic images={imageRecords} altPrefix={displayTitle} />
           </div>
         </div>
       </header>

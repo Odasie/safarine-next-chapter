@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -40,44 +40,134 @@ export type Database = {
           },
         ]
       }
+      image_categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          slug: string
+          sort_order: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
       images: {
         Row: {
           alt: string | null
+          alt_en: string | null
+          alt_fr: string | null
+          category: string | null
           checksum: string | null
+          description_en: string | null
+          description_fr: string | null
+          featured: boolean | null
           height: number | null
           id: string
+          image_type: string | null
+          keywords_en: string[] | null
+          keywords_fr: string[] | null
+          loading_strategy: string | null
           mime_type: string | null
           page_id: string | null
+          position: number | null
+          priority: string | null
+          responsive_variant: string | null
           size_bytes: number | null
           source_url: string | null
           src: string | null
+          subcategory: string | null
+          tags: string[] | null
           title: string | null
+          title_en: string | null
+          title_fr: string | null
+          tour_id: string | null
+          updated_at: string | null
+          webp_size_kb: number | null
           width: number | null
         }
         Insert: {
           alt?: string | null
+          alt_en?: string | null
+          alt_fr?: string | null
+          category?: string | null
           checksum?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          featured?: boolean | null
           height?: number | null
           id?: string
+          image_type?: string | null
+          keywords_en?: string[] | null
+          keywords_fr?: string[] | null
+          loading_strategy?: string | null
           mime_type?: string | null
           page_id?: string | null
+          position?: number | null
+          priority?: string | null
+          responsive_variant?: string | null
           size_bytes?: number | null
           source_url?: string | null
           src?: string | null
+          subcategory?: string | null
+          tags?: string[] | null
           title?: string | null
+          title_en?: string | null
+          title_fr?: string | null
+          tour_id?: string | null
+          updated_at?: string | null
+          webp_size_kb?: number | null
           width?: number | null
         }
         Update: {
           alt?: string | null
+          alt_en?: string | null
+          alt_fr?: string | null
+          category?: string | null
           checksum?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          featured?: boolean | null
           height?: number | null
           id?: string
+          image_type?: string | null
+          keywords_en?: string[] | null
+          keywords_fr?: string[] | null
+          loading_strategy?: string | null
           mime_type?: string | null
           page_id?: string | null
+          position?: number | null
+          priority?: string | null
+          responsive_variant?: string | null
           size_bytes?: number | null
           source_url?: string | null
           src?: string | null
+          subcategory?: string | null
+          tags?: string[] | null
           title?: string | null
+          title_en?: string | null
+          title_fr?: string | null
+          tour_id?: string | null
+          updated_at?: string | null
+          webp_size_kb?: number | null
           width?: number | null
         }
         Relationships: [
@@ -86,6 +176,13 @@ export type Database = {
             columns: ["page_id"]
             isOneToOne: false
             referencedRelation: "pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "images_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
             referencedColumns: ["id"]
           },
         ]
@@ -167,41 +264,64 @@ export type Database = {
           currency: string
           duration_days: number | null
           hero_image: string | null
+          hero_image_id: string | null
           highlights: Json | null
           id: string
+          image_count: number | null
           is_private: boolean | null
           itinerary: Json | null
           page_id: string | null
           price: number | null
+          thumbnail_image_id: string | null
         }
         Insert: {
           currency?: string
           duration_days?: number | null
           hero_image?: string | null
+          hero_image_id?: string | null
           highlights?: Json | null
           id?: string
+          image_count?: number | null
           is_private?: boolean | null
           itinerary?: Json | null
           page_id?: string | null
           price?: number | null
+          thumbnail_image_id?: string | null
         }
         Update: {
           currency?: string
           duration_days?: number | null
           hero_image?: string | null
+          hero_image_id?: string | null
           highlights?: Json | null
           id?: string
+          image_count?: number | null
           is_private?: boolean | null
           itinerary?: Json | null
           page_id?: string | null
           price?: number | null
+          thumbnail_image_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "tours_hero_image_id_fkey"
+            columns: ["hero_image_id"]
+            isOneToOne: false
+            referencedRelation: "images"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tours_page_id_fkey"
             columns: ["page_id"]
             isOneToOne: false
             referencedRelation: "pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tours_thumbnail_image_id_fkey"
+            columns: ["thumbnail_image_id"]
+            isOneToOne: false
+            referencedRelation: "images"
             referencedColumns: ["id"]
           },
         ]

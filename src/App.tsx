@@ -15,6 +15,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import AdminImport from "./pages/AdminImport";
+import AdminCSVImport from "./pages/AdminCSVImport";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
                   <Route path="about" element={<About />} />
                   <Route path="contact" element={<Contact />} />
                   <Route path="admin/import" element={<AdminImport />} />
+                  <Route path="admin/csv-import" element={<AdminCSVImport />} />
                 </Route>
                 
                 {/* Default routes (redirect to French) */}
@@ -46,6 +48,7 @@ const App = () => (
                   <Route path="/about" element={<About />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/admin/import" element={<AdminImport />} />
+                  <Route path="/admin/csv-import" element={<AdminCSVImport />} />
                 </Route>
                 
                 {/* Catch-all */}

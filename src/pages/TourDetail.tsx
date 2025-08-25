@@ -19,68 +19,125 @@ const TourDetail = () => {
   // Local fallback data
   const localTour = useMemo(() => tours.find((t) => t.slug === slug), [slug]);
 
-  // Fetch page by slug
-  const { data: page } = useQuery({
-    queryKey: ["page", slug],
+  // Fetch tour data with robust slug handling
+  const { data: tour, isLoading, error } = useQuery({
+    queryKey: ["tour", slug],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("pages")
-        .select("id,title,meta_desc,meta_title,content_md,slug")
-        .eq("slug", slug as string)
-        .maybeSingle();
-      return data ?? null;
+      if (!slug) throw new Error('No slug provided');
+
+      // Create all possible slug variations to try
+      const slugVariations = [
+        slug,                           // erawan-kayak
+        `tours/${slug}`,               // tours/erawan-kayak
+        `/tours/${slug}`,              // /tours/erawan-kayak
+        `/${slug}`,                    // /erawan-kayak
+        slug.replace(/^\/+/, ''),      // Remove leading slashes
+        slug.replace(/^\/?(tours\/)?/, '') // Remove tours prefix and slashes
+      ];
+
+      // Remove duplicates
+      const uniqueSlugs = [...new Set(slugVariations)];
+
+      let tourData = null;
+      let lastError = null;
+
+      // Try each slug variation until we find a match
+      for (const slugVariant of uniqueSlugs) {
+        try {
+          const { data, error } = await supabase
+            .from('tours')
+            .select(`
+              *,
+              page:pages!tours_page_id_fkey (
+                id,
+                title,
+                slug,
+                url,
+                meta_title,
+                meta_desc,
+                content_md
+              ),
+              images:images!images_tour_id_fkey (
+                id,
+                src,
+                file_path,
+                alt_en,
+                alt_fr,
+                title_en,
+                title_fr,
+                image_type,
+                position,
+                published,
+                width,
+                height
+              ),
+              hero_image:images!tours_hero_image_id_fkey (
+                id,
+                src,
+                file_path,
+                alt_en,
+                alt_fr,
+                width,
+                height
+              ),
+              thumbnail_image:images!tours_thumbnail_image_id_fkey (
+                id,
+                src,
+                file_path,
+                alt_en,
+                alt_fr,
+                width,
+                height
+              )
+            `)
+            .eq('page.slug', slugVariant)
+            .eq('images.published', true)
+            .order('position', { foreignTable: 'images' })
+            .single();
+
+          if (data && !error) {
+            tourData = data;
+            break;
+          }
+          
+          lastError = error;
+        } catch (err) {
+          lastError = err;
+          continue;
+        }
+      }
+
+      if (!tourData) {
+        throw new Error(`Tour not found: ${slug}`);
+      }
+
+      return tourData;
     },
     enabled: !!slug,
+    retry: false,
   });
 
-  // Fetch tour row by page id
-  const { data: tourRow } = useQuery({
-    queryKey: ["tourRow", page?.id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("tours")
-        .select("id,price,currency,duration_days,hero_image,highlights")
-        .eq("page_id", page!.id as string)
-        .maybeSingle();
-      return data ?? null;
-    },
-    enabled: !!page?.id,
-  });
 
-  // Fetch images for mosaic using the new hybrid approach
-  const { data: imagesRows } = useQuery({
-    queryKey: ["images", tourRow?.id],
-    queryFn: async () => {
-      if (!tourRow?.id) return [];
-      
-      const { data } = await supabase
-        .from("images")
-        .select(`
-          id, src, alt, alt_en, alt_fr, 
-          title, title_en, title_fr,
-          description_en, description_fr,
-          width, height, size_bytes, webp_size_kb,
-          image_type, category, subcategory,
-          position, featured, loading_strategy, priority,
-          tags, keywords_en, keywords_fr
-        `)
-        .eq("tour_id", tourRow.id)
-        .order('position', { ascending: true })
-        .limit(5);
-      return data ?? [];
-    },
-    enabled: !!tourRow?.id,
-  });
-
-  const displayTitle = page?.title ?? localTour?.title ?? "Tour";
-  const metaDesc = page?.meta_desc ?? `${localTour?.title ?? ""} – ${localTour?.location ?? ""}.`;
-  const durationText = tourRow?.duration_days != null ? durationToText(tourRow.duration_days, localTour?.duration) : localTour?.duration;
-  const priceText = tourRow?.price != null ? formatPrice(tourRow.price, tourRow.currency) : localTour?.price;
+  // Process tour data with fallbacks
+  const displayTitle = tour?.page?.title ?? tour?.title_fr ?? localTour?.title ?? "Tour";
+  const metaDesc = tour?.page?.meta_desc ?? `${displayTitle} – ${tour?.destination ?? localTour?.location ?? ""}.`;
+  const durationText = tour?.duration_days != null ? durationToText(tour.duration_days, localTour?.duration) : localTour?.duration;
+  const priceText = tour?.price != null ? formatPrice(tour.price, tour.currency) : localTour?.price;
   
-  // Create ImageRecord array for the new ImageMosaic component
+  // Create ImageRecord array with proper image references
   const imageRecords = useMemo(() => {
-    if (imagesRows && imagesRows.length > 0) {
-      return imagesRows;
+    if (tour?.images && tour.images.length > 0) {
+      return tour.images
+        .filter((img: any) => img.published)
+        .map((img: any) => ({
+          id: img.id,
+          src: img.file_path || img.src || '/placeholder.svg',
+          alt: img.alt_fr || img.alt_en || `${displayTitle} ${img.position || 1}`,
+          loading_strategy: 'lazy',
+          priority: img.position === 0 ? 'high' : 'medium',
+          width: img.width,
+          height: img.height
+        }));
     }
     
     // Fallback to local tour images if no database images
@@ -102,9 +159,9 @@ const TourDetail = () => {
       loading_strategy: 'lazy',
       priority: 'medium'
     }];
-  }, [imagesRows, localTour, displayTitle]);
+  }, [tour, localTour, displayTitle]);
 
-  const highlights = (tourRow?.highlights as any) ?? {};
+  const highlights = (tour?.highlights as any) ?? {};
   const included: string[] = Array.isArray(highlights?.included) ? highlights.included : [
     "Guide local francophone",
     "Transferts mentionnés",
@@ -116,8 +173,20 @@ const TourDetail = () => {
     "Dépenses personnelles",
   ];
 
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-16">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-muted rounded w-3/4"></div>
+          <div className="h-4 bg-muted rounded w-1/2"></div>
+          <div className="h-64 bg-muted rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
   // If nothing found anywhere, show not found
-  const nothingFound = !page && !localTour;
+  const nothingFound = !tour && !localTour;
   if (nothingFound) {
     return (
       <div className="container mx-auto py-16">
@@ -151,7 +220,7 @@ const TourDetail = () => {
         <div className="mt-6 grid gap-6 md:grid-cols-3">
           <div className="md:col-span-2">
             <p className="text-muted-foreground">
-              {page?.content_md?.split("\n").find((p) => p.trim().length > 0) || metaDesc}
+              {tour?.page?.content_md?.split("\n").find((p) => p.trim().length > 0) || metaDesc}
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
               {durationText && (

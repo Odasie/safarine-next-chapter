@@ -22,3 +22,16 @@ export function extractHighlights(data?: any): Highlights {
   const excluded = Array.isArray(data?.excluded) ? data.excluded : [];
   return { included, excluded };
 }
+
+// Utility functions for robust slug handling
+export function normalizeSlug(slug: string): string {
+  if (!slug) return '';
+  
+  // Remove leading slashes and tours prefix
+  return slug.replace(/^\/?(tours\/)?/, '').trim();
+}
+
+export function createTourUrl(slug: string): string {
+  const normalizedSlug = normalizeSlug(slug);
+  return `/tours/${normalizedSlug}`;
+}

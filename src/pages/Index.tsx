@@ -5,11 +5,13 @@ import Favorites from "@/components/sections/Favorites";
 import WhySafarine from "@/components/sections/WhySafarine";
 import ContactHome from "@/components/sections/ContactHome";
 import TourCard from "@/components/tours/TourCard";
-import { tours } from "@/data/tours";
+import { useFeaturedTours } from "@/hooks/use-tours";
 import { Link } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Index = () => {
-  const featured = tours.filter((t) => t.featured);
+  const { data: featured = [], isLoading: featuredLoading } = useFeaturedTours(4);
+  
   return (
     <div>
       <Helmet>
@@ -28,18 +30,36 @@ const Index = () => {
           <Link to="/tours" className="text-primary underline-offset-4 hover:underline">Voir tous les circuits</Link>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {featured.map((t) => (
-            <Link key={t.id} to={`/tours/${t.slug}`} aria-label={`View ${t.title}`}>
-              <TourCard
-                image={t.images[0]}
-                title={t.title}
-                description={t.location}
-                duration={t.duration}
-                group={t.group}
-                price={t.price}
-              />
-            </Link>
-          ))}
+          {featuredLoading ? (
+            // Loading skeletons
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="space-y-3">
+                <Skeleton className="h-44 w-full rounded-lg" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-6 w-20" />
+                    <Skeleton className="h-6 w-16" />
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            featured.map((t) => (
+              <Link key={t.id} to={`/tours/${t.slug}`} aria-label={`View ${t.title}`}>
+                <TourCard
+                  imageRecord={t.imageRecords?.[0]}
+                  image={t.images[0]}
+                  title={t.title}
+                  description={t.location}
+                  duration={t.duration}
+                  group={t.group}
+                  price={t.price}
+                />
+              </Link>
+            ))
+          )}
         </div>
       </section>
 

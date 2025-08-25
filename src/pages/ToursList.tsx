@@ -2,23 +2,27 @@ import { Helmet } from "react-helmet-async";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import TourCard from "@/components/tours/TourCard";
-import { tours } from "@/data/tours";
+import { useTours, useCategories } from "@/hooks/use-tours";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ToursList = () => {
-  const [destination, setDestination] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [durationFilter, setDurationFilter] = useState<string>("all");
   const [q, setQ] = useState<string>("");
+
+  const { data: tours = [], isLoading: toursLoading, error: toursError } = useTours();
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
 
   const destinations = useMemo(() => {
     const set = new Set<string>(tours.map((t) => t.location).filter(Boolean));
     return ["all", ...Array.from(set)].sort();
-  }, []);
+  }, [tours]);
 
   const filtered = useMemo(() => {
     return tours.filter((t) => {
-      const byDestination = destination === "all" || t.location === destination;
+      const byCategory = categoryFilter === "all"; // For now, show all since we don't have category filtering implemented yet
       const text = `${t.title} ${t.location}`.toLowerCase();
       const bySearch = !q || text.includes(q.toLowerCase());
       const byDuration = (() => {
@@ -29,9 +33,19 @@ const ToursList = () => {
         if (durationFilter === "multi-day") return d.includes("2") || d.includes("3") || d.includes("nuit");
         return true;
       })();
-      return byDestination && bySearch && byDuration;
+      return byCategory && bySearch && byDuration;
     });
-  }, [destination, q, durationFilter]);
+  }, [tours, categoryFilter, q, durationFilter]);
+
+  if (toursError) {
+    return (
+      <div className="container mx-auto py-10">
+        <div className="text-center">
+          <p className="text-destructive">Erreur lors du chargement des circuits</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-10">
@@ -48,13 +62,14 @@ const ToursList = () => {
 
       <section aria-label="Filtres" className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <Select value={destination} onValueChange={setDestination}>
-            <SelectTrigger aria-label="Destination">
-              <SelectValue placeholder="Destination" />
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger aria-label="Catégorie">
+              <SelectValue placeholder="Catégorie" />
             </SelectTrigger>
             <SelectContent>
-              {destinations.map((d) => (
-                <SelectItem key={d} value={d}>{d === "all" ? "Toutes les destinations" : d}</SelectItem>
+              <SelectItem value="all">Toutes les catégories</SelectItem>
+              {categories.map((c) => (
+                <SelectItem key={c.id} value={c.id}>{c.name || 'Catégorie sans nom'}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -83,18 +98,40 @@ const ToursList = () => {
       </section>
 
       <section aria-label="Résultats" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {filtered.map((t) => (
-          <Link key={t.id} to={`/tours/${t.slug}`} aria-label={`Voir ${t.title}`} className="block">
-            <TourCard
-              image={t.images[0]}
-              title={t.title}
-              description={t.location}
-              duration={t.duration}
-              group={t.group}
-              price={t.price}
-            />
-          </Link>
-        ))}
+        {toursLoading ? (
+          // Loading skeletons
+          Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="h-44 w-full rounded-lg" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-6 w-20" />
+                  <Skeleton className="h-6 w-16" />
+                </div>
+              </div>
+            </div>
+          ))
+        ) : filtered.length === 0 ? (
+          <div className="col-span-full text-center py-8">
+            <p className="text-muted-foreground">Aucun circuit trouvé pour ces critères</p>
+          </div>
+        ) : (
+          filtered.map((t) => (
+            <Link key={t.id} to={`/tours/${t.slug}`} aria-label={`Voir ${t.title}`} className="block">
+              <TourCard
+                imageRecord={t.imageRecords?.[0]}
+                image={t.images[0]}
+                title={t.title}
+                description={t.location}
+                duration={t.duration}
+                group={t.group}
+                price={t.price}
+              />
+            </Link>
+          ))
+        )}
       </section>
     </div>
   );

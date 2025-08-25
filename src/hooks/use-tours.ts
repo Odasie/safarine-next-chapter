@@ -58,17 +58,24 @@ export interface SupabaseCategory {
 }
 
 export function transformTour(tour: any): TransformedTour {
-  const location = "Kanchanaburi"; // Default location for now
-  const duration = durationToText(tour.duration_days, "1 jour");
+  // Use new database fields with fallbacks
+  const location = tour.destination || "Kanchanaburi";
+  const duration = tour.duration_nights > 0 
+    ? `${tour.duration_days} jour${tour.duration_days > 1 ? 's' : ''} / ${tour.duration_nights} nuit${tour.duration_nights > 1 ? 's' : ''}`
+    : durationToText(tour.duration_days, "1 jour");
   const price = tour.price ? formatPrice(tour.price, tour.currency) : undefined;
+  
+  // Use new multilingual fields
+  const title = tour.title_fr || tour.page?.title || "Tour sans titre";
+  const groupSize = `${tour.group_size_min || 2}-${tour.group_size_max || 8}`;
   
   return {
     id: tour.id,
     slug: tour.page?.slug || tour.page?.url?.replace('/tours/', '') || tour.id,
-    title: tour.page?.title || "Tour sans titre",
+    title,
     location,
     duration,
-    group: "2-8", // Default group size
+    group: groupSize,
     price,
     images: Array.isArray(tour.images) ? tour.images.map((img: any) => img.src).filter(Boolean) : ["/placeholder.svg"],
     imageRecords: Array.isArray(tour.images) ? tour.images.map((img: any) => ({
@@ -96,8 +103,21 @@ export function useTours() {
         .select(`
           id,
           duration_days,
+          duration_nights,
           price,
           currency,
+          title_en,
+          title_fr,
+          description_en,
+          description_fr,
+          destination,
+          group_size_min,
+          group_size_max,
+          difficulty_level,
+          booking_method,
+          languages,
+          included_items,
+          excluded_items,
           page:pages(
             id,
             url,
@@ -160,8 +180,21 @@ export function useFeaturedTours(limit: number = 3) {
         .select(`
           id,
           duration_days,
+          duration_nights,
           price,
           currency,
+          title_en,
+          title_fr,
+          description_en,
+          description_fr,
+          destination,
+          group_size_min,
+          group_size_max,
+          difficulty_level,
+          booking_method,
+          languages,
+          included_items,
+          excluded_items,
           page:pages(
             id,
             url,

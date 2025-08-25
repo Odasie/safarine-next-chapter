@@ -273,46 +273,85 @@ export type Database = {
       }
       tours: {
         Row: {
+          booking_method: string | null
           currency: string
+          description_en: string | null
+          description_fr: string | null
+          destination: string | null
+          difficulty_level: string | null
           duration_days: number | null
+          duration_nights: number | null
+          excluded_items: string[] | null
+          group_size_max: number | null
+          group_size_min: number | null
           hero_image: string | null
           hero_image_id: string | null
           highlights: Json | null
           id: string
           image_count: number | null
+          included_items: string[] | null
           is_private: boolean | null
           itinerary: Json | null
+          languages: string[] | null
           page_id: string | null
           price: number | null
           thumbnail_image_id: string | null
+          title_en: string | null
+          title_fr: string | null
         }
         Insert: {
+          booking_method?: string | null
           currency?: string
+          description_en?: string | null
+          description_fr?: string | null
+          destination?: string | null
+          difficulty_level?: string | null
           duration_days?: number | null
+          duration_nights?: number | null
+          excluded_items?: string[] | null
+          group_size_max?: number | null
+          group_size_min?: number | null
           hero_image?: string | null
           hero_image_id?: string | null
           highlights?: Json | null
           id?: string
           image_count?: number | null
+          included_items?: string[] | null
           is_private?: boolean | null
           itinerary?: Json | null
+          languages?: string[] | null
           page_id?: string | null
           price?: number | null
           thumbnail_image_id?: string | null
+          title_en?: string | null
+          title_fr?: string | null
         }
         Update: {
+          booking_method?: string | null
           currency?: string
+          description_en?: string | null
+          description_fr?: string | null
+          destination?: string | null
+          difficulty_level?: string | null
           duration_days?: number | null
+          duration_nights?: number | null
+          excluded_items?: string[] | null
+          group_size_max?: number | null
+          group_size_min?: number | null
           hero_image?: string | null
           hero_image_id?: string | null
           highlights?: Json | null
           id?: string
           image_count?: number | null
+          included_items?: string[] | null
           is_private?: boolean | null
           itinerary?: Json | null
+          languages?: string[] | null
           page_id?: string | null
           price?: number | null
           thumbnail_image_id?: string | null
+          title_en?: string | null
+          title_fr?: string | null
         }
         Relationships: [
           {

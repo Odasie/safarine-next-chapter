@@ -25,93 +25,143 @@ const TourDetail = () => {
     queryFn: async () => {
       if (!slug) throw new Error('No slug provided');
 
-      // Create all possible slug variations to try
-      const slugVariations = [
-        slug,                           // erawan-kayak
-        `tours/${slug}`,               // tours/erawan-kayak
-        `/tours/${slug}`,              // /tours/erawan-kayak
-        `/${slug}`,                    // /erawan-kayak
-        slug.replace(/^\/+/, ''),      // Remove leading slashes
-        slug.replace(/^\/?(tours\/)?/, '') // Remove tours prefix and slashes
-      ];
+      const normalizedSlug = decodeURIComponent(slug);
+      
+      // Strategy 1: Find by page slug (most common case)
+      const { data: pageData } = await supabase
+        .from('pages')
+        .select(`
+          id,
+          title,
+          slug,
+          url,
+          meta_title,
+          meta_desc,
+          content_md,
+          tours:tours!tours_page_id_fkey (
+            *,
+            images:images!images_tour_id_fkey (
+              id,
+              src,
+              file_path,
+              alt_en,
+              alt_fr,
+              title_en,
+              title_fr,
+              image_type,
+              position,
+              published,
+              width,
+              height
+            )
+          )
+        `)
+        .eq('slug', `/tours/${normalizedSlug}`)
+        .maybeSingle();
 
-      // Remove duplicates
-      const uniqueSlugs = [...new Set(slugVariations)];
-
-      let tourData = null;
-      let lastError = null;
-
-      // Try each slug variation until we find a match
-      for (const slugVariant of uniqueSlugs) {
-        try {
-          const { data, error } = await supabase
-            .from('tours')
-            .select(`
-              *,
-              page:pages!tours_page_id_fkey (
-                id,
-                title,
-                slug,
-                url,
-                meta_title,
-                meta_desc,
-                content_md
-              ),
-              images:images!images_tour_id_fkey (
-                id,
-                src,
-                file_path,
-                alt_en,
-                alt_fr,
-                title_en,
-                title_fr,
-                image_type,
-                position,
-                published,
-                width,
-                height
-              ),
-              hero_image:images!tours_hero_image_id_fkey (
-                id,
-                src,
-                file_path,
-                alt_en,
-                alt_fr,
-                width,
-                height
-              ),
-              thumbnail_image:images!tours_thumbnail_image_id_fkey (
-                id,
-                src,
-                file_path,
-                alt_en,
-                alt_fr,
-                width,
-                height
-              )
-            `)
-            .eq('page.slug', slugVariant)
-            .eq('images.published', true)
-            .order('position', { foreignTable: 'images' })
-            .single();
-
-          if (data && !error) {
-            tourData = data;
-            break;
-          }
-          
-          lastError = error;
-        } catch (err) {
-          lastError = err;
-          continue;
-        }
+      if (pageData?.tours?.[0]) {
+        const tourWithPage = pageData.tours[0];
+        (tourWithPage as any).page = {
+          id: pageData.id,
+          title: pageData.title,
+          slug: pageData.slug,
+          url: pageData.url,
+          meta_title: pageData.meta_title,
+          meta_desc: pageData.meta_desc,
+          content_md: pageData.content_md
+        };
+        return tourWithPage;
       }
 
-      if (!tourData) {
-        throw new Error(`Tour not found: ${slug}`);
+      // Strategy 2: Try without leading slash
+      const { data: pageData2 } = await supabase
+        .from('pages')
+        .select(`
+          id,
+          title,
+          slug,
+          url,
+          meta_title,
+          meta_desc,
+          content_md,
+          tours:tours!tours_page_id_fkey (
+            *,
+            images:images!images_tour_id_fkey (
+              id,
+              src,
+              file_path,
+              alt_en,
+              alt_fr,
+              title_en,
+              title_fr,
+              image_type,
+              position,
+              published,
+              width,
+              height
+            )
+          )
+        `)
+        .eq('slug', `tours/${normalizedSlug}`)
+        .maybeSingle();
+
+      if (pageData2?.tours?.[0]) {
+        const tourWithPage = pageData2.tours[0];
+        (tourWithPage as any).page = {
+          id: pageData2.id,
+          title: pageData2.title,
+          slug: pageData2.slug,
+          url: pageData2.url,
+          meta_title: pageData2.meta_title,
+          meta_desc: pageData2.meta_desc,
+          content_md: pageData2.content_md
+        };
+        return tourWithPage;
       }
 
-      return tourData;
+      // Strategy 3: Search by tour title (fallback)
+      const searchTitle = normalizedSlug
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+      
+      const { data: tourByTitle } = await supabase
+        .from('tours')
+        .select(`
+          *,
+          page:pages!tours_page_id_fkey (
+            id,
+            title,
+            slug,
+            url,
+            meta_title,
+            meta_desc,
+            content_md
+          ),
+          images:images!images_tour_id_fkey (
+            id,
+            src,
+            file_path,
+            alt_en,
+            alt_fr,
+            title_en,
+            title_fr,
+            image_type,
+            position,
+            published,
+            width,
+            height
+          )
+        `)
+        .or(`title_fr.ilike.%${searchTitle}%,title_en.ilike.%${searchTitle}%`)
+        .limit(1)
+        .maybeSingle();
+
+      if (tourByTitle) {
+        return tourByTitle;
+      }
+
+      throw new Error(`Tour not found: ${slug}`);
     },
     enabled: !!slug,
     retry: false,
@@ -119,8 +169,9 @@ const TourDetail = () => {
 
 
   // Process tour data with fallbacks
-  const displayTitle = tour?.page?.title ?? tour?.title_fr ?? localTour?.title ?? "Tour";
-  const metaDesc = tour?.page?.meta_desc ?? `${displayTitle} – ${tour?.destination ?? localTour?.location ?? ""}.`;
+  const pageData = (tour as any)?.page;
+  const displayTitle = pageData?.title ?? tour?.title_fr ?? localTour?.title ?? "Tour";
+  const metaDesc = pageData?.meta_desc ?? `${displayTitle} – ${tour?.destination ?? localTour?.location ?? ""}.`;
   const durationText = tour?.duration_days != null ? durationToText(tour.duration_days, localTour?.duration) : localTour?.duration;
   const priceText = tour?.price != null ? formatPrice(tour.price, tour.currency) : localTour?.price;
   
@@ -176,22 +227,45 @@ const TourDetail = () => {
   if (isLoading) {
     return (
       <div className="container mx-auto py-16">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-muted rounded w-3/4"></div>
-          <div className="h-4 bg-muted rounded w-1/2"></div>
+        <div className="animate-pulse space-y-6">
+          <div className="space-y-2">
+            <div className="h-8 bg-muted rounded w-3/4"></div>
+            <div className="h-4 bg-muted rounded w-1/2"></div>
+          </div>
           <div className="h-64 bg-muted rounded"></div>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="h-32 bg-muted rounded"></div>
+            <div className="h-32 bg-muted rounded"></div>  
+            <div className="h-32 bg-muted rounded"></div>
+          </div>
+        </div>
+        <div className="text-center mt-8">
+          <p className="text-muted-foreground">Chargement du tour...</p>
         </div>
       </div>
     );
   }
 
-  // If nothing found anywhere, show not found
+  // Enhanced error handling with better French UX
   const nothingFound = !tour && !localTour;
   if (nothingFound) {
     return (
-      <div className="container mx-auto py-16">
-        <h1 className="text-3xl font-bold">Tour introuvable</h1>
-        <p className="text-muted-foreground">Veuillez revenir à la liste.</p>
+      <div className="container mx-auto py-16 text-center">
+        <div className="max-w-md mx-auto">
+          <h1 className="text-3xl font-bold text-foreground mb-4">Tour introuvable</h1>
+          <p className="text-muted-foreground mb-6">
+            Désolé, nous n'avons pas trouvé le tour "{slug}". 
+            Il a peut-être été déplacé ou n'existe plus.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button asChild>
+              <Link to="/tours">Voir tous les tours</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/">Retour à l'accueil</Link>
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -220,7 +294,7 @@ const TourDetail = () => {
         <div className="mt-6 grid gap-6 md:grid-cols-3">
           <div className="md:col-span-2">
             <p className="text-muted-foreground">
-              {tour?.page?.content_md?.split("\n").find((p) => p.trim().length > 0) || metaDesc}
+              {pageData?.content_md?.split("\n").find((p) => p.trim().length > 0) || metaDesc}
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
               {durationText && (

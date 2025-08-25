@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface ResponsiveImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -26,6 +26,9 @@ const ResponsiveImage = React.forwardRef<HTMLImageElement, ResponsiveImageProps>
     className,
     ...props 
   }, ref) => {
+    const [imageSrc, setImageSrc] = useState(src);
+    const [hasError, setHasError] = useState(false);
+
     // Determine loading strategy
     const loading = loadingStrategy === 'auto' 
       ? (priority === 'high' ? 'eager' : 'lazy') 
@@ -34,38 +37,39 @@ const ResponsiveImage = React.forwardRef<HTMLImageElement, ResponsiveImageProps>
     // Convert priority to fetchPriority (HTML standard only supports 'high', 'low', 'auto')
     const fetchPriority = priority === 'medium' ? 'auto' : priority;
 
-    // Generate srcset for different densities
-    const generateSrcSet = (baseSrc: string) => {
-      const extension = baseSrc.split('.').pop() || 'jpg';
-      const baseName = baseSrc.replace(`.${extension}`, '');
-      
-      return [
-        `${baseSrc} 1x`,
-        `${baseName}_2x.${extension} 2x`
-      ].join(', ');
+    // Clean src to prevent 2x variant requests that cause 404s
+    const cleanSrc = imageSrc?.replace(/_2x\.webp$/, '.webp') || '/placeholder.svg';
+    const cleanWebpSrc = webpSrc?.replace(/_2x\.webp$/, '.webp');
+
+    const handleError = () => {
+      if (!hasError) {
+        setHasError(true);
+        // Don't try 2x variants, go straight to placeholder
+        setImageSrc('/placeholder.svg');
+      }
     };
 
     return (
       <picture>
-        {webpSrc && (
+        {cleanWebpSrc && (
           <source
-            srcSet={generateSrcSet(webpSrc)}
+            srcSet={cleanWebpSrc}
             sizes={sizes}
             type="image/webp"
           />
         )}
         <img
           ref={ref}
-          src={src}
+          src={cleanSrc}
           alt={alt}
           width={width}
           height={height}
           sizes={sizes}
-          srcSet={generateSrcSet(src)}
           loading={loading}
           decoding={priority === 'high' ? 'sync' : 'async'}
           fetchPriority={fetchPriority}
           className={cn("transition-opacity duration-300", className)}
+          onError={handleError}
           {...props}
         />
       </picture>

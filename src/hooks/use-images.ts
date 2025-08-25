@@ -1,114 +1,161 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+// Enhanced Image data structure for 117-image system
 export interface ImageRecord {
-  id: string;
-  src: string;
-  alt?: string;
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+  
+  // Core image data
+  file_path?: string;
+  file_name?: string;
+  src?: string;
+  width?: number;
+  height?: number;
+  file_size_kb?: number;
+  webp_size_kb?: number;
+  
+  // Categorization
+  category?: string;
+  subcategory?: string;
+  image_type?: string;
+  
+  // Multilingual content (required)
   alt_en?: string;
   alt_fr?: string;
-  title?: string;
   title_en?: string;
   title_fr?: string;
   description_en?: string;
   description_fr?: string;
-  width?: number;
-  height?: number;
-  size_bytes?: number;
-  webp_size_kb?: number;
-  image_type?: string; // Will be validated by DB constraint but comes as string
-  category?: string;
-  subcategory?: string;
-  position?: number;
-  featured?: boolean;
-  loading_strategy?: string; // Will be validated by DB constraint
-  priority?: string; // Will be validated by DB constraint
-  tags?: string[];
+  
+  // SEO and metadata
   keywords_en?: string[];
   keywords_fr?: string[];
+  tags?: string[];
+  
+  // Display and behavior
+  position?: number;
+  featured?: boolean;
+  loading_strategy?: string;
+  priority?: string;
+  responsive_variant?: string; // 'desktop', 'mobile', 'retina' (no tablet)
+  usage_context?: string[];
+  
+  // Relationships
   tour_id?: string;
   page_id?: string;
+  
+  // Workflow management (NEW)
+  published?: boolean;
+  comments?: string;
+  
+  // Legacy fields for compatibility
+  alt?: string;
+  title?: string;
+  description?: string;
+  size_bytes?: number;
 }
 
-// Get images for a specific tour using the new tour_id field
-export const useTourImages = (tourId: string, imageType?: string) => {
+// Fetch images for a specific tour with published/draft filtering
+export const useTourImages = (tourId: string, imageType?: string, publishedOnly: boolean = true) => {
   return useQuery({
-    queryKey: ['tour-images', tourId, imageType],
-    queryFn: async (): Promise<ImageRecord[]> => {
+    queryKey: ['tour-images', tourId, imageType, publishedOnly],
+    queryFn: async () => {
+      console.log(`Fetching images for tour: ${tourId}, type: ${imageType}, publishedOnly: ${publishedOnly}`);
+      
       let query = supabase
         .from('images')
         .select('*')
-        .eq('tour_id', tourId)
-        .order('position', { ascending: true });
-
+        .eq('tour_id', tourId);
+      
       if (imageType) {
         query = query.eq('image_type', imageType);
       }
-
-      const { data, error } = await query;
-
+      
+      if (publishedOnly) {
+        query = query.eq('published', true);
+      }
+      
+      const { data, error } = await query.order('position');
+      
       if (error) {
         console.error('Error fetching tour images:', error);
         throw error;
       }
-
-      return data || [];
+      
+      console.log(`Found ${data?.length || 0} images for tour ${tourId}`);
+      return data as ImageRecord[];
     },
     enabled: !!tourId,
   });
 };
 
-// Get global images using page_id or category
-export const useGlobalImages = (pageId?: string, category?: string) => {
+// Fetch global images with published/draft filtering
+export const useGlobalImages = (pageId?: string, category?: string, publishedOnly: boolean = true) => {
   return useQuery({
-    queryKey: ['global-images', pageId, category],
-    queryFn: async (): Promise<ImageRecord[]> => {
+    queryKey: ['global-images', pageId, category, publishedOnly],
+    queryFn: async () => {
+      console.log(`Fetching global images - pageId: ${pageId}, category: ${category}, publishedOnly: ${publishedOnly}`);
+      
       let query = supabase
         .from('images')
         .select('*')
-        .order('priority', { ascending: false })
-        .order('position', { ascending: true });
-
+        .is('tour_id', null); // Global images have no tour_id
+      
       if (pageId) {
         query = query.eq('page_id', pageId);
       } else if (category) {
         query = query.eq('category', category);
       } else {
-        // Get truly global images (no tour_id or page_id)
-        query = query.is('tour_id', null).is('page_id', null);
+        // Truly global images - no page_id and no tour_id
+        query = query.is('page_id', null);
       }
-
-      const { data, error } = await query;
-
+      
+      if (publishedOnly) {
+        query = query.eq('published', true);
+      }
+      
+      const { data, error } = await query.order('position');
+      
       if (error) {
         console.error('Error fetching global images:', error);
         throw error;
       }
-
-      return data || [];
+      
+      console.log(`Found ${data?.length || 0} global images`);
+      return data as ImageRecord[];
     },
   });
 };
 
-// Get featured images across the site
-export const useFeaturedImages = (limit: number = 10) => {
+// Fetch featured images (published only)
+export const useFeaturedImages = (limit: number = 10, publishedOnly: boolean = true) => {
   return useQuery({
-    queryKey: ['featured-images', limit],
-    queryFn: async (): Promise<ImageRecord[]> => {
-      const { data, error } = await supabase
+    queryKey: ['featured-images', limit, publishedOnly],
+    queryFn: async () => {
+      console.log(`Fetching ${limit} featured images, publishedOnly: ${publishedOnly}`);
+      
+      let query = supabase
         .from('images')
         .select('*')
-        .eq('featured', true)
-        .order('priority', { ascending: false })
-        .order('position', { ascending: true })
+        .eq('featured', true);
+      
+      if (publishedOnly) {
+        query = query.eq('published', true);
+      }
+      
+      const { data, error } = await query
+        .order('position')
         .limit(limit);
-
+      
       if (error) {
         console.error('Error fetching featured images:', error);
         throw error;
       }
-
-      return data || [];
+      
+      console.log(`Found ${data?.length || 0} featured images`);
+      return data as ImageRecord[];
     },
   });
 };
@@ -154,18 +201,54 @@ export const shouldEagerLoad = (image: ImageRecord): boolean => {
          image.featured === true;
 };
 
-// Helper function to get safe loading strategy
+// Get responsive variants (no tablet support in 117-image system)
+export const getSafeResponsiveVariant = (variant?: string): 'desktop' | 'mobile' | 'retina' => {
+  if (!variant) return 'desktop';
+  if (['desktop', 'mobile', 'retina'].includes(variant)) {
+    return variant as 'desktop' | 'mobile' | 'retina';
+  }
+  return 'desktop';
+};
+
 export const getSafeLoadingStrategy = (strategy?: string): 'eager' | 'lazy' | 'auto' => {
-  if (strategy === 'eager' || strategy === 'lazy' || strategy === 'auto') {
-    return strategy;
+  if (!strategy) return 'lazy';
+  if (['eager', 'lazy', 'auto'].includes(strategy)) {
+    return strategy as 'eager' | 'lazy' | 'auto';
   }
   return 'lazy';
 };
 
-// Helper function to get safe priority
 export const getSafePriority = (priority?: string): 'high' | 'medium' | 'low' => {
-  if (priority === 'high' || priority === 'medium' || priority === 'low') {
-    return priority;
+  if (!priority) return 'medium';
+  if (['high', 'medium', 'low'].includes(priority)) {
+    return priority as 'high' | 'medium' | 'low';
   }
   return 'medium';
+};
+
+// CSV Import hook
+export const useCSVImport = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ csvData, dryRun = false }: { csvData: string; dryRun?: boolean }) => {
+      console.log('Starting CSV import...');
+      
+      const { data, error } = await supabase.functions.invoke('csv-import-images', {
+        body: { csvData, dryRun }
+      });
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      if (!data.dryRun) {
+        // Invalidate all image queries to refresh data
+        queryClient.invalidateQueries({ queryKey: ['tour-images'] });
+        queryClient.invalidateQueries({ queryKey: ['global-images'] });
+        queryClient.invalidateQueries({ queryKey: ['featured-images'] });
+      }
+      console.log('CSV import completed:', data);
+    },
+  });
 };

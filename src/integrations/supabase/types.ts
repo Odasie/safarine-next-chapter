@@ -73,13 +73,16 @@ export type Database = {
       images: {
         Row: {
           alt: string | null
-          alt_en: string | null
-          alt_fr: string | null
+          alt_en: string
+          alt_fr: string
           category: string | null
           checksum: string | null
+          comments: string | null
           description_en: string | null
           description_fr: string | null
           featured: boolean | null
+          file_name: string | null
+          file_path: string | null
           height: number | null
           id: string
           image_type: string | null
@@ -90,6 +93,7 @@ export type Database = {
           page_id: string | null
           position: number | null
           priority: string | null
+          published: boolean | null
           responsive_variant: string | null
           size_bytes: number | null
           source_url: string | null
@@ -106,13 +110,16 @@ export type Database = {
         }
         Insert: {
           alt?: string | null
-          alt_en?: string | null
-          alt_fr?: string | null
+          alt_en: string
+          alt_fr: string
           category?: string | null
           checksum?: string | null
+          comments?: string | null
           description_en?: string | null
           description_fr?: string | null
           featured?: boolean | null
+          file_name?: string | null
+          file_path?: string | null
           height?: number | null
           id?: string
           image_type?: string | null
@@ -123,6 +130,7 @@ export type Database = {
           page_id?: string | null
           position?: number | null
           priority?: string | null
+          published?: boolean | null
           responsive_variant?: string | null
           size_bytes?: number | null
           source_url?: string | null
@@ -139,13 +147,16 @@ export type Database = {
         }
         Update: {
           alt?: string | null
-          alt_en?: string | null
-          alt_fr?: string | null
+          alt_en?: string
+          alt_fr?: string
           category?: string | null
           checksum?: string | null
+          comments?: string | null
           description_en?: string | null
           description_fr?: string | null
           featured?: boolean | null
+          file_name?: string | null
+          file_path?: string | null
           height?: number | null
           id?: string
           image_type?: string | null
@@ -156,6 +167,7 @@ export type Database = {
           page_id?: string | null
           position?: number | null
           priority?: string | null
+          published?: boolean | null
           responsive_variant?: string | null
           size_bytes?: number | null
           source_url?: string | null
@@ -331,7 +343,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      validate_117_image_system: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          actual: number
+          check_name: string
+          expected: number
+          status: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

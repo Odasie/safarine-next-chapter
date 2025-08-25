@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.optimize-images]
 verify_jwt = false
+
+[functions.csv-import-images]
+verify_jwt = false

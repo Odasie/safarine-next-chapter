@@ -15,7 +15,7 @@ export interface SupabaseTour {
   } | null;
   images?: Array<{
     id: string;
-    src: string | null;
+    file_path: string | null;
     alt_fr: string;
     alt_en: string;
     title_fr: string | null;
@@ -69,20 +69,18 @@ export function transformTour(tour: any): TransformedTour {
   const title = tour.title_fr || tour.page?.title || "Tour sans titre";
   const groupSize = `${tour.group_size_min || 2}-${tour.group_size_max || 8}`;
   
-  // Get images with proper fallbacks using the new hero_image_id and thumbnail_image_id
-  const heroImage = tour.hero_image?.file_path || tour.hero_image?.src ||
+  // Get images with proper fallbacks using file_path only
+  const heroImage = tour.hero_image?.file_path ||
                    tour.images?.find((img: any) => img.image_type === 'hero')?.file_path ||
-                   tour.images?.find((img: any) => img.image_type === 'hero')?.src ||
                    '/placeholder.svg';
                    
-  const thumbnailImage = tour.thumbnail_image?.file_path || tour.thumbnail_image?.src ||
+  const thumbnailImage = tour.thumbnail_image?.file_path ||
                         tour.images?.find((img: any) => img.image_type === 'thumbnail')?.file_path ||
-                        tour.images?.find((img: any) => img.image_type === 'thumbnail')?.src ||
                         heroImage;
                         
   const galleryImages = tour.images?.filter((img: any) => 
     img.image_type === 'gallery' && img.published !== false
-  ).map((img: any) => img.file_path || img.src).filter(Boolean) || [];
+  ).map((img: any) => img.file_path).filter(Boolean) || [];
   
   // Create normalized slug for consistent routing
   const rawSlug = tour.page?.slug || tour.page?.url || tour.id;
@@ -98,7 +96,7 @@ export function transformTour(tour: any): TransformedTour {
     price,
     images: [heroImage, thumbnailImage, ...galleryImages].filter(Boolean),
     imageRecords: Array.isArray(tour.images) ? tour.images.map((img: any) => ({
-      src: img.file_path || img.src || "/placeholder.svg",
+      src: img.file_path || "/placeholder.svg",
       alt_fr: img.alt_fr,
       alt_en: img.alt_en,
       title_fr: img.title_fr || undefined,
@@ -145,7 +143,6 @@ export function useTours() {
           ),
           images!tour_id(
             id,
-            src,
             file_path,
             alt_fr,
             alt_en,
@@ -161,14 +158,12 @@ export function useTours() {
           ),
           hero_image:images!tours_hero_image_id_fkey (
             id,
-            src,
             file_path,
             alt_en,
             alt_fr
           ),
           thumbnail_image:images!tours_thumbnail_image_id_fkey (
             id,
-            src,
             file_path,
             alt_en,
             alt_fr
@@ -239,7 +234,6 @@ export function useFeaturedTours(limit: number = 3) {
           ),
           images!tour_id(
             id,
-            src,
             file_path,
             alt_fr,
             alt_en,
@@ -255,14 +249,12 @@ export function useFeaturedTours(limit: number = 3) {
           ),
           hero_image:images!tours_hero_image_id_fkey (
             id,
-            src,
             file_path,
             alt_en,
             alt_fr
           ),
           thumbnail_image:images!tours_thumbnail_image_id_fkey (
             id,
-            src,
             file_path,
             alt_en,
             alt_fr

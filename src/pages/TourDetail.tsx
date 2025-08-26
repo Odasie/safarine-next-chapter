@@ -42,7 +42,6 @@ const TourDetail = () => {
             *,
             images:images!images_tour_id_fkey (
               id,
-              src,
               file_path,
               alt_en,
               alt_fr,
@@ -88,7 +87,6 @@ const TourDetail = () => {
             *,
             images:images!images_tour_id_fkey (
               id,
-              src,
               file_path,
               alt_en,
               alt_fr,
@@ -140,7 +138,6 @@ const TourDetail = () => {
           ),
           images:images!images_tour_id_fkey (
             id,
-            src,
             file_path,
             alt_en,
             alt_fr,
@@ -182,7 +179,7 @@ const TourDetail = () => {
         .filter((img: any) => img.published)
         .map((img: any) => ({
           id: img.id,
-          src: img.file_path || img.src || '/placeholder.svg',
+          src: img.file_path || '/placeholder.svg',
           alt: img.alt_fr || img.alt_en || `${displayTitle} ${img.position || 1}`,
           loading_strategy: 'lazy',
           priority: img.position === 0 ? 'high' : 'medium',

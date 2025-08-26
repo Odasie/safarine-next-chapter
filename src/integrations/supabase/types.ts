@@ -282,6 +282,7 @@ export type Database = {
           duration_days: number | null
           duration_nights: number | null
           excluded_items: string[] | null
+          gallery_images: number | null
           group_size_max: number | null
           group_size_min: number | null
           hero_image: string | null
@@ -295,9 +296,12 @@ export type Database = {
           languages: string[] | null
           page_id: string | null
           price: number | null
+          slug_en: string | null
+          slug_fr: string | null
           thumbnail_image_id: string | null
           title_en: string | null
           title_fr: string | null
+          total_images: number | null
         }
         Insert: {
           booking_method?: string | null
@@ -309,6 +313,7 @@ export type Database = {
           duration_days?: number | null
           duration_nights?: number | null
           excluded_items?: string[] | null
+          gallery_images?: number | null
           group_size_max?: number | null
           group_size_min?: number | null
           hero_image?: string | null
@@ -322,9 +327,12 @@ export type Database = {
           languages?: string[] | null
           page_id?: string | null
           price?: number | null
+          slug_en?: string | null
+          slug_fr?: string | null
           thumbnail_image_id?: string | null
           title_en?: string | null
           title_fr?: string | null
+          total_images?: number | null
         }
         Update: {
           booking_method?: string | null
@@ -336,6 +344,7 @@ export type Database = {
           duration_days?: number | null
           duration_nights?: number | null
           excluded_items?: string[] | null
+          gallery_images?: number | null
           group_size_max?: number | null
           group_size_min?: number | null
           hero_image?: string | null
@@ -349,9 +358,12 @@ export type Database = {
           languages?: string[] | null
           page_id?: string | null
           price?: number | null
+          slug_en?: string | null
+          slug_fr?: string | null
           thumbnail_image_id?: string | null
           title_en?: string | null
           title_fr?: string | null
+          total_images?: number | null
         }
         Relationships: [
           {
@@ -382,6 +394,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_slug: {
+        Args: { title: string }
+        Returns: string
+      }
       validate_117_image_system: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -389,6 +405,14 @@ export type Database = {
           check_name: string
           expected: number
           status: string
+        }[]
+      }
+      validate_tour_completeness: {
+        Args: { tour_uuid: string }
+        Returns: {
+          message: string
+          status: string
+          validation_check: string
         }[]
       }
     }

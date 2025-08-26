@@ -82,15 +82,13 @@ export function transformTour(tour: any): TransformedTour {
                    tour.images?.find((img: any) => img.image_type === 'hero')?.file_path ||
                    '/placeholder.svg';
                    
-  // Prioritize gallery thumbnails for specific tours, fallback to main thumbnail
-  const galleryThumbnail = tour.images?.find((img: any) => 
-    img.image_type === 'gallery' && img.file_path?.includes('-thumb.webp')
-  )?.file_path;
-  
-  const thumbnailImage = galleryThumbnail ||
-                        tour.thumbnail_image?.file_path ||
-                        tour.images?.find((img: any) => img.image_type === 'thumbnail')?.file_path ||
-                        heroImage;
+  // Prioritize main thumbnail from database reference
+  const thumbnailImage = tour.thumbnail_image?.file_path ||
+                         tour.images?.find((img: any) => 
+                           img.image_type === 'thumbnail' && 
+                           img.file_path?.includes('-thumbnail.webp')
+                         )?.file_path ||
+                         heroImage;
                         
   const galleryImages = tour.images?.filter((img: any) => 
     img.image_type === 'gallery' && img.published !== false

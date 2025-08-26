@@ -128,6 +128,7 @@ const ToursList = () => {
                 duration={t.duration}
                 group={t.group}
                 price={t.price}
+                slug={t.slug}
               />
             </Link>
           ))

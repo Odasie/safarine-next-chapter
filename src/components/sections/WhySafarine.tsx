@@ -1,3 +1,6 @@
+
+import { ResponsiveImage } from "@/components/ui/responsive-image";
+
 const WhySafarine = () => {
   return (
     <section aria-labelledby="why-title">
@@ -14,7 +17,13 @@ const WhySafarine = () => {
             Depuis 1995, Safarine Tours organise des tours privés, des treks, des balades en kayak en Thaïlande. Nous proposons des expériences sur mesure, loin du tourisme de masse, en harmonie avec la nature et les habitants.
           </p>
         </div>
-        <img src="/placeholder.svg" alt="Train longeant une falaise en Thaïlande" className="h-64 w-full rounded-xl object-cover shadow" loading="lazy" />
+        <ResponsiveImage 
+          src="/images/sections/why-safarine.webp"
+          alt="Train longeant une falaise en Thaïlande" 
+          className="h-64 w-full rounded-xl object-cover shadow"
+          loading="lazy"
+          sizes="(max-width: 768px) 100vw, 50vw"
+        />
       </div>
     </section>
   );

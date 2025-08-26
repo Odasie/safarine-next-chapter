@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -39,6 +40,13 @@ const ResponsiveImage = React.forwardRef<HTMLImageElement, ResponsiveImageProps>
     
     const [imageSrc, setImageSrc] = useState(currentSrc);
     const [hasError, setHasError] = useState(false);
+
+    // Update image source when screen size changes
+    useEffect(() => {
+      if (!hasError) {
+        setImageSrc(currentSrc);
+      }
+    }, [currentSrc, hasError]);
 
     // Determine loading strategy
     const loading = loadingStrategy === 'auto' 

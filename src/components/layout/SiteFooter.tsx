@@ -1,11 +1,15 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Mail } from "lucide-react";
+import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 const SiteFooter = () => {
   return <footer className="bg-accent text-accent-foreground mt-12" role="contentinfo">
       <div className="container mx-auto grid gap-8 py-10 md:grid-cols-4">
         <div>
           <Link to="/" className="flex items-center gap-3" aria-label="Safarine Tours home">
-            <img src="/lovable-uploads/2d6b3de1-d290-4fbf-a4b8-20ae81812df2.png" alt="Safarine Tours — Private Tours Thailand logo" className="h-8 w-auto md:h-10" width="162" height="52" />
+            <ResponsiveLogo 
+              className="h-6 md:h-8" 
+              theme="light" 
+            />
             <div className="leading-tight">
               
               <span className="block text-xs opacity-90">Private Tours Thailand</span>

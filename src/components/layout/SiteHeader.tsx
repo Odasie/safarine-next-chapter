@@ -2,6 +2,7 @@ import { Link, NavLink } from "react-router-dom";
 import { Search } from "lucide-react";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { CurrencySwitcher } from "@/components/ui/currency-switcher";
+import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { useLocale } from "@/contexts/LocaleContext";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -20,12 +21,9 @@ const SiteHeader = () => {
     <header data-fallback="1" className="sticky top-0 z-40 w-full border-b bg-primary text-primary-foreground">
       <div className="container mx-auto flex h-16 items-center justify-between">
         <Link to={getLocalizedPath("/")} className="flex items-center gap-3" aria-label="Safarine Tours home">
-          <img
-            src="/lovable-uploads/2d6b3de1-d290-4fbf-a4b8-20ae81812df2.png"
-            alt="Safarine Tours — Private Tours Thailand logo"
-            className="h-8 w-auto md:h-10"
-            width="162"
-            height="52"
+          <ResponsiveLogo 
+            className="h-8 md:h-10" 
+            theme="light" 
           />
           <span className="sr-only">SAFARINE • Private Tours Thailand</span>
         </Link>

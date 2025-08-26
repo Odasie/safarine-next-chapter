@@ -4,9 +4,17 @@ import { formatPrice, durationToText } from "@/lib/tours";
 
 export interface SupabaseTour {
   id: string;
+  title_en: string | null;
+  title_fr: string | null;
+  slug_en: string | null;
+  slug_fr: string | null;
+  destination: string | null;
   duration_days: number | null;
+  duration_nights: number | null;
   price: number | null;
   currency: string;
+  total_images: number | null;
+  gallery_images: number | null;
   page?: {
     id: string;
     url: string;
@@ -82,8 +90,8 @@ export function transformTour(tour: any): TransformedTour {
     img.image_type === 'gallery' && img.published !== false
   ).map((img: any) => img.file_path).filter(Boolean) || [];
   
-  // Create normalized slug for consistent routing
-  const rawSlug = tour.page?.slug || tour.page?.url || tour.id;
+  // Create normalized slug for consistent routing - use new slug fields first
+  const rawSlug = tour.slug_fr || tour.slug_en || tour.page?.slug || tour.page?.url || tour.id;
   const normalizedSlug = rawSlug?.replace(/^\/?(tours\/)?/, '') || tour.id;
   
   return {
@@ -125,6 +133,8 @@ export function useTours() {
           currency,
           title_en,
           title_fr,
+          slug_en,
+          slug_fr,
           description_en,
           description_fr,
           destination,
@@ -135,6 +145,8 @@ export function useTours() {
           languages,
           included_items,
           excluded_items,
+          total_images,
+          gallery_images,
           page:pages(
             id,
             url,
@@ -216,6 +228,8 @@ export function useFeaturedTours(limit: number = 3) {
           currency,
           title_en,
           title_fr,
+          slug_en,
+          slug_fr,
           description_en,
           description_fr,
           destination,
@@ -226,6 +240,8 @@ export function useFeaturedTours(limit: number = 3) {
           languages,
           included_items,
           excluded_items,
+          total_images,
+          gallery_images,
           page:pages(
             id,
             url,

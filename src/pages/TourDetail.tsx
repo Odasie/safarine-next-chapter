@@ -19,7 +19,7 @@ const TourDetail = () => {
   // Local fallback data
   const localTour = useMemo(() => tours.find((t) => t.slug === slug), [slug]);
 
-  // Fetch tour data with robust slug handling
+  // Fetch tour data with robust slug handling using new slug system
   const { data: tour, isLoading, error } = useQuery({
     queryKey: ["tour", slug],
     queryFn: async () => {
@@ -27,7 +27,41 @@ const TourDetail = () => {
 
       const normalizedSlug = decodeURIComponent(slug);
       
-      // Strategy 1: Find by page slug (most common case)
+      // Strategy 1: Try to find by new slug fields first (most efficient)
+      const { data: slugData } = await supabase
+        .from('tours')
+        .select(`
+          *,
+          images:images!images_tour_id_fkey (
+            id,
+            file_path,
+            alt_en,
+            alt_fr,
+            title_en,
+            title_fr,
+            image_type,
+            position,
+            published,
+            width,
+            height
+          ),
+          page:pages!pages_id_fkey (
+            title,
+            slug,
+            url,
+            meta_title,
+            meta_desc,
+            content_md
+          )
+        `)
+        .or(`slug_en.eq.${normalizedSlug},slug_fr.eq.${normalizedSlug}`)
+        .maybeSingle();
+
+      if (slugData) {
+        return slugData;
+      }
+
+      // Strategy 2: Find by page slug (legacy support)
       const { data: pageData } = await supabase
         .from('pages')
         .select(`

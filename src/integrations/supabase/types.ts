@@ -394,9 +394,42 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_tour_image: {
+        Args: {
+          alt_en_param: string
+          alt_fr_param: string
+          file_path_param: string
+          image_type_param: string
+          position_param?: number
+          title_en_param?: string
+          title_fr_param?: string
+          tour_id_param: string
+        }
+        Returns: string
+      }
+      create_new_tour: {
+        Args: {
+          currency_param?: string
+          destination_param?: string
+          duration_days_param?: number
+          duration_nights_param?: number
+          price_param?: number
+          title_en_param: string
+          title_fr_param: string
+        }
+        Returns: string
+      }
       generate_slug: {
         Args: { title: string }
         Returns: string
+      }
+      get_tour_statistics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          count_value: number
+          stat_name: string
+          status: string
+        }[]
       }
       validate_117_image_system: {
         Args: Record<PropertyKey, never>

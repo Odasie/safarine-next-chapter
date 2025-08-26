@@ -36,8 +36,21 @@ const TourCard = ({
 
   // Use imageRecord if available, otherwise fall back to simple image string
   // Clean image paths to prevent 2x requests that cause 404s
-  const rawImageSrc = imageRecord?.src || image || "/placeholder.svg";
-  const imageSrc = rawImageSrc?.replace(/_2x\.webp$/, '.webp') || "/placeholder.svg";
+  const rawImageSrc = imageRecord?.src || image;
+  
+  // Try multiple fallback images from the tour's image collection
+  let imageSrc = rawImageSrc?.replace(/_2x\.webp$/, '.webp');
+  
+  // If no valid image source, try alternative sources
+  if (!imageSrc && imageRecord?.src) {
+    // Try full size version if we have a thumbnail
+    imageSrc = imageRecord.src.replace('-thumb.webp', '.webp');
+  }
+  
+  // Final fallback to placeholder
+  if (!imageSrc) {
+    imageSrc = "/placeholder.svg";
+  }
   const imageAlt = imageRecord 
     ? getLocalizedImageText(imageRecord, 'alt', currentLocale) || `${title}${description ? ` - ${description}` : ''}`
     : `${title}${description ? ` - ${description}` : ''}`;

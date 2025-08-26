@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ResponsiveImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -7,6 +8,8 @@ interface ResponsiveImageProps extends React.ImgHTMLAttributes<HTMLImageElement>
   width?: number;
   height?: number;
   webpSrc?: string;
+  mobileSrc?: string;
+  mobileWebpSrc?: string;
   sizes?: string;
   priority?: 'high' | 'medium' | 'low';
   loadingStrategy?: 'eager' | 'lazy' | 'auto';
@@ -20,13 +23,21 @@ const ResponsiveImage = React.forwardRef<HTMLImageElement, ResponsiveImageProps>
     width, 
     height, 
     webpSrc, 
+    mobileSrc,
+    mobileWebpSrc,
     sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
     priority = 'medium',
     loadingStrategy = 'lazy',
     className,
     ...props 
   }, ref) => {
-    const [imageSrc, setImageSrc] = useState(src);
+    const isMobile = useIsMobile();
+    
+    // Choose the appropriate image source based on screen size
+    const currentSrc = isMobile && mobileSrc ? mobileSrc : src;
+    const currentWebpSrc = isMobile && mobileWebpSrc ? mobileWebpSrc : webpSrc;
+    
+    const [imageSrc, setImageSrc] = useState(currentSrc);
     const [hasError, setHasError] = useState(false);
 
     // Determine loading strategy
@@ -39,7 +50,7 @@ const ResponsiveImage = React.forwardRef<HTMLImageElement, ResponsiveImageProps>
 
     // Clean src to prevent 2x variant requests that cause 404s
     const cleanSrc = imageSrc?.replace(/_2x\.webp$/, '.webp') || '/placeholder.svg';
-    const cleanWebpSrc = webpSrc?.replace(/_2x\.webp$/, '.webp');
+    const cleanWebpSrc = currentWebpSrc?.replace(/_2x\.webp$/, '.webp');
 
     const handleError = () => {
       if (!hasError) {

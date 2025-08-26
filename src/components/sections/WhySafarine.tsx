@@ -19,6 +19,7 @@ const WhySafarine = () => {
         </div>
         <ResponsiveImage 
           src="/images/sections/why-safarine.webp"
+          mobileSrc="/images/sections/why-safarine-mobile.webp"
           alt="Train longeant une falaise en Thaïlande" 
           className="h-64 w-full rounded-xl object-cover shadow"
           loading="lazy"

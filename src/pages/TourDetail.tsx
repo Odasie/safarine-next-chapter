@@ -7,7 +7,7 @@ import { tours } from "@/data/tours";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import SearchBar from "@/components/search/SearchBar";
-import ImageMosaic from "@/components/tours/ImageMosaic";
+import EnhancedImageViewer from "@/components/tours/EnhancedImageViewer";
 import TourCard from "@/components/tours/TourCard";
 import { MapPin, Clock, CircleDollarSign } from "lucide-react";
 import { durationToText, formatPrice } from "@/lib/tours";
@@ -198,7 +198,6 @@ const TourDetail = () => {
     retry: false,
   });
 
-
   // Process tour data with fallbacks
   const pageData = (tour as any)?.page;
   const displayTitle = pageData?.title ?? tour?.title_fr ?? localTour?.title ?? "Tour";
@@ -211,10 +210,15 @@ const TourDetail = () => {
     if (tour?.images && tour.images.length > 0) {
       return tour.images
         .filter((img: any) => img.published)
+        .sort((a: any, b: any) => (a.position || 0) - (b.position || 0))
         .map((img: any) => ({
           id: img.id,
           src: img.file_path || '/placeholder.svg',
           alt: img.alt_fr || img.alt_en || `${displayTitle} ${img.position || 1}`,
+          alt_fr: img.alt_fr,
+          alt_en: img.alt_en,
+          title_fr: img.title_fr,
+          title_en: img.title_en,
           loading_strategy: 'lazy',
           priority: img.position === 0 ? 'high' : 'medium',
           width: img.width,
@@ -314,7 +318,7 @@ const TourDetail = () => {
         <SearchBar />
       </section>
 
-      {/* Hero + Intro + Mosaic */}
+      {/* Hero + Intro + Enhanced Image Viewer */}
       <header className="mb-8">
         <h1 className="text-3xl font-bold">{displayTitle}</h1>
         {localTour?.location && (
@@ -349,7 +353,7 @@ const TourDetail = () => {
             </div>
           </div>
           <div>
-            <ImageMosaic images={imageRecords} altPrefix={displayTitle} />
+            <EnhancedImageViewer images={imageRecords} altPrefix={displayTitle} />
           </div>
         </div>
       </header>
@@ -395,7 +399,7 @@ const TourDetail = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Ce prix n’inclut pas</CardTitle>
+              <CardTitle>Ce prix n'inclut pas</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
@@ -407,7 +411,7 @@ const TourDetail = () => {
           </Card>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          Tarifs indicatifs, susceptibles d’évoluer selon la saison et la disponibilité.
+          Tarifs indicatifs, susceptibles d'évoluer selon la saison et la disponibilité.
         </p>
       </section>
 

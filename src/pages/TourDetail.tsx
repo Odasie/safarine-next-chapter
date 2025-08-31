@@ -45,7 +45,7 @@ const TourDetail = () => {
             width,
             height
           ),
-          page:pages!pages_id_fkey (
+          page:pages!tours_page_id_fkey (
             title,
             slug,
             url,

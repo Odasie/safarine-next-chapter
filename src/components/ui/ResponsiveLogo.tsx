@@ -34,7 +34,6 @@ export const ResponsiveLogo = ({ className = '', theme = 'light' }: ResponsiveLo
       src={getLogoPath()}
       alt={getAltText()}
       className={`h-auto ${className}`}
-      fetchPriority="high"
       loading="eager"
     />
   );

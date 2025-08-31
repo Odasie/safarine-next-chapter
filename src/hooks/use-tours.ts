@@ -151,7 +151,7 @@ export function useTours() {
           excluded_items,
           total_images,
           gallery_images,
-          page:pages(
+          page:pages!tours_page_id_fkey(
             id,
             url,
             title,
@@ -246,7 +246,7 @@ export function useFeaturedTours(limit: number = 3) {
           excluded_items,
           total_images,
           gallery_images,
-          page:pages(
+          page:pages!tours_page_id_fkey(
             id,
             url,
             title,

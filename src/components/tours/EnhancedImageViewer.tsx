@@ -63,9 +63,11 @@ const EnhancedImageViewer: React.FC<EnhancedImageViewerProps> = ({
   }, [currentLocale]);
 
   const handleImageClick = (index: number) => {
+    console.log('Image clicked:', index); // Debug log
     setSelectedImageIndex(index);
     setIsModalOpen(true);
     setZoomLevel(1);
+    console.log('Modal state set to open'); // Debug log
   };
 
   const handleCloseModal = () => {

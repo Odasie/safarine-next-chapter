@@ -86,10 +86,9 @@ const ResponsiveImage = React.forwardRef<HTMLImageElement, ResponsiveImageProps>
           sizes={sizes}
           loading={loading}
           decoding={priority === 'high' ? 'sync' : 'async'}
-          fetchPriority={fetchPriority}
+          {...({ fetchpriority: fetchPriority, ...props } as any)}
           className={cn("transition-opacity duration-300", className)}
           onError={handleError}
-          {...props}
         />
       </picture>
     );

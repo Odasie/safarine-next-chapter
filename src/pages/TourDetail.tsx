@@ -7,7 +7,7 @@ import { tours } from "@/data/tours";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import SearchBar from "@/components/search/SearchBar";
-import EnhancedImageViewer from "@/components/tours/EnhancedImageViewer";
+import SimpleImageViewer from "@/components/tours/SimpleImageViewer";
 import TourCard from "@/components/tours/TourCard";
 import { MapPin, Clock, CircleDollarSign } from "lucide-react";
 import { durationToText, formatPrice } from "@/lib/tours";
@@ -353,7 +353,7 @@ const TourDetail = () => {
             </div>
           </div>
           <div>
-            <EnhancedImageViewer images={imageRecords} altPrefix={displayTitle} />
+            <SimpleImageViewer images={imageRecords} altPrefix={displayTitle} />
           </div>
         </div>
       </header>

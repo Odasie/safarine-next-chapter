@@ -14,6 +14,122 @@ export type Database = {
   }
   public: {
     Tables: {
+      b2b_favorites: {
+        Row: {
+          created_at: string | null
+          id: string
+          tour_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          tour_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          tour_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "b2b_favorites_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "b2b_favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "b2b_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      b2b_sessions: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          token: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          token: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          token?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "b2b_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "b2b_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      b2b_users: {
+        Row: {
+          agency_type: string | null
+          business_registration: string | null
+          commission_rate: number | null
+          company_name: string
+          contact_person: string
+          country: string | null
+          created_at: string | null
+          email: string
+          id: string
+          password_hash: string
+          phone: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          agency_type?: string | null
+          business_registration?: string | null
+          commission_rate?: number | null
+          company_name: string
+          contact_person: string
+          country?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          password_hash: string
+          phone?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          agency_type?: string | null
+          business_registration?: string | null
+          commission_rate?: number | null
+          company_name?: string
+          contact_person?: string
+          country?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          password_hash?: string
+          phone?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           id: string
@@ -406,6 +522,17 @@ export type Database = {
           tour_id_param: string
         }
         Returns: string
+      }
+      b2b_authenticate: {
+        Args: { email_param: string; password_param: string }
+        Returns: {
+          commission_rate: number
+          company_name: string
+          contact_person: string
+          email: string
+          status: string
+          user_id: string
+        }[]
       }
       create_new_tour: {
         Args: {

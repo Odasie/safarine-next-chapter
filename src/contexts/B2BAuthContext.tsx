@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import bcrypt from 'bcryptjs';
 
 interface B2BUser {
   id: string;
@@ -116,7 +117,7 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
       const userData = authResponse.user;
       
       // Create session token
-      const token = crypto.randomUUID();
+      const token = 'b2b_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
 
@@ -183,11 +184,14 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
     try {
       setLoading(true);
       
+      // Hash the password before storing
+      const hashedPassword = await bcrypt.hash(userData.password, 12);
+      
       const { error } = await supabase
         .from('b2b_users')
         .insert({
           email: userData.email,
-          password_hash: userData.password, // In production, hash this properly
+          password_hash: hashedPassword,
           company_name: userData.company_name,
           contact_person: userData.contact_person,
           phone: userData.phone,

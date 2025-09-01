@@ -5,7 +5,7 @@ interface ResponsiveLogoProps {
   theme?: 'light' | 'dark' | 'auto';
 }
 
-export const ResponsiveLogo = ({ className = '', theme = 'light' }: ResponsiveLogoProps) => {
+export const ResponsiveLogo = ({ className = '', theme = 'dark' }: ResponsiveLogoProps) => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {

@@ -72,6 +72,44 @@ const translations = {
     
     'about.cta.contact': 'Contactez-Nous',
     'about.cta.plan': 'Planifiez Votre Voyage',
+    
+    // B2B Login & Registration translations
+    'b2b.login.pageTitle': 'Accès Professionnel - Safarine Tours',
+    'b2b.login.pageDescription': 'Portail d\'accès professionnel pour les agences de voyage partenaires de Safarine Tours',
+    'b2b.login.title': 'Accès Professionnel',
+    'b2b.login.subtitle': 'Portail Agences de Voyage - Safarine Tours',
+    'b2b.login.loginTab': 'Connexion',
+    'b2b.login.registerTab': 'S\'inscrire',
+    'b2b.login.loginTitle': 'Connectez-vous à votre compte',
+    'b2b.login.loginDescription': 'Accédez à votre tableau de bord professionnel pour parcourir les circuits, télécharger les catalogues et gérer vos réservations.',
+    'b2b.login.loginButton': 'Se connecter',
+    'b2b.login.registerTitle': 'Inscrivez votre agence de voyage',
+    'b2b.login.registerDescription': 'Rejoignez notre réseau de partenaires professionnels et accédez à des tarifs exclusifs et des ressources.',
+    'b2b.login.registerButton': 'Soumettre l\'inscription',
+    'b2b.login.backToWebsite': 'Retour au site',
+    
+    // B2B Form fields
+    'b2b.form.email': 'Adresse e-mail',
+    'b2b.form.password': 'Mot de passe',
+    'b2b.form.contactPerson': 'Personne de contact',
+    'b2b.form.companyName': 'Nom de l\'entreprise',
+    'b2b.form.phone': 'Numéro de téléphone',
+    'b2b.form.country': 'Pays',
+    'b2b.form.agencyType': 'Type d\'agence',
+    'b2b.form.selectAgencyType': 'Sélectionnez le type d\'agence',
+    'b2b.form.businessRegistration': 'Numéro d\'enregistrement commercial',
+    
+    // Agency types
+    'b2b.agencyTypes.tourOperator': 'Tour-opérateur',
+    'b2b.agencyTypes.travelAgency': 'Agence de voyage',
+    'b2b.agencyTypes.onlineTravel': 'Agence de voyage en ligne',
+    'b2b.agencyTypes.corporateTravel': 'Voyage d\'entreprise',
+    'b2b.agencyTypes.other': 'Autre',
+    
+    // Success messages
+    'b2b.register.successTitle': 'Inscription soumise',
+    'b2b.register.successMessage': 'Votre compte sera activé après approbation. Vous recevrez un e-mail de confirmation.',
+    'b2b.register.backToRegister': 'Retour à l\'inscription',
   },
   en: {
     'menu.tours': 'Tours & Activities',
@@ -132,6 +170,44 @@ const translations = {
     
     'about.cta.contact': 'Contact Us',
     'about.cta.plan': 'Plan Your Journey',
+    
+    // B2B Login & Registration translations
+    'b2b.login.pageTitle': 'Professional Access - Safarine Tours',
+    'b2b.login.pageDescription': 'Professional access portal for Safarine Tours travel agency partners',
+    'b2b.login.title': 'Professional Access',
+    'b2b.login.subtitle': 'Travel Agency Portal - Safarine Tours',
+    'b2b.login.loginTab': 'Login',
+    'b2b.login.registerTab': 'Register',
+    'b2b.login.loginTitle': 'Sign In to Your Account',
+    'b2b.login.loginDescription': 'Access your professional dashboard to browse tours, download catalogs, and manage your bookings.',
+    'b2b.login.loginButton': 'Sign In',
+    'b2b.login.registerTitle': 'Register Your Travel Agency',
+    'b2b.login.registerDescription': 'Join our network of professional partners and get access to exclusive rates and resources.',
+    'b2b.login.registerButton': 'Submit Registration',
+    'b2b.login.backToWebsite': 'Back to Website',
+    
+    // B2B Form fields
+    'b2b.form.email': 'Email Address',
+    'b2b.form.password': 'Password',
+    'b2b.form.contactPerson': 'Contact Person',
+    'b2b.form.companyName': 'Company Name',
+    'b2b.form.phone': 'Phone Number',
+    'b2b.form.country': 'Country',
+    'b2b.form.agencyType': 'Agency Type',
+    'b2b.form.selectAgencyType': 'Select agency type',
+    'b2b.form.businessRegistration': 'Business Registration Number',
+    
+    // Agency types
+    'b2b.agencyTypes.tourOperator': 'Tour Operator',
+    'b2b.agencyTypes.travelAgency': 'Travel Agency',
+    'b2b.agencyTypes.onlineTravel': 'Online Travel Agency',
+    'b2b.agencyTypes.corporateTravel': 'Corporate Travel',
+    'b2b.agencyTypes.other': 'Other',
+    
+    // Success messages
+    'b2b.register.successTitle': 'Registration Submitted',
+    'b2b.register.successMessage': 'Your account will be activated after approval. You will receive a confirmation email.',
+    'b2b.register.backToRegister': 'Back to Registration',
   },
 };
 

@@ -98,15 +98,22 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
       // Authenticate user
       const { data: authData, error: authError } = await supabase
         .rpc('b2b_authenticate', {
-          email_param: email,
-          password_param: password
-        });
+          user_email: email,
+          user_password: password
+        } as any);
 
-      if (authError || !authData || authData.length === 0) {
-        return { error: 'Invalid credentials or account not approved' };
+      if (authError) {
+        return { error: 'Authentication failed' };
       }
 
-      const userData = authData[0];
+      // Type assertion since generated types are outdated
+      const authResponse = (authData as unknown) as { success: boolean; error?: string; user?: any };
+
+      if (!authResponse || !authResponse.success) {
+        return { error: authResponse?.error || 'Invalid credentials or account not approved' };
+      }
+
+      const userData = authResponse.user;
       
       // Create session token
       const token = crypto.randomUUID();
@@ -116,7 +123,7 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
       const { error: sessionError } = await supabase
         .from('b2b_sessions')
         .insert({
-          user_id: userData.user_id,
+          user_id: userData.id,
           token,
           expires_at: expiresAt.toISOString()
         });
@@ -128,7 +135,7 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
       // Store token and set user
       localStorage.setItem('b2b_token', token);
       setUser({
-        id: userData.user_id,
+        id: userData.id,
         email: userData.email,
         company_name: userData.company_name,
         contact_person: userData.contact_person,

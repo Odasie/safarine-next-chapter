@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImageRecord, getLocalizedImageText, getSafeLoadingStrategy, getSafePriority } from "@/hooks/use-images";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,12 +23,15 @@ const EnhancedImageViewer: React.FC<EnhancedImageViewerProps> = ({
 }) => {
   const { locale } = useLocale();
   const currentLocale = locale as 'en' | 'fr';
+  const isMobile = useIsMobile();
   
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
   const [errorStates, setErrorStates] = useState<Record<string, boolean>>({});
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
 
   // Prepare images with fallbacks for mosaic layout (first 5 images)
   const mosaicImages = React.useMemo(() => {
@@ -68,6 +72,8 @@ const EnhancedImageViewer: React.FC<EnhancedImageViewerProps> = ({
     setIsModalOpen(false);
     setSelectedImageIndex(null);
     setZoomLevel(1);
+    setTouchStart(null);
+    setTouchEnd(null);
   };
 
   const navigateImage = useCallback((direction: 'prev' | 'next') => {
@@ -92,8 +98,53 @@ const EnhancedImageViewer: React.FC<EnhancedImageViewerProps> = ({
     });
   };
 
-  // Keyboard navigation
+  // Touch gesture handlers for swipe navigation
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!isMobile) return;
+    const touch = e.touches[0];
+    setTouchStart({ x: touch.clientX, y: touch.clientY });
+    setTouchEnd(null);
+  }, [isMobile]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isMobile || !touchStart) return;
+    const touch = e.touches[0];
+    setTouchEnd({ x: touch.clientX, y: touch.clientY });
+  }, [isMobile, touchStart]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isMobile || !touchStart || !touchEnd) return;
+    
+    const deltaX = touchStart.x - touchEnd.x;
+    const deltaY = touchStart.y - touchEnd.y;
+    const minSwipeDistance = 50;
+    
+    // Only trigger swipe if horizontal movement is greater than vertical
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
+      if (deltaX > 0) {
+        navigateImage('next'); // Swipe left = next
+      } else {
+        navigateImage('prev'); // Swipe right = prev
+      }
+    }
+    
+    setTouchStart(null);
+    setTouchEnd(null);
+  }, [isMobile, touchStart, touchEnd, navigateImage]);
+
+  // Body scroll prevention and keyboard navigation
   useEffect(() => {
+    if (isModalOpen) {
+      // Prevent body scroll
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    } else {
+      // Restore body scroll
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+
     const handleKeyPress = (e: KeyboardEvent) => {
       if (!isModalOpen) return;
       
@@ -121,7 +172,15 @@ const EnhancedImageViewer: React.FC<EnhancedImageViewerProps> = ({
     };
 
     window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+      // Cleanup on unmount
+      if (isModalOpen) {
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+      }
+    };
   }, [isModalOpen, navigateImage]);
 
   const handleImageLoad = (imageId: string) => {
@@ -202,15 +261,20 @@ const EnhancedImageViewer: React.FC<EnhancedImageViewerProps> = ({
 
       {/* Modal/Lightbox */}
       <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
-        <DialogContent className="max-w-screen max-h-screen w-screen h-screen p-0 bg-black/95 border-none">
+        <DialogContent className="max-w-screen max-h-screen w-screen h-screen p-0 bg-black/80 border-none animate-fade-in">
           {selectedImageIndex !== null && (
-            <div className="relative w-full h-full flex items-center justify-center">
+            <div 
+              className="relative w-full h-full flex items-center justify-center touch-manipulation"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
               {/* Close Button */}
               <DialogClose asChild>
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  className="absolute top-4 right-4 z-50 text-white hover:bg-white/20 rounded-full"
+                  className="absolute top-4 right-4 z-50 min-w-[44px] min-h-[44px] text-white hover:bg-white/20 rounded-full bg-black/30 backdrop-blur-sm transition-all duration-200"
                   aria-label="Close gallery"
                 >
                   <X className="h-6 w-6" />
@@ -221,7 +285,7 @@ const EnhancedImageViewer: React.FC<EnhancedImageViewerProps> = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-40 text-white hover:bg-white/20 rounded-full"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-40 min-w-[44px] min-h-[44px] p-3 text-white hover:bg-white/20 rounded-full bg-black/30 backdrop-blur-sm transition-all duration-200"
                 onClick={() => navigateImage('prev')}
                 aria-label="Previous image"
               >
@@ -231,7 +295,7 @@ const EnhancedImageViewer: React.FC<EnhancedImageViewerProps> = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-40 text-white hover:bg-white/20 rounded-full"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-40 min-w-[44px] min-h-[44px] p-3 text-white hover:bg-white/20 rounded-full bg-black/30 backdrop-blur-sm transition-all duration-200"
                 onClick={() => navigateImage('next')}
                 aria-label="Next image"
               >
@@ -275,19 +339,25 @@ const EnhancedImageViewer: React.FC<EnhancedImageViewerProps> = ({
               </div>
 
               {/* Main Image */}
-              <div 
-                className="relative max-w-full max-h-full overflow-auto"
-                style={{ transform: `scale(${zoomLevel})` }}
-              >
-                <ResponsiveImage
-                  src={images[selectedImageIndex]?.src || '/placeholder.svg'}
-                  alt={getImageAlt(images[selectedImageIndex], selectedImageIndex)}
-                  width={images[selectedImageIndex]?.width}
-                  height={images[selectedImageIndex]?.height}
-                  className="max-w-full max-h-full object-contain"
-                  loadingStrategy="eager"
-                  priority="high"
-                />
+              <div className="flex items-center justify-center w-full h-full p-4">
+                <div 
+                  className="relative flex items-center justify-center transition-transform duration-300 ease-out"
+                  style={{ 
+                    maxWidth: '90vw', 
+                    maxHeight: '90vh',
+                    transform: `scale(${zoomLevel})` 
+                  }}
+                >
+                  <ResponsiveImage
+                    src={images[selectedImageIndex]?.src || '/placeholder.svg'}
+                    alt={getImageAlt(images[selectedImageIndex], selectedImageIndex)}
+                    width={images[selectedImageIndex]?.width}
+                    height={images[selectedImageIndex]?.height}
+                    className="max-w-full max-h-full object-contain animate-scale-in"
+                    loadingStrategy="eager"
+                    priority="high"
+                  />
+                </div>
               </div>
 
               {/* Image Title/Caption */}

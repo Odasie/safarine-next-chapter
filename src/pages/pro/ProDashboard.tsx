@@ -2,84 +2,25 @@ import { Helmet } from "react-helmet-async";
 import { useB2BAuth } from "@/contexts/B2BAuthContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { useTours } from "@/hooks/use-tours";
+import { calculateTourStats } from "@/lib/b2b-utils";
+import { B2BStatsCards } from "@/components/b2b/B2BStatsCards";
+import { B2BQuickActions } from "@/components/b2b/B2BQuickActions";
+import { B2BToursTable } from "@/components/b2b/B2BToursTable";
 import { 
   MapPin, 
-  Download, 
-  Users, 
-  TrendingUp, 
-  Calendar,
   FileText,
-  MessageSquare,
-  Settings
+  TrendingUp
 } from "lucide-react";
 
 const ProDashboard = () => {
   const { user } = useB2BAuth();
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
+  const { data: tours = [], isLoading: toursLoading } = useTours();
 
-  const stats = [
-    {
-      title: t('b2b.dashboard.stats.totalTours'),
-      value: "45",
-      icon: MapPin,
-      description: t('b2b.dashboard.stats.toursDescription'),
-      color: "text-primary"
-    },
-    {
-      title: t('b2b.dashboard.stats.newThisMonth'),
-      value: "8",
-      icon: TrendingUp,
-      description: t('b2b.dashboard.stats.newDescription'),
-      color: "text-accent"
-    },
-    {
-      title: t('b2b.dashboard.stats.averageDuration'),
-      value: "3.2",
-      icon: Calendar,
-      description: t('b2b.dashboard.stats.durationDescription'),
-      color: "text-secondary"
-    },
-    {
-      title: t('b2b.dashboard.stats.commission'),
-      value: `${user?.commission_rate}%`,
-      icon: Users,
-      description: t('b2b.dashboard.stats.commissionDescription'),
-      color: "text-primary"
-    }
-  ];
-
-  const quickActions = [
-    {
-      title: t('b2b.dashboard.actions.browseTours'),
-      description: t('b2b.dashboard.actions.browseDescription'),
-      icon: MapPin,
-      href: `/${locale}/pro/tours`,
-      variant: "default" as const
-    },
-    {
-      title: t('b2b.dashboard.actions.downloadCatalog'),
-      description: t('b2b.dashboard.actions.catalogDescription'),
-      icon: Download,
-      href: `/${locale}/pro/downloads`,
-      variant: "secondary" as const
-    },
-    {
-      title: t('b2b.dashboard.actions.contactSupport'),
-      description: t('b2b.dashboard.actions.supportDescription'),
-      icon: MessageSquare,
-      href: `/${locale}/contact`,
-      variant: "outline" as const
-    },
-    {
-      title: t('b2b.dashboard.actions.accountSettings'),
-      description: t('b2b.dashboard.actions.settingsDescription'),
-      icon: Settings,
-      href: `/${locale}/pro/settings`,
-      variant: "outline" as const
-    }
-  ];
+  // Calculate real-time statistics from tours data
+  const tourStats = calculateTourStats(tours);
+  const commissionRate = user?.commission_rate || 10;
 
   const recentActivity = [
     {
@@ -109,10 +50,10 @@ const ProDashboard = () => {
         <meta name="description" content={t('b2b.dashboard.pageDescription')} />
       </Helmet>
 
-      <div className="p-6 space-y-6">
+      <div className="container mx-auto p-4 md:p-6 space-y-6 max-w-7xl">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
+        <div className="text-center md:text-left">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
             {t('b2b.dashboard.welcome', { name: user?.contact_person })}
           </h1>
           <p className="text-muted-foreground mt-2">
@@ -120,53 +61,27 @@ const ProDashboard = () => {
           </p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
-            <Card key={index}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.title}
-                </CardTitle>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground">
-                  {stat.description}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {/* Statistics Cards - Mobile First */}
+        <B2BStatsCards
+          totalTours={tourStats.total}
+          newThisMonth={tourStats.newThisMonth}
+          averageDuration={tourStats.averageDuration}
+          commissionRate={commissionRate}
+          isLoading={toursLoading}
+        />
 
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('b2b.dashboard.quickActions')}</CardTitle>
-            <CardDescription>
-              {t('b2b.dashboard.quickActionsDescription')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {quickActions.map((action, index) => (
-                <div key={index} className="p-4 border rounded-lg hover:bg-accent/50 transition-colors">
-                  <div className="flex items-start space-x-3">
-                    <action.icon className="h-5 w-5 text-primary mt-1" />
-                    <div className="flex-1 space-y-2">
-                      <h3 className="font-medium">{action.title}</h3>
-                      <p className="text-sm text-muted-foreground">{action.description}</p>
-                      <Button asChild variant={action.variant} size="sm">
-                        <Link to={action.href}>{t('b2b.dashboard.getStarted')}</Link>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Quick Actions - Responsive */}
+        <B2BQuickActions
+          tours={tours}
+          commissionRate={commissionRate}
+        />
+
+        {/* Tours Table - Full Featured */}
+        <B2BToursTable
+          tours={tours}
+          commissionRate={commissionRate}
+          isLoading={toursLoading}
+        />
 
         {/* Recent Activity */}
         <Card>

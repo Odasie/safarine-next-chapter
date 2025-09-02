@@ -38,6 +38,13 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
+    /* Safarine B2B specific design tokens */
+    --safarine-green: 124 55% 24%;
+    --safarine-green-light: 156 64% 44%;
+    --safarine-green-dark: 124 55% 20%;
+    --safarine-success: 120 100% 25%;
+    --safarine-warning: 45 100% 47%;
+    
     --sidebar-background: 0 0% 98%;
 
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -101,5 +108,52 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Safarine B2B utility classes */
+  .bg-safarine-green {
+    background-color: hsl(var(--safarine-green));
+  }
+  
+  .text-safarine-green {
+    color: hsl(var(--safarine-green));
+  }
+  
+  .border-safarine-green {
+    border-color: hsl(var(--safarine-green));
+  }
+  
+  .hover\:bg-safarine-green:hover {
+    background-color: hsl(var(--safarine-green));
+  }
+  
+  .focus\:ring-safarine-green:focus {
+    --tw-ring-color: hsl(var(--safarine-green));
+  }
+
+  /* Container responsive utilities */
+  .container {
+    width: 100%;
+    padding: 0 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .container {
+      padding: 0 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 3rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .container {
+      padding: 0 4rem;
+    }
   }
 }

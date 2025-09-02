@@ -110,6 +110,81 @@ const translations = {
     'b2b.register.successTitle': 'Inscription soumise',
     'b2b.register.successMessage': 'Votre compte sera activé après approbation. Vous recevrez un e-mail de confirmation.',
     'b2b.register.backToRegister': 'Retour à l\'inscription',
+
+    // B2B Dashboard translations
+    'b2b.dashboard.pageTitle': 'Tableau de Bord Professionnel - Safarine Tours',
+    'b2b.dashboard.pageDescription': 'Tableau de bord pour les agences de voyage partenaires avec accès aux tarifs B2B, catalogues et outils de gestion',
+    'b2b.dashboard.welcome': 'Bienvenue',
+    'b2b.dashboard.subtitle': 'Agence de Voyage Partenaire',
+    'b2b.dashboard.recentActivity': 'Activité Récente',
+    
+    // B2B Navigation
+    'b2b.nav.dashboard': 'Tableau de Bord',
+    'b2b.nav.tours': 'Circuits',
+    'b2b.nav.favorites': 'Favoris',
+    'b2b.nav.downloads': 'Téléchargements',
+    'b2b.nav.settings': 'Paramètres',
+    'b2b.nav.logout': 'Déconnexion',
+    
+    // B2B User Info
+    'b2b.commission': 'Commission',
+    'b2b.logout': 'Déconnexion',
+    
+    // B2B Statistics
+    'b2b.stats.totalTours': 'Circuits Disponibles',
+    'b2b.stats.newThisMonth': 'Nouveaux ce Mois',
+    'b2b.stats.averageDuration': 'Durée Moyenne',
+    'b2b.stats.commissionRate': 'Taux de Commission',
+    'b2b.stats.days': 'jours',
+    'b2b.stats.loading': 'Chargement...',
+    
+    // B2B Quick Actions
+    'b2b.quickActions.title': 'Actions Rapides',
+    'b2b.quickActions.downloadCatalog': 'Télécharger le Catalogue CSV',
+    'b2b.quickActions.downloadDescription': 'Exportez tous les circuits avec tarifs B2B',
+    'b2b.quickActions.browseTours': 'Parcourir les Circuits',
+    'b2b.quickActions.browseDescription': 'Explorez notre catalogue complet',
+    'b2b.quickActions.settings': 'Paramètres du Compte',
+    'b2b.quickActions.settingsDescription': 'Gérez vos informations d\'agence',
+    'b2b.quickActions.support': 'Support Client',
+    'b2b.quickActions.supportDescription': 'Contactez notre équipe B2B',
+    
+    // B2B Table
+    'b2b.table.searchPlaceholder': 'Rechercher des circuits...',
+    'b2b.table.filter': 'Filtrer',
+    'b2b.table.exportSelected': 'Exporter la Sélection',
+    'b2b.table.selectAll': 'Sélectionner tout',
+    'b2b.table.deselectAll': 'Désélectionner tout',
+    'b2b.table.tourName': 'Nom du Circuit',
+    'b2b.table.duration': 'Durée',
+    'b2b.table.destination': 'Destination',
+    'b2b.table.retailPrice': 'Prix Public',
+    'b2b.table.b2bRate': 'Tarif B2B',
+    'b2b.table.details': 'Détails',
+    'b2b.table.viewDetails': 'Voir Détails',
+    'b2b.table.day': 'jour',
+    'b2b.table.days': 'jours',
+    'b2b.table.selected': 'sélectionné(s)',
+    'b2b.table.tours': 'circuits',
+    'b2b.table.loading': 'Chargement des circuits...',
+    'b2b.table.noTours': 'Aucun circuit trouvé',
+    'b2b.table.sortBy': 'Trier par',
+    
+    // B2B Export
+    'b2b.export.success': 'CSV exporté avec succès',
+    'b2b.export.error': 'Erreur lors de l\'export CSV',
+    'b2b.export.filename': 'circuits-safarine-b2b',
+    'b2b.export.selectTours': 'Veuillez sélectionner des circuits à exporter',
+    
+    // B2B Activity
+    'b2b.activity.downloadedCatalog': 'a téléchargé le catalogue complet',
+    'b2b.activity.viewedTour': 'a consulté le circuit',
+    'b2b.activity.exportedTours': 'a exporté des circuits sélectionnés',
+    'b2b.activity.updatedProfile': 'a mis à jour son profil',
+    'b2b.activity.timeAgo.minutes': 'il y a quelques minutes',
+    'b2b.activity.timeAgo.hour': 'il y a 1 heure',
+    'b2b.activity.timeAgo.hours': 'il y a quelques heures',
+    'b2b.activity.timeAgo.today': 'aujourd\'hui',
   },
   en: {
     'menu.tours': 'Tours & Activities',
@@ -208,6 +283,81 @@ const translations = {
     'b2b.register.successTitle': 'Registration Submitted',
     'b2b.register.successMessage': 'Your account will be activated after approval. You will receive a confirmation email.',
     'b2b.register.backToRegister': 'Back to Registration',
+
+    // B2B Dashboard translations
+    'b2b.dashboard.pageTitle': 'Professional Dashboard - Safarine Tours',
+    'b2b.dashboard.pageDescription': 'Dashboard for travel agency partners with access to B2B rates, catalogs and management tools',
+    'b2b.dashboard.welcome': 'Welcome back',
+    'b2b.dashboard.subtitle': 'Travel Agency Partner',
+    'b2b.dashboard.recentActivity': 'Recent Activity',
+    
+    // B2B Navigation
+    'b2b.nav.dashboard': 'Dashboard',
+    'b2b.nav.tours': 'Tours',
+    'b2b.nav.favorites': 'Favorites',
+    'b2b.nav.downloads': 'Downloads',
+    'b2b.nav.settings': 'Settings',
+    'b2b.nav.logout': 'Logout',
+    
+    // B2B User Info
+    'b2b.commission': 'Commission',
+    'b2b.logout': 'Logout',
+    
+    // B2B Statistics
+    'b2b.stats.totalTours': 'Tours Available',
+    'b2b.stats.newThisMonth': 'New This Month',
+    'b2b.stats.averageDuration': 'Average Duration',
+    'b2b.stats.commissionRate': 'Commission Rate',
+    'b2b.stats.days': 'days',
+    'b2b.stats.loading': 'Loading...',
+    
+    // B2B Quick Actions
+    'b2b.quickActions.title': 'Quick Actions',
+    'b2b.quickActions.downloadCatalog': 'Download Catalog CSV',
+    'b2b.quickActions.downloadDescription': 'Export all tours with B2B rates',
+    'b2b.quickActions.browseTours': 'Browse Tours',
+    'b2b.quickActions.browseDescription': 'Explore our complete catalog',
+    'b2b.quickActions.settings': 'Account Settings',
+    'b2b.quickActions.settingsDescription': 'Manage your agency information',
+    'b2b.quickActions.support': 'Customer Support',
+    'b2b.quickActions.supportDescription': 'Contact our B2B team',
+    
+    // B2B Table
+    'b2b.table.searchPlaceholder': 'Search tours...',
+    'b2b.table.filter': 'Filter',
+    'b2b.table.exportSelected': 'Export Selected',
+    'b2b.table.selectAll': 'Select all',
+    'b2b.table.deselectAll': 'Deselect all',
+    'b2b.table.tourName': 'Tour Name',
+    'b2b.table.duration': 'Duration',
+    'b2b.table.destination': 'Destination',
+    'b2b.table.retailPrice': 'Retail Price',
+    'b2b.table.b2bRate': 'B2B Rate',
+    'b2b.table.details': 'Details',
+    'b2b.table.viewDetails': 'View Details',
+    'b2b.table.day': 'day',
+    'b2b.table.days': 'days',
+    'b2b.table.selected': 'selected',
+    'b2b.table.tours': 'tours',
+    'b2b.table.loading': 'Loading tours...',
+    'b2b.table.noTours': 'No tours found',
+    'b2b.table.sortBy': 'Sort by',
+    
+    // B2B Export
+    'b2b.export.success': 'CSV exported successfully',
+    'b2b.export.error': 'Error exporting CSV',
+    'b2b.export.filename': 'safarine-tours-b2b',
+    'b2b.export.selectTours': 'Please select tours to export',
+    
+    // B2B Activity
+    'b2b.activity.downloadedCatalog': 'downloaded the complete catalog',
+    'b2b.activity.viewedTour': 'viewed tour',
+    'b2b.activity.exportedTours': 'exported selected tours',
+    'b2b.activity.updatedProfile': 'updated profile',
+    'b2b.activity.timeAgo.minutes': 'a few minutes ago',
+    'b2b.activity.timeAgo.hour': '1 hour ago',
+    'b2b.activity.timeAgo.hours': 'a few hours ago',
+    'b2b.activity.timeAgo.today': 'today',
   },
 };
 

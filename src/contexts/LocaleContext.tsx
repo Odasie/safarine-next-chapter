@@ -261,6 +261,18 @@ const translations = {
     'b2b.dashboard.export.noSelectionDescription': 'Veuillez sélectionner des circuits à exporter',
     'b2b.dashboard.export.selectedToursExported': 'circuits exportés',
     'b2b.dashboard.export.errorDescription': 'Veuillez réessayer',
+
+    // B2B Dashboard Quick Actions
+    'b2b.dashboard.quickActions': 'Actions Rapides',
+    'b2b.dashboard.quickActionsDescription': 'Tâches courantes et téléchargements',
+    'b2b.dashboard.actions.browseTours': 'Parcourir les Circuits',
+    'b2b.dashboard.actions.browseDescription': 'Voir tous les circuits disponibles',
+    'b2b.dashboard.actions.downloadCatalog': 'Télécharger le Catalogue',
+    'b2b.dashboard.actions.catalogDescription': 'Exporter les circuits en CSV',
+    'b2b.dashboard.actions.accountSettings': 'Paramètres du Compte',
+    'b2b.dashboard.actions.settingsDescription': 'Gérer votre compte',
+    'b2b.dashboard.actions.contactSupport': 'Contacter le Support',
+    'b2b.dashboard.actions.supportDescription': 'Obtenir de l\'aide et du support',
   },
   en: {
     'menu.tours': 'Tours & Activities',
@@ -510,6 +522,18 @@ const translations = {
     'b2b.dashboard.export.noSelectionDescription': 'Please select tours to export',
     'b2b.dashboard.export.selectedToursExported': 'tours exported',
     'b2b.dashboard.export.errorDescription': 'Please try again',
+
+    // B2B Dashboard Quick Actions
+    'b2b.dashboard.quickActions': 'Quick Actions',
+    'b2b.dashboard.quickActionsDescription': 'Common tasks and downloads',
+    'b2b.dashboard.actions.browseTours': 'Browse Tours',
+    'b2b.dashboard.actions.browseDescription': 'View all available tours',
+    'b2b.dashboard.actions.downloadCatalog': 'Download Catalog',
+    'b2b.dashboard.actions.catalogDescription': 'Export tours to CSV',
+    'b2b.dashboard.actions.accountSettings': 'Account Settings',
+    'b2b.dashboard.actions.settingsDescription': 'Manage your account',
+    'b2b.dashboard.actions.contactSupport': 'Contact Support',
+    'b2b.dashboard.actions.supportDescription': 'Get help and support',
   },
 };
 

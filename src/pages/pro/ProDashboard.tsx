@@ -116,8 +116,8 @@ const ProDashboard = () => {
         </header>
 
         {/* Main Content */}
-        <main className="w-full px-4 lg:px-6 py-4 space-y-4 max-w-full">
-          <div className="max-w-[1400px] mx-auto w-full">
+        <main className="w-full px-4 lg:px-6 py-4 space-y-4">
+          <div className="w-full">
             {/* Mobile Welcome Message */}
             <div className="md:hidden text-center mb-4">
               <h1 className="text-xl font-bold text-gray-900">

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +31,30 @@ export const B2BToursTable: React.FC<B2BToursTableProps> = ({
   const [selectedTours, setSelectedTours] = useState<string[]>([]);
   const [sortField, setSortField] = useState<string>("title_en");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  // Debug logging for tour data
+  useEffect(() => {
+    console.log('🔍 DEBUG TOUR DATA:');
+    console.log('Tours array:', tours);
+    console.log('Tours length:', tours?.length);
+    console.log('Is loading:', isLoading);
+    console.log('First tour:', tours?.[0]);
+    
+    if (tours?.length > 0) {
+      console.log('✅ Tours data is available');
+      tours.forEach((tour, index) => {
+        console.log(`Tour ${index}:`, {
+          id: tour.id,
+          title_en: tour.title_en,
+          title_fr: tour.title_fr,
+          destination: tour.destination,
+          price: tour.price
+        });
+      });
+    } else {
+      console.log('❌ No tours data found');
+    }
+  }, [tours, isLoading]);
 
   // Debounced search function
   const debouncedSetSearch = useMemo(

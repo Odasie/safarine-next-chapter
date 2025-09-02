@@ -92,12 +92,8 @@ const ProDashboard = () => {
           <div className="container mx-auto px-4 h-full flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <img 
-                  src="/images/branding/logo-dark-mobile.webp" 
-                  alt="Safarine Logo" 
-                  className="h-8"
-                />
-                <span className="font-bold text-blue-600 hidden sm:inline">SAFARINE B2B</span>
+                <img src="/images/branding/logo-dark-mobile.webp" alt="Safarine Logo" className="h-8" />
+                
               </div>
               <div className="hidden md:flex items-center text-sm text-gray-600">
                 <span>{t('b2b.header.welcome')}, {user?.contact_person}</span>
@@ -111,7 +107,7 @@ const ProDashboard = () => {
                 <Settings className="h-4 w-4" />
                 <span className="hidden sm:ml-2 sm:inline">{t('b2b.header.settings')}</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={handleLogout} className="text-red-600 border-red-200 hover:bg-red-50" aria-label={t('b2b.header.logout')}>
+              <Button variant="outline" size="sm" onClick={handleLogout} aria-label={t('b2b.header.logout')} className="border-red-200 bg-red-500 hover:bg-red-400 text-slate-50 font-thin">
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:ml-2 sm:inline">{t('b2b.header.logout')}</span>
               </Button>

@@ -130,13 +130,17 @@ const translations = {
     'b2b.commission': 'Commission',
     'b2b.logout': 'Déconnexion',
     
-    // B2B Statistics
+     // B2B Statistics
     'b2b.stats.totalTours': 'Circuits Disponibles',
     'b2b.stats.newThisMonth': 'Nouveaux ce Mois',
     'b2b.stats.averageDuration': 'Durée Moyenne',
     'b2b.stats.commissionRate': 'Taux de Commission',
     'b2b.stats.days': 'jours',
     'b2b.stats.loading': 'Chargement...',
+    'b2b.stats.toursDescription': 'Circuits disponibles dans votre catalogue',
+    'b2b.stats.newDescription': 'Nouveaux circuits ajoutés ce mois-ci',
+    'b2b.stats.durationDescription': 'Durée moyenne de tous les circuits',
+    'b2b.stats.commissionDescription': 'Votre taux de commission actuel',
     
     // B2B Quick Actions
     'b2b.quickActions.title': 'Actions Rapides',
@@ -303,13 +307,17 @@ const translations = {
     'b2b.commission': 'Commission',
     'b2b.logout': 'Logout',
     
-    // B2B Statistics
+     // B2B Statistics
     'b2b.stats.totalTours': 'Tours Available',
     'b2b.stats.newThisMonth': 'New This Month',
     'b2b.stats.averageDuration': 'Average Duration',
     'b2b.stats.commissionRate': 'Commission Rate',
     'b2b.stats.days': 'days',
     'b2b.stats.loading': 'Loading...',
+    'b2b.stats.toursDescription': 'Tours available in your catalog',
+    'b2b.stats.newDescription': 'New tours added this month',
+    'b2b.stats.durationDescription': 'Average duration of all tours',
+    'b2b.stats.commissionDescription': 'Your current commission rate',
     
     // B2B Quick Actions
     'b2b.quickActions.title': 'Quick Actions',

@@ -56,7 +56,7 @@ const ProLayout: React.FC<ProLayoutProps> = ({
       
 
       {/* Main content */}
-      <div className="lg:pl-64">
+      <div className="">
         {/* Top bar */}
         <div className="h-16 bg-background border-b flex items-center justify-between px-6 lg:hidden">
           <Button variant="ghost" size="sm" onClick={() => setSidebarOpen(true)}>

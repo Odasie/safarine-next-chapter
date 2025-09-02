@@ -73,8 +73,8 @@ export function transformTour(tour: any): TransformedTour {
     : durationToText(tour.duration_days, "1 jour");
   const price = tour.price ? formatPrice(tour.price, tour.currency) : undefined;
   
-  // Use new multilingual fields
-  const title = tour.title_fr || tour.page?.title || "Tour sans titre";
+  // Use French title first by default (original behavior for backwards compatibility)
+  const title = tour.title_fr || tour.title_en || tour.page?.title || "Tour sans titre";
   const groupSize = `${tour.group_size_min || 2}-${tour.group_size_max || 8}`;
   
   // Get images with proper fallbacks using file_path only
@@ -94,7 +94,7 @@ export function transformTour(tour: any): TransformedTour {
     img.image_type === 'gallery' && img.published !== false
   ).map((img: any) => img.file_path).filter(Boolean) || [];
   
-  // Create normalized slug for consistent routing - use new slug fields first
+  // Create normalized slug for consistent routing - use French slug first
   const rawSlug = tour.slug_fr || tour.slug_en || tour.page?.slug || tour.page?.url || tour.id;
   const normalizedSlug = rawSlug?.replace(/^\/?(tours\/)?/, '') || tour.id;
   
@@ -289,6 +289,55 @@ export function useFeaturedTours(limit: number = 3) {
       }
 
       return (data as any[]).map(transformTour);
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// B2B-specific hook that returns raw Supabase data without transformation
+export function useRawTours() {
+  return useQuery({
+    queryKey: ["raw-tours"],
+    queryFn: async () => {
+      console.log('🔍 FETCHING RAW TOURS FROM SUPABASE...');
+      
+      const { data, error } = await supabase
+        .from("tours")
+        .select(`
+          id,
+          duration_days,
+          duration_nights,
+          price,
+          currency,
+          title_en,
+          title_fr,
+          slug_en,
+          slug_fr,
+          description_en,
+          description_fr,
+          destination,
+          group_size_min,
+          group_size_max,
+          difficulty_level,
+          booking_method,
+          languages,
+          included_items,
+          excluded_items,
+          total_images,
+          gallery_images
+        `)
+        .order('duration_days', { ascending: true });
+
+      if (error) {
+        console.error("❌ Error fetching raw tours:", error);
+        throw error;
+      }
+
+      console.log('📡 Raw tours response:', { data, error });
+      console.log('📊 Raw tours count:', data?.length);
+      console.log('✅ First tour:', data?.[0]);
+      
+      return data as SupabaseTour[];
     },
     staleTime: 5 * 60 * 1000,
   });

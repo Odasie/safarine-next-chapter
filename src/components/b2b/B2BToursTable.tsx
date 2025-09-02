@@ -34,25 +34,29 @@ export const B2BToursTable: React.FC<B2BToursTableProps> = ({
 
   // Debug logging for tour data
   useEffect(() => {
-    console.log('🔍 DEBUG TOUR DATA:');
+    console.log('🔍 B2B TOURS TABLE DEBUG:');
     console.log('Tours array:', tours);
     console.log('Tours length:', tours?.length);
     console.log('Is loading:', isLoading);
-    console.log('First tour:', tours?.[0]);
+    console.log('First tour structure:', tours?.[0]);
     
     if (tours?.length > 0) {
-      console.log('✅ Tours data is available');
-      tours.forEach((tour, index) => {
+      console.log('✅ Tours data received in B2B table');
+      tours.slice(0, 3).forEach((tour, index) => {
         console.log(`Tour ${index}:`, {
           id: tour.id,
           title_en: tour.title_en,
           title_fr: tour.title_fr,
           destination: tour.destination,
-          price: tour.price
+          price: tour.price,
+          currency: tour.currency,
+          duration_days: tour.duration_days,
+          slug_en: tour.slug_en,
+          slug_fr: tour.slug_fr
         });
       });
     } else {
-      console.log('❌ No tours data found');
+      console.log('❌ No tours data in B2B table');
     }
   }, [tours, isLoading]);
 

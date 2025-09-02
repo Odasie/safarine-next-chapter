@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 import { useB2BAuth } from "@/contexts/B2BAuthContext";
 import { useLocale } from "@/contexts/LocaleContext";
-import { useTours } from "@/hooks/use-tours";
+import { useRawTours } from "@/hooks/use-tours";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { calculateTourStats, generateToursCSV, downloadCSV } from "@/lib/b2b-utils";
 import { useToast } from "@/hooks/use-toast";
@@ -26,7 +26,7 @@ const ProDashboard = () => {
   const {
     data: tours = [],
     isLoading: toursLoading
-  } = useTours();
+  } = useRawTours();
   const {
     toast
   } = useToast();

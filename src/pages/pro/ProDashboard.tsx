@@ -92,7 +92,11 @@ const ProDashboard = () => {
           <div className="container mx-auto px-4 h-full flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <span className="text-2xl">🦁</span>
+                <img 
+                  src="/images/branding/logo-dark-mobile.webp" 
+                  alt="Safarine Logo" 
+                  className="h-8"
+                />
                 <span className="font-bold text-blue-600 hidden sm:inline">SAFARINE B2B</span>
               </div>
               <div className="hidden md:flex items-center text-sm text-gray-600">

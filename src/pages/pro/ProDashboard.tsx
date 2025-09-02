@@ -96,7 +96,7 @@ const ProDashboard = () => {
                 
               </div>
               <div className="hidden md:flex items-center text-sm text-gray-600">
-                <span>{t('b2b.header.welcome')}, {user?.contact_person}</span>
+                <span>{t('b2b.header.welcome')}, {user?.contact_person} </span>
                 
                 <span>{user?.company_name}</span>
               </div>

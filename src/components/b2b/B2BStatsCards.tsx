@@ -51,20 +51,20 @@ export const B2BStatsCards: React.FC<B2BStatsCardsProps> = ({
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-3">
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
       {stats.map((stat, index) => (
         <Card key={index} className="border-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 pt-3">
-            <CardTitle className="text-xs font-medium truncate">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium">
               {stat.title}
             </CardTitle>
-            <stat.icon className={`h-3 w-3 ${stat.color} flex-shrink-0`} />
+            <stat.icon className={`h-4 w-4 ${stat.color}`} />
           </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg md:text-xl font-bold text-foreground">
+          <CardContent>
+            <div className="text-xl md:text-2xl font-bold text-foreground">
               {stat.value}
             </div>
-            <p className="text-xs text-muted-foreground hidden md:block truncate">
+            <p className="text-xs text-muted-foreground hidden md:block">
               {stat.description}
             </p>
           </CardContent>

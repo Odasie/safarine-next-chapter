@@ -3,20 +3,19 @@ import { ReactNode } from "react";
 import { useB2BAuth } from "@/contexts/B2BAuthContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import {
   LayoutDashboard,
   MapPin,
+  Heart,
+  Download,
   Settings,
   LogOut,
-  User,
-  Building2,
-  Percent,
-  Globe,
-  Menu
+  Menu,
+  X
 } from "lucide-react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 
 interface ProLayoutProps {
   children: ReactNode;
@@ -26,104 +25,137 @@ const ProLayout: React.FC<ProLayoutProps> = ({ children }) => {
   const { user, logout } = useB2BAuth();
   const { t, locale } = useLocale();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigation = [
     {
-      name: t('b2b.navigation.dashboard'),
+      name: t('b2b.nav.dashboard'),
       href: `/${locale}/pro/dashboard`,
       icon: LayoutDashboard,
-      current: location.pathname === `/${locale}/pro/dashboard` || location.pathname === '/pro/dashboard'
     },
     {
-      name: t('b2b.navigation.tours'),
+      name: t('b2b.nav.tours'),
       href: `/${locale}/pro/tours`,
       icon: MapPin,
-      current: location.pathname === `/${locale}/pro/tours` || location.pathname === '/pro/tours'
     },
     {
-      name: t('b2b.navigation.settings'),
+      name: t('b2b.nav.favorites'),
+      href: `/${locale}/pro/favorites`,
+      icon: Heart,
+    },
+    {
+      name: t('b2b.nav.downloads'),
+      href: `/${locale}/pro/downloads`,
+      icon: Download,
+    },
+    {
+      name: t('b2b.nav.settings'),
       href: `/${locale}/pro/settings`,
       icon: Settings,
-      current: location.pathname === `/${locale}/pro/settings` || location.pathname === '/pro/settings'
-    }
+    },
   ];
 
   const handleLogout = () => {
     logout();
+    window.location.href = `/${locale}/pro/login`;
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Ultra-compact header - 48px height */}
-      <header className="h-12 bg-card border-b border-border flex items-center justify-between px-4">
-        {/* Left section: Logo + Brand + Welcome */}
-        <div className="flex items-center space-x-4">
-          <ResponsiveLogo className="h-6" />
-          <span className="font-semibold text-foreground hidden md:inline">SAFARINE B2B</span>
-          <div className="hidden lg:flex items-center space-x-2 text-sm">
-            <span className="text-muted-foreground">{t('b2b.dashboard.welcome.short')}</span>
-            <span className="font-medium text-foreground">{user?.contact_person}</span>
-            <span className="text-muted-foreground">-</span>
-            <span className="text-muted-foreground truncate max-w-32">{user?.company_name}</span>
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={cn(
+        "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="flex items-center justify-between h-16 px-6 border-b">
+          <ResponsiveLogo />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X className="h-6 w-6" />
+          </Button>
+        </div>
+
+        {/* User info */}
+        <div className="p-6 border-b">
+          <div className="text-sm font-medium text-foreground">
+            {user?.contact_person}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {user?.company_name}
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">
+            {t('b2b.commission')}: {user?.commission_rate}%
           </div>
         </div>
 
-        {/* Center section: Navigation (desktop only) */}
-        <nav className="hidden md:flex items-center space-x-1">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={cn(
-                "flex items-center space-x-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-                item.current
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground"
-              )}
-            >
-              <item.icon className="h-4 w-4" />
-              <span>{item.name}</span>
-            </Link>
-          ))}
+        {/* Navigation */}
+        <nav className="flex-1 px-4 py-6 space-y-2">
+          {navigation.map((item) => {
+            const isActive = location.pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                )}
+                onClick={() => setSidebarOpen(false)}
+              >
+                <item.icon className="mr-3 h-5 w-5" />
+                {item.name}
+              </Link>
+            );
+          })}
         </nav>
 
-        {/* Right section: User info + Controls */}
-        <div className="flex items-center space-x-2">
-          <div className="hidden lg:flex items-center space-x-2 text-xs">
-            <Percent className="h-3 w-3 text-muted-foreground" />
-            <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-              {user?.commission_rate || 10}%
-            </Badge>
-          </div>
-          
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-xs">
-            <Globe className="h-3 w-3" />
-          </Button>
-          
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-xs">
-            <Settings className="h-3 w-3" />
-          </Button>
-          
-          <Button 
-            onClick={handleLogout} 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 px-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+        {/* Logout button */}
+        <div className="p-4 border-t">
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-muted-foreground hover:text-foreground"
+            onClick={handleLogout}
           >
-            <LogOut className="h-3 w-3" />
-          </Button>
-
-          {/* Mobile menu button */}
-          <Button variant="ghost" size="sm" className="md:hidden h-8 w-8 p-0">
-            <Menu className="h-4 w-4" />
+            <LogOut className="mr-3 h-5 w-5" />
+            {t('b2b.logout')}
           </Button>
         </div>
-      </header>
+      </div>
 
       {/* Main content */}
-      <main className="flex-1">
-        {children}
-      </main>
+      <div className="lg:pl-64">
+        {/* Top bar */}
+        <div className="h-16 bg-background border-b flex items-center justify-between px-6 lg:hidden">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Menu className="h-6 w-6" />
+          </Button>
+          <ResponsiveLogo />
+          <div></div>
+        </div>
+
+        {/* Page content */}
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
     </div>
   );
 };

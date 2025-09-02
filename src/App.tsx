@@ -45,32 +45,32 @@ const App = () => (
                   {/* Protected B2B Routes */}
                   <Route path="/pro/dashboard" element={
                     <B2BProtectedRoute>
-                      <ProLayout />
+                      <ProLayout>
+                        <ProDashboard />
+                      </ProLayout>
                     </B2BProtectedRoute>
-                  }>
-                    <Route index element={<ProDashboard />} />
-                  </Route>
+                  } />
                   <Route path="/:locale/pro/dashboard" element={
                     <B2BProtectedRoute>
-                      <ProLayout />
+                      <ProLayout>
+                        <ProDashboard />
+                      </ProLayout>
                     </B2BProtectedRoute>
-                  }>
-                    <Route index element={<ProDashboard />} />
-                  </Route>
+                  } />
                   <Route path="/pro/tours" element={
                     <B2BProtectedRoute>
-                      <ProLayout />
+                      <ProLayout>
+                        <ProTours />
+                      </ProLayout>
                     </B2BProtectedRoute>
-                  }>
-                    <Route index element={<ProTours />} />
-                  </Route>
+                  } />
                   <Route path="/:locale/pro/tours" element={
                     <B2BProtectedRoute>
-                      <ProLayout />
+                      <ProLayout>
+                        <ProTours />
+                      </ProLayout>
                     </B2BProtectedRoute>
-                  }>
-                    <Route index element={<ProTours />} />
-                  </Route>
+                  } />
 
                   {/* Locale-specific routes */}
                   <Route path="/:locale" element={<MainLayout />}>

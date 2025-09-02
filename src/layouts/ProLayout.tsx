@@ -1,4 +1,5 @@
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { ReactNode } from "react";
 import { useB2BAuth } from "@/contexts/B2BAuthContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,11 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-const ProLayout = () => {
+interface ProLayoutProps {
+  children: ReactNode;
+}
+
+const ProLayout: React.FC<ProLayoutProps> = ({ children }) => {
   const { user, logout } = useB2BAuth();
   const { t, locale } = useLocale();
   const location = useLocation();
@@ -148,7 +153,7 @@ const ProLayout = () => {
 
         {/* Page content */}
         <main className="flex-1">
-          <Outlet />
+          {children}
         </main>
       </div>
     </div>

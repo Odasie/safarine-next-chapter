@@ -111,12 +111,19 @@ const translations = {
     'b2b.register.successMessage': 'Votre compte sera activé après approbation. Vous recevrez un e-mail de confirmation.',
     'b2b.register.backToRegister': 'Retour à l\'inscription',
 
+    // B2B Header translations
+    'b2b.header.welcome': 'Bon retour',
+    'b2b.header.language': 'Langue',
+    'b2b.header.settings': 'Paramètres',
+    'b2b.header.logout': 'Déconnexion',
+
     // B2B Dashboard translations
     'b2b.dashboard.pageTitle': 'Tableau de Bord Professionnel - Safarine Tours',
-    'b2b.dashboard.pageDescription': 'Tableau de bord pour les agences de voyage partenaires avec accès aux tarifs B2B, catalogues et outils de gestion',
-    'b2b.dashboard.welcome': 'Bienvenue',
-    'b2b.dashboard.subtitle': 'Agence de Voyage Partenaire',
+    'b2b.dashboard.pageDescription': 'Gérez vos circuits et votre compte',
+    'b2b.dashboard.welcome': 'Bienvenue, {name}',
+    'b2b.dashboard.subtitle': 'Gestion de {company}',
     'b2b.dashboard.recentActivity': 'Activité Récente',
+    'b2b.dashboard.activityDescription': 'Dernières mises à jour dans votre tableau de bord',
     
     // B2B Navigation
     'b2b.nav.dashboard': 'Tableau de Bord',
@@ -142,6 +149,11 @@ const translations = {
     'b2b.stats.durationDescription': 'Durée moyenne de tous les circuits',
     'b2b.stats.commissionDescription': 'Votre taux de commission actuel',
     
+    // B2B Actions
+    'b2b.actions.downloadCatalog': 'Télécharger Tous les Circuits CSV',
+    'b2b.actions.accountSettings': 'Paramètres du Compte',
+    'b2b.actions.contactSupport': 'Support Client',
+
     // B2B Quick Actions
     'b2b.quickActions.title': 'Actions Rapides',
     'b2b.quickActions.downloadCatalog': 'Télécharger le Catalogue CSV',
@@ -152,6 +164,35 @@ const translations = {
     'b2b.quickActions.settingsDescription': 'Gérez vos informations d\'agence',
     'b2b.quickActions.support': 'Support Client',
     'b2b.quickActions.supportDescription': 'Contactez notre équipe B2B',
+
+    // B2B Tours
+    'b2b.tours.search': 'Rechercher des circuits...',
+    'b2b.tours.filter': 'Filtrer',
+    'b2b.tours.export': 'Exporter',
+    'b2b.tours.name': 'Nom du Circuit',
+    'b2b.tours.duration': 'Durée',
+    'b2b.tours.destination': 'Destination',
+    'b2b.tours.retailPrice': 'Prix Public',
+    'b2b.tours.b2bRate': 'Tarif B2B',
+    'b2b.tours.details': 'Détails',
+
+    // B2B Settings
+    'b2b.settings.title': 'Paramètres du Compte',
+    'b2b.settings.company': 'Entreprise',
+    'b2b.settings.contact': 'Personne de Contact',
+    'b2b.settings.email': 'Email',
+    'b2b.settings.phone': 'Téléphone',
+    'b2b.settings.commission': 'Taux de Commission',
+    'b2b.settings.editProfile': 'Modifier le Profil',
+    'b2b.settings.changePassword': 'Changer le Mot de Passe',
+
+    // B2B Activity
+    'b2b.dashboard.activity.newTour': 'Nouveau Circuit Ajouté',
+    'b2b.dashboard.activity.catalogUpdate': 'Catalogue Mis à Jour',
+    'b2b.dashboard.activity.priceUpdate': 'Prix Mis à Jour',
+    'b2b.dashboard.activity.time1': 'il y a 2 heures',
+    'b2b.dashboard.activity.time2': 'Hier',
+    'b2b.dashboard.activity.time3': 'il y a 3 jours',
     
     // B2B Table
     'b2b.table.searchPlaceholder': 'Rechercher des circuits...',
@@ -288,12 +329,19 @@ const translations = {
     'b2b.register.successMessage': 'Your account will be activated after approval. You will receive a confirmation email.',
     'b2b.register.backToRegister': 'Back to Registration',
 
+    // B2B Header translations
+    'b2b.header.welcome': 'Welcome back',
+    'b2b.header.language': 'Language',
+    'b2b.header.settings': 'Settings',
+    'b2b.header.logout': 'Logout',
+
     // B2B Dashboard translations
-    'b2b.dashboard.pageTitle': 'Professional Dashboard - Safarine Tours',
-    'b2b.dashboard.pageDescription': 'Dashboard for travel agency partners with access to B2B rates, catalogs and management tools',
-    'b2b.dashboard.welcome': 'Welcome back',
-    'b2b.dashboard.subtitle': 'Travel Agency Partner',
+    'b2b.dashboard.pageTitle': 'B2B Dashboard',
+    'b2b.dashboard.pageDescription': 'Manage your tours and account',
+    'b2b.dashboard.welcome': 'Welcome back, {name}',
+    'b2b.dashboard.subtitle': 'Managing {company}',
     'b2b.dashboard.recentActivity': 'Recent Activity',
+    'b2b.dashboard.activityDescription': 'Latest updates in your dashboard',
     
     // B2B Navigation
     'b2b.nav.dashboard': 'Dashboard',
@@ -319,6 +367,11 @@ const translations = {
     'b2b.stats.durationDescription': 'Average duration of all tours',
     'b2b.stats.commissionDescription': 'Your current commission rate',
     
+    // B2B Actions
+    'b2b.actions.downloadCatalog': 'Download All Tours CSV',
+    'b2b.actions.accountSettings': 'Account Settings',
+    'b2b.actions.contactSupport': 'Contact Support',
+
     // B2B Quick Actions
     'b2b.quickActions.title': 'Quick Actions',
     'b2b.quickActions.downloadCatalog': 'Download Catalog CSV',
@@ -329,6 +382,35 @@ const translations = {
     'b2b.quickActions.settingsDescription': 'Manage your agency information',
     'b2b.quickActions.support': 'Customer Support',
     'b2b.quickActions.supportDescription': 'Contact our B2B team',
+
+    // B2B Tours
+    'b2b.tours.search': 'Search tours...',
+    'b2b.tours.filter': 'Filter',
+    'b2b.tours.export': 'Export',
+    'b2b.tours.name': 'Tour Name',
+    'b2b.tours.duration': 'Duration',
+    'b2b.tours.destination': 'Destination',
+    'b2b.tours.retailPrice': 'Retail Price',
+    'b2b.tours.b2bRate': 'B2B Rate',
+    'b2b.tours.details': 'Details',
+
+    // B2B Settings
+    'b2b.settings.title': 'Account Settings',
+    'b2b.settings.company': 'Company',
+    'b2b.settings.contact': 'Contact Person',
+    'b2b.settings.email': 'Email',
+    'b2b.settings.phone': 'Phone',
+    'b2b.settings.commission': 'Commission Rate',
+    'b2b.settings.editProfile': 'Edit Profile',
+    'b2b.settings.changePassword': 'Change Password',
+
+    // B2B Activity
+    'b2b.dashboard.activity.newTour': 'New Tour Added',
+    'b2b.dashboard.activity.catalogUpdate': 'Catalog Updated',
+    'b2b.dashboard.activity.priceUpdate': 'Price Updated',
+    'b2b.dashboard.activity.time1': '2 hours ago',
+    'b2b.dashboard.activity.time2': 'Yesterday',
+    'b2b.dashboard.activity.time3': '3 days ago',
     
     // B2B Table
     'b2b.table.searchPlaceholder': 'Search tours...',

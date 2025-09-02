@@ -149,76 +149,79 @@ export const B2BToursTable: React.FC<B2BToursTableProps> = ({
     );
   }
 
-  // Mobile Card Layout
+  // Mobile Card Layout - Compact with savings highlight
   if (isMobile) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center justify-between text-lg">
             {t('b2b.dashboard.toursTable.title')}
-            <Badge variant="secondary">{filteredAndSortedTours.length}</Badge>
+            <Badge variant="secondary" className="text-xs">{filteredAndSortedTours.length}</Badge>
           </CardTitle>
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
               <Input
                 placeholder={t('b2b.dashboard.search.placeholder')}
-                className="pl-10"
+                className="pl-8 h-8 text-sm"
                 onChange={(e) => debouncedSetSearch(e.target.value)}
               />
             </div>
             {selectedTours.length > 0 && (
-              <Button onClick={handleExportSelected} size="sm" className="w-full">
-                <Download className="mr-2 h-4 w-4" />
+              <Button onClick={handleExportSelected} size="sm" className="w-full h-8">
+                <Download className="mr-2 h-3 w-3" />
                 {t('b2b.dashboard.export.selected')} ({selectedTours.length})
               </Button>
             )}
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredAndSortedTours.map((tour) => {
               const b2bRate = calculateB2BRate(tour.price || 0, commissionRate);
               const isSelected = selectedTours.includes(tour.id);
+              const savings = Math.round(b2bRate.commission);
               
               return (
                 <div 
                   key={tour.id} 
-                  className={`border border-border rounded-lg p-4 ${isSelected ? 'bg-accent/5 border-primary' : ''}`}
+                  className={`border border-border rounded-lg p-3 ${isSelected ? 'bg-accent/5 border-primary' : ''}`}
                 >
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-medium text-foreground mb-1">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-sm text-foreground mb-1 truncate">
                         {locale === 'fr' ? tour.title_fr : tour.title_en}
                       </h3>
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                      <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                         <span>{tour.duration_days} jour{tour.duration_days > 1 ? 's' : ''}</span>
                         <span>•</span>
-                        <span>{tour.destination}</span>
+                        <span className="truncate">{tour.destination}</span>
                       </div>
                     </div>
                     <Checkbox
                       checked={isSelected}
                       onCheckedChange={() => handleSelectTour(tour.id)}
+                      className="flex-shrink-0"
                     />
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <div className="space-y-1">
-                      <div className="text-sm text-muted-foreground">
-                        Retail: <span className="font-medium text-foreground">
+                    <div className="space-y-0.5">
+                      <div className="text-sm">
+                        <span className="line-through text-muted-foreground">
                           {formatB2BPrice(tour.price || 0, tour.currency)}
                         </span>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        B2B: <span className="font-semibold text-primary">
+                        <span className="ml-2 font-semibold text-primary">
                           {formatB2BPrice(Math.round(b2bRate.b2bPrice), tour.currency)}
                         </span>
                       </div>
+                      <div className="text-xs text-green-600 font-medium">
+                        Save {formatB2BPrice(savings, tour.currency)}
+                      </div>
                     </div>
-                    <Button asChild variant="ghost" size="sm">
+                    <Button asChild variant="ghost" size="sm" className="h-7 w-7 p-0">
                       <Link to={`/${locale}/tours/${tour.slug_fr || tour.slug_en || tour.id}`}>
-                        <ExternalLink className="h-4 w-4" />
+                        <ExternalLink className="h-3 w-3" />
                       </Link>
                     </Button>
                   </div>
@@ -231,88 +234,82 @@ export const B2BToursTable: React.FC<B2BToursTableProps> = ({
     );
   }
 
-  // Desktop Table Layout
+  // Desktop Table Layout - Ultra Compact
   return (
     <Card>
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <CardTitle className="flex items-center space-x-2">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-center">
+          <CardTitle className="flex items-center space-x-2 text-lg">
             <span>{t('b2b.dashboard.toursTable.title')}</span>
-            <Badge variant="secondary">{filteredAndSortedTours.length}</Badge>
+            <Badge variant="secondary" className="text-xs">{filteredAndSortedTours.length}</Badge>
+            <span className="text-sm font-normal text-muted-foreground">
+              • B2B Rate: -{commissionRate}%
+            </span>
           </CardTitle>
           
-          <div className="flex items-center space-x-2 w-full sm:w-auto">
-            <div className="relative flex-1 sm:w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center space-x-2">
+            <div className="relative w-48">
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
               <Input
                 placeholder={t('b2b.dashboard.search.placeholder')}
-                className="pl-10"
+                className="pl-8 h-8 text-sm"
                 onChange={(e) => debouncedSetSearch(e.target.value)}
               />
             </div>
-            <Button variant="outline" size="sm">
-              <Filter className="mr-2 h-4 w-4" />
-              {t('b2b.dashboard.filter')}
+            <Button variant="outline" size="sm" className="h-8 px-2 text-xs">
+              <Filter className="mr-1 h-3 w-3" />
+              Filter
             </Button>
             {selectedTours.length > 0 && (
-              <Button onClick={handleExportSelected} size="sm">
-                <Download className="mr-2 h-4 w-4" />
-                {t('b2b.dashboard.export.selected')} ({selectedTours.length})
+              <Button onClick={handleExportSelected} size="sm" className="h-8 px-2 text-xs">
+                <Download className="mr-1 h-3 w-3" />
+                Export ({selectedTours.length})
               </Button>
             )}
           </div>
         </div>
       </CardHeader>
       
-      <CardContent>
+      <CardContent className="pt-0">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">
+              <TableRow className="h-10">
+                <TableHead className="w-10 p-2">
                   <Checkbox
                     checked={selectedTours.length === filteredAndSortedTours.length && filteredAndSortedTours.length > 0}
                     onCheckedChange={handleSelectAll}
                   />
                 </TableHead>
                 <TableHead 
-                  className="cursor-pointer hover:bg-accent/10"
+                  className="cursor-pointer hover:bg-accent/10 p-2 text-xs"
                   onClick={() => handleSort("title_en")}
                 >
-                  {t('b2b.dashboard.table.tourName')}
+                  Tour Name
                   {sortField === "title_en" && (
                     <span className="ml-1">{sortDirection === "asc" ? "↑" : "↓"}</span>
                   )}
                 </TableHead>
                 <TableHead 
-                  className="cursor-pointer hover:bg-accent/10"
+                  className="cursor-pointer hover:bg-accent/10 p-2 text-xs w-20"
                   onClick={() => handleSort("duration_days")}
                 >
-                  {t('b2b.dashboard.table.duration')}
-                  {sortField === "duration_days" && (
-                    <span className="ml-1">{sortDirection === "asc" ? "↑" : "↓"}</span>
-                  )}
+                  Duration
                 </TableHead>
                 <TableHead 
-                  className="cursor-pointer hover:bg-accent/10"
+                  className="cursor-pointer hover:bg-accent/10 p-2 text-xs w-24"
                   onClick={() => handleSort("destination")}
                 >
-                  {t('b2b.dashboard.table.destination')}
-                  {sortField === "destination" && (
-                    <span className="ml-1">{sortDirection === "asc" ? "↑" : "↓"}</span>
-                  )}
+                  Destination
                 </TableHead>
                 <TableHead 
-                  className="cursor-pointer hover:bg-accent/10"
+                  className="cursor-pointer hover:bg-accent/10 p-2 text-xs w-20"
                   onClick={() => handleSort("price")}
                 >
-                  {t('b2b.dashboard.table.retailPrice')}
-                  {sortField === "price" && (
-                    <span className="ml-1">{sortDirection === "asc" ? "↑" : "↓"}</span>
-                  )}
+                  Retail
                 </TableHead>
-                <TableHead>{t('b2b.dashboard.table.b2bPrice')}</TableHead>
-                <TableHead>{t('b2b.dashboard.table.details')}</TableHead>
+                <TableHead className="p-2 text-xs w-20">B2B Rate</TableHead>
+                <TableHead className="p-2 text-xs w-16">Details</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -323,42 +320,40 @@ export const B2BToursTable: React.FC<B2BToursTableProps> = ({
                 return (
                   <TableRow 
                     key={tour.id} 
-                    className={`hover:bg-accent/5 ${isSelected ? 'bg-accent/5 border-l-2 border-l-primary' : ''}`}
+                    className={`h-12 hover:bg-accent/5 ${isSelected ? 'bg-accent/5 border-l-2 border-l-primary' : ''}`}
                   >
-                    <TableCell>
+                    <TableCell className="p-2">
                       <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => handleSelectTour(tour.id)}
                       />
                     </TableCell>
-                    <TableCell>
-                      <div className="font-medium text-foreground">
+                    <TableCell className="p-2">
+                      <div className="font-medium text-sm text-foreground truncate max-w-48">
                         {locale === 'fr' ? tour.title_fr : tour.title_en}
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {tour.duration_days} jour{tour.duration_days > 1 ? 's' : ''}
-                      {tour.duration_nights > 0 && ` / ${tour.duration_nights} nuit${tour.duration_nights > 1 ? 's' : ''}`}
+                    <TableCell className="p-2 text-xs text-muted-foreground">
+                      {tour.duration_days} day{tour.duration_days > 1 ? 's' : ''}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="p-2 text-xs text-muted-foreground truncate">
                       {tour.destination}
                     </TableCell>
-                    <TableCell className="font-medium text-foreground">
+                    <TableCell className="p-2 text-sm font-medium text-foreground">
                       {formatB2BPrice(tour.price || 0, tour.currency)}
                     </TableCell>
-                    <TableCell>
-                      <span className="font-semibold text-primary">
+                    <TableCell className="p-2">
+                      <div className="font-semibold text-sm text-primary">
                         {formatB2BPrice(Math.round(b2bRate.b2bPrice), tour.currency)}
-                      </span>
-                      <div className="text-xs text-muted-foreground">
-                        Économie: {formatB2BPrice(Math.round(b2bRate.commission), tour.currency)}
+                      </div>
+                      <div className="text-xs text-green-600">
+                        Save {formatB2BPrice(Math.round(b2bRate.commission), tour.currency)}
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <Button asChild variant="ghost" size="sm">
+                    <TableCell className="p-2">
+                      <Button asChild variant="ghost" size="sm" className="h-7 w-7 p-0">
                         <Link to={`/${locale}/tours/${tour.slug_fr || tour.slug_en || tour.id}`}>
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          {t('b2b.dashboard.table.viewDetails')}
+                          <ExternalLink className="h-3 w-3" />
                         </Link>
                       </Button>
                     </TableCell>

@@ -9,11 +9,13 @@ import { useToast } from "@/hooks/use-toast";
 interface B2BQuickActionsProps {
   tours: any[];
   commissionRate: number;
+  inline?: boolean;
 }
 
 export const B2BQuickActions: React.FC<B2BQuickActionsProps> = ({
   tours,
-  commissionRate
+  commissionRate,
+  inline = false
 }) => {
   const { t, locale } = useLocale();
   const { toast } = useToast();
@@ -68,58 +70,83 @@ export const B2BQuickActions: React.FC<B2BQuickActionsProps> = ({
     }
   ];
 
-  return (
-    <>
-      {/* Mobile Quick Actions - Simplified */}
-      <div className="grid grid-cols-1 gap-3 md:hidden">
+  // Inline compact actions for desktop header integration
+  if (inline) {
+    return (
+      <div className="flex items-center space-x-2">
         <Button 
           onClick={handleDownloadCSV}
-          className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
-          size="lg"
+          size="sm"
+          className="h-8 px-3 text-xs"
+        >
+          <Download className="mr-1 h-3 w-3" />
+          CSV
+        </Button>
+        <Button asChild variant="outline" size="sm" className="h-8 px-3 text-xs">
+          <Link to={`/${locale}/pro/settings`}>
+            <Settings className="mr-1 h-3 w-3" />
+            Settings
+          </Link>
+        </Button>
+        <Button asChild variant="outline" size="sm" className="h-8 px-3 text-xs">
+          <Link to={`/${locale}/contact`}>
+            <MessageSquare className="mr-1 h-3 w-3" />
+            Support
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {/* Mobile Quick Actions - Compact */}
+      <div className="grid grid-cols-1 gap-2 md:hidden">
+        <Button 
+          onClick={handleDownloadCSV}
+          className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium h-10"
+          size="sm"
         >
           <Download className="mr-2 h-4 w-4" />
           {t('b2b.dashboard.actions.downloadCatalog')}
         </Button>
-        <div className="grid grid-cols-2 gap-3">
-          <Button asChild variant="outline" size="sm">
+        <div className="grid grid-cols-2 gap-2">
+          <Button asChild variant="outline" size="sm" className="h-8">
             <Link to={`/${locale}/pro/tours`}>
-              <MapPin className="mr-2 h-4 w-4" />
-              {t('b2b.dashboard.actions.browseTours')}
+              <MapPin className="mr-1 h-3 w-3" />
+              Tours
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="h-8">
             <Link to={`/${locale}/pro/settings`}>
-              <Settings className="mr-2 h-4 w-4" />
-              {t('b2b.dashboard.actions.accountSettings')}
+              <Settings className="mr-1 h-3 w-3" />
+              Settings
             </Link>
           </Button>
         </div>
       </div>
 
-      {/* Desktop Quick Actions - Full Card Layout */}
+      {/* Desktop Quick Actions - Card Layout (when not inline) */}
       <Card className="hidden md:block">
-        <CardHeader>
-          <CardTitle>{t('b2b.dashboard.quickActions')}</CardTitle>
-          <CardDescription>
-            {t('b2b.dashboard.quickActionsDescription')}
-          </CardDescription>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">{t('b2b.dashboard.quickActions')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {quickActions.map((action, index) => (
-              <div key={index} className="p-4 border border-border rounded-lg hover:bg-accent/5 transition-colors">
-                <div className="flex items-start space-x-3">
-                  <action.icon className="h-5 w-5 text-primary mt-1" />
-                  <div className="flex-1 space-y-2">
-                    <h3 className="font-medium text-foreground">{action.title}</h3>
-                    <p className="text-sm text-muted-foreground">{action.description}</p>
+              <div key={index} className="p-3 border border-border rounded-lg hover:bg-accent/5 transition-colors">
+                <div className="flex items-start space-x-2">
+                  <action.icon className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 space-y-1 min-w-0">
+                    <h3 className="font-medium text-sm text-foreground truncate">{action.title}</h3>
+                    <p className="text-xs text-muted-foreground line-clamp-2">{action.description}</p>
                     {action.href ? (
-                      <Button asChild variant={action.variant} size="sm">
-                        <Link to={action.href}>{t('b2b.dashboard.getStarted')}</Link>
+                      <Button asChild variant={action.variant} size="sm" className="h-7 px-2 text-xs">
+                        <Link to={action.href}>Go</Link>
                       </Button>
                     ) : (
-                      <Button onClick={action.onClick} variant={action.variant} size="sm">
-                        {t('b2b.dashboard.getStarted')}
+                      <Button onClick={action.onClick} variant={action.variant} size="sm" className="h-7 px-2 text-xs">
+                        Download
                       </Button>
                     )}
                   </div>

@@ -50,59 +50,69 @@ const ProDashboard = () => {
         <meta name="description" content={t('b2b.dashboard.pageDescription')} />
       </Helmet>
 
-      <div className="container mx-auto p-4 md:p-6 space-y-6 max-w-7xl">
-        {/* Header */}
-        <div className="text-center md:text-left">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            {t('b2b.dashboard.welcome', { name: user?.contact_person })}
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            {t('b2b.dashboard.subtitle', { company: user?.company_name })}
-          </p>
+      <div className="p-3 space-y-3 max-w-7xl mx-auto">
+        {/* Integrated Stats + Actions Row - Desktop */}
+        <div className="hidden md:flex items-center justify-between">
+          <div className="flex-1 mr-4">
+            <B2BStatsCards
+              totalTours={tourStats.total}
+              newThisMonth={tourStats.newThisMonth}
+              averageDuration={tourStats.averageDuration}
+              commissionRate={commissionRate}
+              isLoading={toursLoading}
+            />
+          </div>
+          <div className="flex items-center space-x-2">
+            <B2BQuickActions
+              tours={tours}
+              commissionRate={commissionRate}
+              inline={true}
+            />
+          </div>
         </div>
 
-        {/* Statistics Cards - Mobile First */}
-        <B2BStatsCards
-          totalTours={tourStats.total}
-          newThisMonth={tourStats.newThisMonth}
-          averageDuration={tourStats.averageDuration}
-          commissionRate={commissionRate}
-          isLoading={toursLoading}
-        />
+        {/* Mobile Layout - Stacked */}
+        <div className="md:hidden space-y-3">
+          <B2BStatsCards
+            totalTours={tourStats.total}
+            newThisMonth={tourStats.newThisMonth}
+            averageDuration={tourStats.averageDuration}
+            commissionRate={commissionRate}
+            isLoading={toursLoading}
+          />
+          <B2BQuickActions
+            tours={tours}
+            commissionRate={commissionRate}
+            inline={false}
+          />
+        </div>
 
-        {/* Quick Actions - Responsive */}
-        <B2BQuickActions
-          tours={tours}
-          commissionRate={commissionRate}
-        />
+        {/* Tours Table - Compact */}
+        <div className="pt-2">
+          <B2BToursTable
+            tours={tours}
+            commissionRate={commissionRate}
+            isLoading={toursLoading}
+          />
+        </div>
 
-        {/* Tours Table - Full Featured */}
-        <B2BToursTable
-          tours={tours}
-          commissionRate={commissionRate}
-          isLoading={toursLoading}
-        />
-
-        {/* Recent Activity */}
+        {/* Recent Activity - Compact */}
         <Card>
-          <CardHeader>
-            <CardTitle>{t('b2b.dashboard.recentActivity')}</CardTitle>
-            <CardDescription>
-              {t('b2b.dashboard.activityDescription')}
-            </CardDescription>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">{t('b2b.dashboard.recentActivity')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start space-x-3 pb-4 border-b last:border-b-0">
-                  <div className="bg-accent/10 p-2 rounded-lg">
-                    <activity.icon className="h-4 w-4 text-accent" />
+                <div key={index} className="flex items-start space-x-3 pb-2 border-b last:border-b-0">
+                  <div className="bg-accent/10 p-1.5 rounded">
+                    <activity.icon className="h-3 w-3 text-accent" />
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium">{activity.title}</h4>
-                    <p className="text-sm text-muted-foreground">{activity.description}</p>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-sm">{activity.title}</h4>
+                    <p className="text-xs text-muted-foreground truncate">{activity.description}</p>
                   </div>
-                  <span className="text-xs text-muted-foreground">{activity.time}</span>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">{activity.time}</span>
                 </div>
               ))}
             </div>

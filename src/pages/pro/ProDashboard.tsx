@@ -116,146 +116,148 @@ const ProDashboard = () => {
         </header>
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-6 space-y-6 max-w-7xl">
-          {/* Mobile Welcome Message */}
-          <div className="md:hidden text-center">
-            <h1 className="text-xl font-bold text-gray-900">
-              {t('b2b.dashboard.welcome', {
-              name: user?.contact_person
-            })}
-            </h1>
-            <p className="text-sm text-gray-600 mt-1">
-              {t('b2b.dashboard.subtitle', {
-              company: user?.company_name
-            })}
-            </p>
-          </div>
+        <main className="w-full px-4 lg:px-6 py-4 space-y-4 max-w-full">
+          <div className="max-w-[1400px] mx-auto w-full">
+            {/* Mobile Welcome Message */}
+            <div className="md:hidden text-center mb-4">
+              <h1 className="text-xl font-bold text-gray-900">
+                {t('b2b.dashboard.welcome', {
+                name: user?.contact_person
+              })}
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                {t('b2b.dashboard.subtitle', {
+                company: user?.company_name
+              })}
+              </p>
+            </div>
 
-          {/* Statistics Cards */}
-          <B2BStatsCards totalTours={tourStats.total} newThisMonth={tourStats.newThisMonth} averageDuration={tourStats.averageDuration} commissionRate={commissionRate} isLoading={toursLoading} />
+            {/* Statistics Cards */}
+            <B2BStatsCards totalTours={tourStats.total} newThisMonth={tourStats.newThisMonth} averageDuration={tourStats.averageDuration} commissionRate={commissionRate} isLoading={toursLoading} />
 
-          {/* Sticky Quick Actions for Mobile */}
-          {isMobile && <div className="sticky top-[48px] z-40 bg-white/95 backdrop-blur-sm border-y border-blue-100 -mx-4 px-4 py-3">
-              <div className="flex justify-center space-x-2">
-                <Button onClick={handleDownloadAllTours} className="bg-blue-600 hover:bg-blue-700 text-white flex-1 max-w-xs">
-                  <Download className="h-4 w-4 mr-2" />
-                  {t('b2b.actions.downloadCatalog')}
-                </Button>
-              </div>
-            </div>}
+            {/* Sticky Quick Actions for Mobile */}
+            {isMobile && <div className="sticky top-[48px] z-40 bg-white/95 backdrop-blur-sm border-y border-blue-100 -mx-4 px-4 py-3">
+                <div className="flex justify-center space-x-2">
+                  <Button onClick={handleDownloadAllTours} className="bg-blue-600 hover:bg-blue-700 text-white flex-1 max-w-xs">
+                    <Download className="h-4 w-4 mr-2" />
+                    {t('b2b.actions.downloadCatalog')}
+                  </Button>
+                </div>
+              </div>}
 
-          {/* Desktop Quick Actions */}
-          {!isMobile && <B2BQuickActions tours={tours} commissionRate={commissionRate} />}
+            {/* Desktop Quick Actions */}
+            {!isMobile && <B2BQuickActions tours={tours} commissionRate={commissionRate} />}
 
-          {/* Tours Table */}
-          <B2BToursTable tours={tours} commissionRate={commissionRate} isLoading={toursLoading} />
+            {/* Tours Table */}
+            <B2BToursTable tours={tours} commissionRate={commissionRate} isLoading={toursLoading} />
 
-          {/* Collapsible Recent Activity */}
-          <Collapsible open={activityOpen} onOpenChange={setActivityOpen}>
-            <Card>
-              <CollapsibleTrigger className="w-full">
-                <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="text-left">
-                      <CardTitle className="text-lg">{t('b2b.dashboard.recentActivity')}</CardTitle>
-                      <CardDescription>
-                        {t('b2b.dashboard.activityDescription')}
-                      </CardDescription>
+            {/* Collapsible Recent Activity */}
+            <Collapsible open={activityOpen} onOpenChange={setActivityOpen}>
+              <Card>
+                <CollapsibleTrigger className="w-full">
+                  <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="text-left">
+                        <CardTitle className="text-lg">{t('b2b.dashboard.recentActivity')}</CardTitle>
+                        <CardDescription>
+                          {t('b2b.dashboard.activityDescription')}
+                        </CardDescription>
+                      </div>
+                      <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${activityOpen ? 'rotate-180' : ''}`} />
                     </div>
-                    <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${activityOpen ? 'rotate-180' : ''}`} />
-                  </div>
-                </CardHeader>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <CardContent>
-                  <div className="space-y-4">
-                    {recentActivity.map((activity, index) => <div key={index} className="flex items-start space-x-3 pb-4 border-b last:border-b-0">
-                        <div className="bg-blue-50 p-2 rounded-lg">
-                          <activity.icon className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900">{activity.title}</h4>
-                          <p className="text-sm text-gray-600">{activity.description}</p>
-                        </div>
-                        <span className="text-xs text-gray-500">{activity.time}</span>
-                      </div>)}
-                  </div>
-                </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
-
-          {/* Collapsible Account Settings */}
-          <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
-            <Card>
-              <CollapsibleTrigger className="w-full">
-                <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="text-left">
-                      <CardTitle className="text-lg">{t('b2b.settings.title')}</CardTitle>
-                      <CardDescription>
-                        Manage your account information and preferences
-                      </CardDescription>
-                    </div>
-                    <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${settingsOpen ? 'rotate-180' : ''}`} />
-                  </div>
-                </CardHeader>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent>
                     <div className="space-y-4">
-                      <div className="flex items-center space-x-3">
-                        <Building className="h-5 w-5 text-gray-400" />
-                        <div>
-                          <p className="font-medium text-gray-900">{t('b2b.settings.company')}</p>
-                          <p className="text-sm text-gray-600">{user?.company_name}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <User className="h-5 w-5 text-gray-400" />
-                        <div>
-                          <p className="font-medium text-gray-900">{t('b2b.settings.contact')}</p>
-                          <p className="text-sm text-gray-600">{user?.contact_person}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <Mail className="h-5 w-5 text-gray-400" />
-                        <div>
-                          <p className="font-medium text-gray-900">{t('b2b.settings.email')}</p>
-                          <p className="text-sm text-gray-600">{user?.email}</p>
-                        </div>
-                      </div>
+                      {recentActivity.map((activity, index) => <div key={index} className="flex items-start space-x-3 pb-4 border-b last:border-b-0">
+                          <div className="bg-blue-50 p-2 rounded-lg">
+                            <activity.icon className="h-4 w-4 text-blue-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium text-gray-900">{activity.title}</h4>
+                            <p className="text-sm text-gray-600">{activity.description}</p>
+                          </div>
+                          <span className="text-xs text-gray-500">{activity.time}</span>
+                        </div>)}
                     </div>
-                    <div className="space-y-4">
-                       <div className="flex items-center space-x-3">
-                         <Phone className="h-5 w-5 text-gray-400" />
-                         <div>
-                           <p className="font-medium text-gray-900">{t('b2b.settings.phone')}</p>
-                           <p className="text-sm text-gray-600">Not provided</p>
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
+
+            {/* Collapsible Account Settings */}
+            <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
+              <Card>
+                <CollapsibleTrigger className="w-full">
+                  <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="text-left">
+                        <CardTitle className="text-lg">{t('b2b.settings.title')}</CardTitle>
+                        <CardDescription>
+                          Manage your account information and preferences
+                        </CardDescription>
+                      </div>
+                      <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${settingsOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                  </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-3">
+                          <Building className="h-5 w-5 text-gray-400" />
+                          <div>
+                            <p className="font-medium text-gray-900">{t('b2b.settings.company')}</p>
+                            <p className="text-sm text-gray-600">{user?.company_name}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <User className="h-5 w-5 text-gray-400" />
+                          <div>
+                            <p className="font-medium text-gray-900">{t('b2b.settings.contact')}</p>
+                            <p className="text-sm text-gray-600">{user?.contact_person}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <Mail className="h-5 w-5 text-gray-400" />
+                          <div>
+                            <p className="font-medium text-gray-900">{t('b2b.settings.email')}</p>
+                            <p className="text-sm text-gray-600">{user?.email}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                         <div className="flex items-center space-x-3">
+                           <Phone className="h-5 w-5 text-gray-400" />
+                           <div>
+                             <p className="font-medium text-gray-900">{t('b2b.settings.phone')}</p>
+                             <p className="text-sm text-gray-600">Not provided</p>
+                           </div>
                          </div>
-                       </div>
-                      <div className="flex items-center space-x-3">
-                        <TrendingUp className="h-5 w-5 text-gray-400" />
-                        <div>
-                          <p className="font-medium text-gray-900">{t('b2b.settings.commission')}</p>
-                          <p className="text-sm text-gray-600">{commissionRate}%</p>
+                        <div className="flex items-center space-x-3">
+                          <TrendingUp className="h-5 w-5 text-gray-400" />
+                          <div>
+                            <p className="font-medium text-gray-900">{t('b2b.settings.commission')}</p>
+                            <p className="text-sm text-gray-600">{commissionRate}%</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col space-y-2 pt-4">
+                          <Button variant="outline" size="sm" className="justify-start">
+                            {t('b2b.settings.editProfile')}
+                          </Button>
+                          <Button variant="outline" size="sm" className="justify-start">
+                            {t('b2b.settings.changePassword')}
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex flex-col space-y-2 pt-4">
-                        <Button variant="outline" size="sm" className="justify-start">
-                          {t('b2b.settings.editProfile')}
-                        </Button>
-                        <Button variant="outline" size="sm" className="justify-start">
-                          {t('b2b.settings.changePassword')}
-                        </Button>
-                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
+          </div>
         </main>
       </div>
     </>;

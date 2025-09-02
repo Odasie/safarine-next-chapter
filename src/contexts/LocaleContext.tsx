@@ -117,14 +117,6 @@ const translations = {
     'b2b.header.settings': 'Paramètres',
     'b2b.header.logout': 'Déconnexion',
 
-    // B2B Dashboard translations
-    'b2b.dashboard.pageTitle': 'Tableau de Bord Professionnel - Safarine Tours',
-    'b2b.dashboard.pageDescription': 'Gérez vos circuits et votre compte',
-    'b2b.dashboard.welcome': 'Bienvenue, {name}',
-    'b2b.dashboard.subtitle': 'Gestion de {company}',
-    'b2b.dashboard.recentActivity': 'Activité Récente',
-    'b2b.dashboard.activityDescription': 'Dernières mises à jour dans votre tableau de bord',
-    
     // B2B Navigation
     'b2b.nav.dashboard': 'Tableau de Bord',
     'b2b.nav.tours': 'Circuits',
@@ -230,6 +222,45 @@ const translations = {
     'b2b.activity.timeAgo.hour': 'il y a 1 heure',
     'b2b.activity.timeAgo.hours': 'il y a quelques heures',
     'b2b.activity.timeAgo.today': 'aujourd\'hui',
+
+    // B2B Dashboard Core - French
+    'b2b.dashboard.pageTitle': 'Tableau de Bord B2B - Safarine',
+    'b2b.dashboard.pageDescription': 'Tableau de bord professionnel pour les agents de voyage Safarine',
+    'b2b.dashboard.welcome': 'Bienvenue, {{name}}',
+    'b2b.dashboard.subtitle': '{{company}}',
+    'b2b.dashboard.recentActivity': 'Activité Récente',
+    'b2b.dashboard.activityDescription': 'Vos dernières actions et mises à jour',
+
+    // B2B Dashboard Stats - French
+    'b2b.dashboard.stats.totalTours': 'Total Circuits',
+    'b2b.dashboard.stats.toursDescription': 'Circuits disponibles au catalogue',
+    'b2b.dashboard.stats.newThisMonth': 'Nouveaux ce Mois',
+    'b2b.dashboard.stats.newDescription': 'Circuits récemment ajoutés',
+    'b2b.dashboard.stats.averageDuration': 'Durée Moyenne',
+    'b2b.dashboard.stats.durationDescription': 'Durée moyenne des circuits en jours',
+    'b2b.dashboard.stats.commission': 'Taux de Commission',
+    'b2b.dashboard.stats.commissionDescription': 'Votre taux de commission agence',
+
+    // B2B Dashboard Tours Table - French
+    'b2b.dashboard.toursTable.title': 'Circuits Disponibles',
+    'b2b.dashboard.search.placeholder': 'Rechercher des circuits...',
+    'b2b.dashboard.filter': 'Filtrer',
+    'b2b.dashboard.table.tourName': 'Nom du Circuit',
+    'b2b.dashboard.table.duration': 'Durée',
+    'b2b.dashboard.table.destination': 'Destination',
+    'b2b.dashboard.table.retailPrice': 'Prix Public',
+    'b2b.dashboard.table.b2bPrice': 'Prix B2B',
+    'b2b.dashboard.table.details': 'Détails',
+    'b2b.dashboard.table.viewDetails': 'Voir Détails',
+
+    // B2B Dashboard Export - French
+    'b2b.dashboard.export.success': 'Circuits exportés avec succès',
+    'b2b.dashboard.export.error': 'Échec de l\'export',
+    'b2b.dashboard.export.selected': 'Exporter Sélectionnés',
+    'b2b.dashboard.export.noSelection': 'Aucun circuit sélectionné',
+    'b2b.dashboard.export.noSelectionDescription': 'Veuillez sélectionner des circuits à exporter',
+    'b2b.dashboard.export.selectedToursExported': 'circuits exportés',
+    'b2b.dashboard.export.errorDescription': 'Veuillez réessayer',
   },
   en: {
     'menu.tours': 'Tours & Activities',
@@ -335,14 +366,6 @@ const translations = {
     'b2b.header.settings': 'Settings',
     'b2b.header.logout': 'Logout',
 
-    // B2B Dashboard translations
-    'b2b.dashboard.pageTitle': 'B2B Dashboard',
-    'b2b.dashboard.pageDescription': 'Manage your tours and account',
-    'b2b.dashboard.welcome': 'Welcome back, {name}',
-    'b2b.dashboard.subtitle': 'Managing {company}',
-    'b2b.dashboard.recentActivity': 'Recent Activity',
-    'b2b.dashboard.activityDescription': 'Latest updates in your dashboard',
-    
     // B2B Navigation
     'b2b.nav.dashboard': 'Dashboard',
     'b2b.nav.tours': 'Tours',
@@ -448,6 +471,45 @@ const translations = {
     'b2b.activity.timeAgo.hour': '1 hour ago',
     'b2b.activity.timeAgo.hours': 'a few hours ago',
     'b2b.activity.timeAgo.today': 'today',
+
+    // B2B Dashboard Core
+    'b2b.dashboard.pageTitle': 'B2B Dashboard - Safarine',
+    'b2b.dashboard.pageDescription': 'Professional travel agent dashboard for Safarine tours',
+    'b2b.dashboard.welcome': 'Welcome, {{name}}',
+    'b2b.dashboard.subtitle': '{{company}}',
+    'b2b.dashboard.recentActivity': 'Recent Activity',
+    'b2b.dashboard.activityDescription': 'Your latest actions and updates',
+
+    // B2B Dashboard Stats
+    'b2b.dashboard.stats.totalTours': 'Total Tours',
+    'b2b.dashboard.stats.toursDescription': 'Available tours in catalog',
+    'b2b.dashboard.stats.newThisMonth': 'New This Month',
+    'b2b.dashboard.stats.newDescription': 'Recently added tours',
+    'b2b.dashboard.stats.averageDuration': 'Average Duration',
+    'b2b.dashboard.stats.durationDescription': 'Average tour length in days',
+    'b2b.dashboard.stats.commission': 'Commission Rate',
+    'b2b.dashboard.stats.commissionDescription': 'Your agency commission rate',
+
+    // B2B Dashboard Tours Table  
+    'b2b.dashboard.toursTable.title': 'Available Tours',
+    'b2b.dashboard.search.placeholder': 'Search tours...',
+    'b2b.dashboard.filter': 'Filter',
+    'b2b.dashboard.table.tourName': 'Tour Name',
+    'b2b.dashboard.table.duration': 'Duration',
+    'b2b.dashboard.table.destination': 'Destination',
+    'b2b.dashboard.table.retailPrice': 'Retail Price',
+    'b2b.dashboard.table.b2bPrice': 'B2B Price',
+    'b2b.dashboard.table.details': 'Details',
+    'b2b.dashboard.table.viewDetails': 'View Details',
+
+    // B2B Dashboard Export
+    'b2b.dashboard.export.success': 'Tours exported successfully',
+    'b2b.dashboard.export.error': 'Export failed',
+    'b2b.dashboard.export.selected': 'Export Selected',
+    'b2b.dashboard.export.noSelection': 'No tours selected',
+    'b2b.dashboard.export.noSelectionDescription': 'Please select tours to export',
+    'b2b.dashboard.export.selectedToursExported': 'tours exported',
+    'b2b.dashboard.export.errorDescription': 'Please try again',
   },
 };
 

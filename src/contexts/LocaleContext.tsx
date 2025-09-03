@@ -273,6 +273,7 @@ const translations = {
     'b2b.dashboard.actions.settingsDescription': 'Gérer votre compte',
     'b2b.dashboard.actions.contactSupport': 'Contacter le Support',
     'b2b.dashboard.actions.supportDescription': 'Obtenir de l\'aide et du support',
+    'b2b.dashboard.getStarted': 'Commencer',
   },
   en: {
     'menu.tours': 'Tours & Activities',
@@ -516,6 +517,7 @@ const translations = {
 
     // B2B Dashboard Export
     'b2b.dashboard.export.success': 'Tours exported successfully',
+    'b2b.dashboard.export.successDescription': 'Your catalog has been downloaded',
     'b2b.dashboard.export.error': 'Export failed',
     'b2b.dashboard.export.selected': 'Export Selected',
     'b2b.dashboard.export.noSelection': 'No tours selected',
@@ -534,6 +536,7 @@ const translations = {
     'b2b.dashboard.actions.settingsDescription': 'Manage your account',
     'b2b.dashboard.actions.contactSupport': 'Contact Support',
     'b2b.dashboard.actions.supportDescription': 'Get help and support',
+    'b2b.dashboard.getStarted': 'Get Started',
   },
 };
 

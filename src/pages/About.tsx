@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Users, Shield, Heart, Globe, Star, Phone } from "lucide-react";
-
 const About = () => {
-  const { t, locale } = useLocale();
+  const {
+    t,
+    locale
+  } = useLocale();
   const canonicalUrl = `${window.location.origin}/${locale}/about`;
-  
-  return (
-    <div>
+  return <div>
       <Helmet>
         <title>{t('about.meta.title')}</title>
         <meta name="description" content={t('about.meta.description')} />
@@ -26,27 +26,20 @@ const About = () => {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <ResponsiveImage 
-          src="/images/about/company-story-hero.webp"
-          mobileSrc="/images/about/company-story-hero-mobile.webp"
-          alt="Safarine Tours Thailand company story"
-          className="absolute inset-0 -z-20 h-full w-full object-cover"
-          loading="eager"
-          fetchPriority="high"
-        />
+        <ResponsiveImage src="/images/about/company-story-hero.webp" mobileSrc="/images/about/company-story-hero-mobile.webp" alt="Safarine Tours Thailand company story" className="absolute inset-0 -z-20 h-full w-full object-cover" loading="eager" fetchPriority="high" />
         <div className="absolute inset-0 -z-10 bg-foreground/60" />
         
         <div className="container mx-auto py-24 text-center text-primary-foreground">
           <Badge variant="secondary" className="mb-4 bg-primary/20 text-primary-foreground">
             {locale === 'fr' ? 'Depuis 1995' : 'Since 1995'}
           </Badge>
-          <h1 className="mb-4 text-4xl md:text-6xl font-bold text-background">
+          <h1 className="mb-4 text-4xl md:text-6xl font-bold text-slate-950">
             {t('about.hero.title')}
           </h1>
-          <p className="mb-6 text-xl md:text-2xl max-w-3xl mx-auto text-background/90">
+          <p className="mb-6 text-xl md:text-2xl max-w-3xl mx-auto text-lime-800">
             {t('about.hero.subtitle')}
           </p>
-          <p className="text-lg max-w-2xl mx-auto text-background/80">
+          <p className="text-lg max-w-2xl mx-auto text-slate-950">
             {t('about.hero.description')}
           </p>
         </div>
@@ -80,13 +73,7 @@ const About = () => {
                 </Button>
               </div>
             </div>
-            <ResponsiveImage 
-              src="/images/about/why-safarine.webp"
-              mobileSrc="/images/about/why-safarine-tablet.webp"
-              alt="Safarine Tours authentic Thailand experience"
-              className="h-96 w-full rounded-xl object-cover shadow-lg"
-              loading="lazy"
-            />
+            <ResponsiveImage src="/images/about/why-safarine.webp" mobileSrc="/images/about/why-safarine-tablet.webp" alt="Safarine Tours authentic Thailand experience" className="h-96 w-full rounded-xl object-cover shadow-lg" loading="lazy" />
           </div>
         </div>
       </section>
@@ -179,10 +166,7 @@ const About = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  {locale === 'fr' 
-                    ? 'En Thaïlande depuis le début des années 2000, David est le leader passionné de Safarine Tours.' 
-                    : 'In Thailand since the early 2000s, David is the passionate leader of Safarine Tours.'
-                  }
+                  {locale === 'fr' ? 'En Thaïlande depuis le début des années 2000, David est le leader passionné de Safarine Tours.' : 'In Thailand since the early 2000s, David is the passionate leader of Safarine Tours.'}
                 </p>
               </CardContent>
             </Card>
@@ -197,10 +181,7 @@ const About = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  {locale === 'fr' 
-                    ? 'Guide locale expérimentée avec une connaissance approfondie de la culture thaïlandaise.' 
-                    : 'Experienced local guide with deep knowledge of Thai culture.'
-                  }
+                  {locale === 'fr' ? 'Guide locale expérimentée avec une connaissance approfondie de la culture thaïlandaise.' : 'Experienced local guide with deep knowledge of Thai culture.'}
                 </p>
               </CardContent>
             </Card>
@@ -215,10 +196,7 @@ const About = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  {locale === 'fr' 
-                    ? 'Spécialiste en organisation de voyages personnalisés et expériences authentiques.' 
-                    : 'Specialist in organizing personalized trips and authentic experiences.'
-                  }
+                  {locale === 'fr' ? 'Spécialiste en organisation de voyages personnalisés et expériences authentiques.' : 'Specialist in organizing personalized trips and authentic experiences.'}
                 </p>
               </CardContent>
             </Card>
@@ -294,10 +272,7 @@ const About = () => {
             {locale === 'fr' ? 'Prêt pour Votre Aventure Thaïlandaise ?' : 'Ready for Your Thai Adventure?'}
           </h2>
           <p className="mb-8 text-muted-foreground text-lg max-w-2xl mx-auto">
-            {locale === 'fr' 
-              ? 'Contactez notre équipe dexperts pour planifier votre voyage personnalisé en Thaïlande.' 
-              : 'Contact our expert team to plan your personalized trip to Thailand.'
-            }
+            {locale === 'fr' ? 'Contactez notre équipe dexperts pour planifier votre voyage personnalisé en Thaïlande.' : 'Contact our expert team to plan your personalized trip to Thailand.'}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" asChild>
@@ -314,8 +289,6 @@ const About = () => {
           </div>
         </div>
       </section>
-    </div>
-  );
+    </div>;
 };
-
 export default About;

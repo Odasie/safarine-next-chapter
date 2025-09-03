@@ -17,33 +17,36 @@ export const B2BStatsCards: React.FC<B2BStatsCardsProps> = ({
   commissionRate,
   isLoading = false
 }) => {
-  const { t } = useLocale();
+  const { t, loading: translationsLoading } = useLocale();
+
+  // Show loading if either data is loading or translations are loading
+  const shouldShowLoading = isLoading || translationsLoading;
 
   const stats = [
     {
       title: t('b2b.dashboard.stats.totalTours'),
-      value: isLoading ? "..." : totalTours.toString(),
+      value: shouldShowLoading ? "..." : totalTours.toString(),
       icon: MapPin,
       description: t('b2b.dashboard.stats.toursDescription'),
       color: "text-primary"
     },
     {
       title: t('b2b.dashboard.stats.newThisMonth'),
-      value: isLoading ? "..." : newThisMonth.toString(),
+      value: shouldShowLoading ? "..." : newThisMonth.toString(),
       icon: TrendingUp,
       description: t('b2b.dashboard.stats.newDescription'),
       color: "text-accent"
     },
     {
       title: t('b2b.dashboard.stats.averageDuration'),
-      value: isLoading ? "..." : `${averageDuration}`,
+      value: shouldShowLoading ? "..." : `${averageDuration}`,
       icon: Calendar,
       description: t('b2b.dashboard.stats.durationDescription'),
       color: "text-secondary"
     },
     {
       title: t('b2b.dashboard.stats.commission'),
-      value: isLoading ? "..." : `${commissionRate}%`,
+      value: shouldShowLoading ? "..." : `${commissionRate}%`,
       icon: Users,
       description: t('b2b.dashboard.stats.commissionDescription'),
       color: "text-primary"

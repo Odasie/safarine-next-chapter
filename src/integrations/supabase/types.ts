@@ -524,15 +524,8 @@ export type Database = {
         Returns: string
       }
       b2b_authenticate: {
-        Args: { email_param: string; password_param: string }
-        Returns: {
-          commission_rate: number
-          company_name: string
-          contact_person: string
-          email: string
-          status: string
-          user_id: string
-        }[]
+        Args: { user_email: string; user_password: string }
+        Returns: Json
       }
       create_new_tour: {
         Args: {

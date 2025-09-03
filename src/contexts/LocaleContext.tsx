@@ -104,10 +104,22 @@ export const LocaleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Get translation from database
     let translation = translations[locale]?.[key];
     
-    // If not found, fallback to key name
+    // If not found, try fallback locale (English if current is French, or vice versa)
     if (!translation) {
-      console.warn(`Translation missing for key: ${key} in locale: ${locale}`);
-      translation = key;
+      const fallbackLocale = locale === 'en' ? 'fr' : 'en';
+      translation = translations[fallbackLocale]?.[key];
+      
+      if (translation) {
+        console.warn(`Translation missing for key: ${key} in locale: ${locale}, using ${fallbackLocale} fallback`);
+      }
+    }
+    
+    // If still not found, use a human-readable fallback
+    if (!translation) {
+      console.warn(`Translation missing for key: ${key} in both locales`);
+      // Convert key to human-readable format (e.g., 'search.destination' -> 'Destination')
+      translation = key.split('.').pop()?.replace(/([A-Z])/g, ' $1').trim() || key;
+      translation = translation.charAt(0).toUpperCase() + translation.slice(1);
     }
     
     // Handle parameter substitution

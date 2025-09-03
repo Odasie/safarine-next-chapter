@@ -274,6 +274,9 @@ const translations = {
     'b2b.dashboard.actions.contactSupport': 'Contacter le Support',
     'b2b.dashboard.actions.supportDescription': 'Obtenir de l\'aide et du support',
     'b2b.dashboard.getStarted': 'Commencer',
+    
+    // Common translations
+    'common.loading': 'Chargement...',
   },
   en: {
     'menu.tours': 'Tours & Activities',
@@ -537,6 +540,9 @@ const translations = {
     'b2b.dashboard.actions.contactSupport': 'Contact Support',
     'b2b.dashboard.actions.supportDescription': 'Get help and support',
     'b2b.dashboard.getStarted': 'Get Started',
+    
+    // Common translations
+    'common.loading': 'Loading...',
   },
 };
 

@@ -103,7 +103,7 @@ const ProLogin = () => {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <Link to={`/${locale}`}>
-              <ResponsiveLogo />
+              <ResponsiveLogo className="max-w-24 w-24" />
             </Link>
             <h1 className="mt-6 text-3xl font-bold text-foreground">
               {t('b2b.login.title')}

@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 import { Helmet } from "react-helmet-async";
+import { Phone } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -79,11 +80,13 @@ const Contact = () => {
         </div>
       </form>
 
-      <aside className="mt-8 text-sm text-muted-foreground">
-        <p>Safarine Tours – Kanchanaburi & Chiang Mai, Thailand
-
-Safarine Tours - Licence n° 14/03149
-+66-860491662</p>
+      <aside className="mt-8 text-sm text-muted-foreground space-y-1">
+        <p>Safarine Tours – Kanchanaburi & Chiang Mai, Thailand</p>
+        <p>Safarine Tours - Licence n° 14/03149</p>
+        <p className="flex items-center gap-2">
+          <Phone className="h-3 w-3" />
+          +66-860491662
+        </p>
       </aside>
     </div>;
 };

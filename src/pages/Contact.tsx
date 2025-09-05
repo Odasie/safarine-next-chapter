@@ -19,7 +19,9 @@ const Contact = () => {
   } = useToast();
   const {
     register,
-    handleSubmit
+    handleSubmit,
+    reset,
+    setValue
   } = useForm<ContactForm>();
   const onSubmit = (data: ContactForm) => {
     console.log("Contact form submitted", data);
@@ -27,6 +29,7 @@ const Contact = () => {
       title: "Message sent",
       description: "We'll get back to you shortly."
     });
+    reset(); // Clear all form fields after successful submission
   };
   return <div className="container mx-auto py-10">
       <Helmet>
@@ -58,7 +61,7 @@ const Contact = () => {
         </div>
         <div className="grid gap-2">
           <label className="text-sm font-medium">Message type</label>
-          <Select>
+          <Select onValueChange={(value) => setValue("type", value)}>
             <SelectTrigger>
               <SelectValue placeholder="Select type" />
             </SelectTrigger>

@@ -1,9 +1,12 @@
 import { Link, NavLink } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, User, LogOut } from "lucide-react";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { CurrencySwitcher } from "@/components/ui/currency-switcher";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useUserAuth } from "@/contexts/UserAuthContext";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -12,9 +15,14 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 const SiteHeader = () => {
   const { locale, t } = useLocale();
+  const { user, signOut, loading } = useUserAuth();
   
   const getLocalizedPath = (path: string) => {
     return `/${locale}${path}`;
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
   };
 
   return (
@@ -40,6 +48,39 @@ const SiteHeader = () => {
             <Search className="h-4 w-4" />
             <span className="hidden sm:inline">{t('search.cta')}</span>
           </button>
+          
+          {!loading && (
+            user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-primary-foreground hover:text-primary-foreground hover:bg-primary-foreground/10">
+                    <User className="h-4 w-4" />
+                    <span className="hidden sm:inline ml-1">{t('menu.account')}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link to={getLocalizedPath("/profile")}>
+                      <User className="h-4 w-4 mr-2" />
+                      {t('profile.title')}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    {t('auth.signOut')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:text-primary-foreground hover:bg-primary-foreground/10">
+                <Link to={getLocalizedPath("/auth")}>
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline ml-1">{t('auth.login.title')}</span>
+                </Link>
+              </Button>
+            )
+          )}
+          
           <LanguageSwitcher />
           <CurrencySwitcher />
         </div>

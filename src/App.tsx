@@ -8,7 +8,9 @@ import { HelmetProvider } from "react-helmet-async";
 import { LocaleProvider } from "@/contexts/LocaleContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { B2BAuthProvider } from "@/contexts/B2BAuthContext";
+import { UserAuthProvider } from "@/contexts/UserAuthContext";
 import { B2BProtectedRoute } from "@/components/b2b/B2BProtectedRoute";
+import { UserProtectedRoute } from "@/components/auth/UserProtectedRoute";
 import MainLayout from "@/layouts/MainLayout";
 import ProLayout from "@/layouts/ProLayout";
 import Index from "./pages/Index";
@@ -22,6 +24,8 @@ import AdminCSVImport from "./pages/AdminCSVImport";
 import ProLogin from "./pages/pro/ProLogin";
 import ProDashboard from "./pages/pro/ProDashboard";
 import ProTours from "./pages/pro/ProTours";
+import Auth from "./pages/Auth";
+import UserProfile from "./pages/UserProfile";
 
 const queryClient = new QueryClient();
 
@@ -34,7 +38,8 @@ const App = () => (
         <BrowserRouter future={{ v7_relativeSplatPath: true }}>
           <LocaleProvider>
             <CurrencyProvider>
-              <B2BAuthProvider>
+              <UserAuthProvider>
+                <B2BAuthProvider>
                 <Routes>
                   {/* B2B Routes */}
                   <Route path="/pro/login" element={<ProLogin />} />
@@ -72,6 +77,10 @@ const App = () => (
                     </B2BProtectedRoute>
                   } />
 
+                  {/* User Authentication Routes */}
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/:locale/auth" element={<Auth />} />
+                  
                   {/* Locale-specific routes */}
                   <Route path="/:locale" element={<MainLayout />}>
                     <Route index element={<Index />} />
@@ -79,6 +88,11 @@ const App = () => (
                     <Route path="tours/:slug" element={<TourDetail />} />
                     <Route path="about" element={<About />} />
                     <Route path="contact" element={<Contact />} />
+                    <Route path="profile" element={
+                      <UserProtectedRoute>
+                        <UserProfile />
+                      </UserProtectedRoute>
+                    } />
                     <Route path="admin/import" element={<AdminImport />} />
                     <Route path="admin/csv-import" element={<AdminCSVImport />} />
                   </Route>
@@ -90,6 +104,11 @@ const App = () => (
                     <Route path="/tours/:slug" element={<TourDetail />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
+                    <Route path="/profile" element={
+                      <UserProtectedRoute>
+                        <UserProfile />
+                      </UserProtectedRoute>
+                    } />
                     <Route path="/admin/import" element={<AdminImport />} />
                     <Route path="/admin/csv-import" element={<AdminCSVImport />} />
                   </Route>
@@ -97,7 +116,8 @@ const App = () => (
                   {/* Catch-all */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-              </B2BAuthProvider>
+                </B2BAuthProvider>
+              </UserAuthProvider>
             </CurrencyProvider>
           </LocaleProvider>
         </BrowserRouter>

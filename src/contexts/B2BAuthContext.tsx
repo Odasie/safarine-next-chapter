@@ -150,8 +150,7 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
         });
 
       if (sessionError) {
-        console.error('Session creation error:', sessionError);
-        return { error: 'Failed to create session. Please try again.' };
+        return { error: 'Failed to create session' };
       }
 
       // Store token and set user
@@ -173,7 +172,7 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
       return {};
     } catch (error) {
       console.error('Login error:', error);
-      return { error: 'An unexpected error occurred. Please try again.' };
+      return { error: 'An unexpected error occurred' };
     } finally {
       setLoading(false);
     }

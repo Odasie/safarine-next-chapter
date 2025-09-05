@@ -96,22 +96,42 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
     try {
       setLoading(true);
       
-      // Authenticate user
+      // Authenticate user with updated function
       const { data: authData, error: authError } = await supabase
         .rpc('b2b_authenticate', {
-          user_email: email,
-          user_password: password
-        } as any);
+          email_param: email,
+          password_param: password
+        });
 
       if (authError) {
-        return { error: 'Authentication failed' };
+        console.error('Authentication error:', authError);
+        return { error: 'Authentication failed. Please try again.' };
       }
 
-      // Type assertion since generated types are outdated
-      const authResponse = (authData as unknown) as { success: boolean; error?: string; user?: any };
+      // Parse the JSON response
+      const authResponse = authData as {
+        success: boolean;
+        error?: string;
+        message?: string;
+        user?: any;
+      };
 
-      if (!authResponse || !authResponse.success) {
-        return { error: authResponse?.error || 'Invalid credentials or account not approved' };
+      if (!authResponse.success) {
+        // Return specific error messages based on the error type
+        switch (authResponse.error) {
+          case 'user_not_found':
+            return { error: 'No account found with this email address.' };
+          case 'invalid_password':
+            return { error: 'Invalid password. Please check your credentials.' };
+          case 'account_pending':
+            return { error: 'Your account is pending approval. We will contact you within 24-48 hours.' };
+          case 'account_rejected':
+            return { error: 'Your account application was rejected. Please contact support for more information.' };
+          case 'account_suspended':
+            return { error: 'Your account has been suspended. Please contact support.' };
+          default:
+            return { error: authResponse.message || 'Login failed. Please try again.' };
+        }
       }
 
       const userData = authResponse.user;
@@ -130,7 +150,8 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
         });
 
       if (sessionError) {
-        return { error: 'Failed to create session' };
+        console.error('Session creation error:', sessionError);
+        return { error: 'Failed to create session. Please try again.' };
       }
 
       // Store token and set user
@@ -152,7 +173,7 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
       return {};
     } catch (error) {
       console.error('Login error:', error);
-      return { error: 'An unexpected error occurred' };
+      return { error: 'An unexpected error occurred. Please try again.' };
     } finally {
       setLoading(false);
     }
@@ -202,21 +223,22 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
         });
 
       if (error) {
+        console.error('Registration error:', error);
         if (error.code === '23505') { // Unique violation
-          return { error: 'Email already registered' };
+          return { error: 'An account with this email already exists.' };
         }
-        return { error: 'Registration failed' };
+        return { error: 'Registration failed. Please try again.' };
       }
 
       toast({
-        title: "Registration submitted",
-        description: "Your application is pending approval. You'll be notified once approved.",
+        title: "Registration submitted successfully!",
+        description: "Your application is pending approval. You'll receive an email confirmation shortly and we'll contact you within 24-48 hours.",
       });
 
       return {};
     } catch (error) {
       console.error('Registration error:', error);
-      return { error: 'An unexpected error occurred' };
+      return { error: 'An unexpected error occurred. Please try again.' };
     } finally {
       setLoading(false);
     }

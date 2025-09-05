@@ -7,10 +7,10 @@ const Hero = () => {
   const [imageError, setImageError] = useState(false);
   
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden min-h-[60vh]">
       {/* Responsive Hero Images with correct naming */}
       {!imageError ? (
-        <picture className="absolute inset-0 -z-20">
+        <picture className="absolute inset-0 w-full h-full">
           {/* Desktop Image */}
           <source 
             media="(min-width: 768px)" 
@@ -21,7 +21,7 @@ const Hero = () => {
           <img 
             src="/images/heroes/hero-hp-mobile.webp" 
             alt="Safarine Tours - Discover Thailand's hidden gems" 
-            className="h-full w-full object-cover" 
+            className="w-full h-full object-cover" 
             loading="eager" 
             fetchPriority="high"
             onError={() => setImageError(true)}
@@ -29,13 +29,13 @@ const Hero = () => {
         </picture>
       ) : (
         // Fallback gradient background if images fail to load
-        <div className="absolute inset-0 -z-20 bg-gradient-to-br from-green-600 via-emerald-700 to-teal-800" />
+        <div className="absolute inset-0 bg-gradient-to-br from-green-600 via-emerald-700 to-teal-800" />
       )}
       
       {/* Overlay for better text readability */}
-      <div className="absolute inset-0 -z-10 bg-black/40" aria-hidden />
+      <div className="absolute inset-0 bg-black/40" />
 
-      <div className="container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-6 py-16 text-center text-white">
+      <div className="relative z-10 container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-6 py-16 text-center text-white">
         <h1 className="text-4xl md:text-5xl font-bold drop-shadow-lg">
           {t('hero.title') || 'Découvrez la Thaïlande Authentique'}
         </h1>
@@ -50,5 +50,3 @@ const Hero = () => {
   );
 };
 export default Hero;
-
-

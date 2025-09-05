@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ResponsiveLogo } from '@/components/ui/ResponsiveLogo';
 import { AuthForm } from '@/components/auth/AuthForm';
 import { useUserAuth } from '@/contexts/UserAuthContext';
 import { useLocale } from '@/contexts/LocaleContext';
@@ -29,9 +28,6 @@ const Auth: React.FC = () => {
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <Link to={`/${locale}`}>
-              <ResponsiveLogo className="max-w-32 w-32 mx-auto" />
-            </Link>
             <h1 className="mt-6 text-3xl font-bold text-foreground">
               {t('auth.welcome')}
             </h1>

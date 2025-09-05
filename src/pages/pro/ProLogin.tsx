@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { AlertCircle } from "lucide-react";
 
@@ -102,11 +101,6 @@ const ProLogin = () => {
       <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-6">
-              <Link to={`/${locale}`}>
-                <ResponsiveLogo className="h-16 w-auto" />
-              </Link>
-            </div>
             <h1 className="text-3xl font-bold text-foreground">
               {t('b2b.login.title')}
             </h1>

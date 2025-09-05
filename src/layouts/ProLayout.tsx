@@ -62,7 +62,7 @@ const ProLayout: React.FC<ProLayoutProps> = ({
           <Button variant="ghost" size="sm" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-6 w-6" />
           </Button>
-          <ResponsiveLogo />
+          <div></div>
           <div></div>
         </div>
 

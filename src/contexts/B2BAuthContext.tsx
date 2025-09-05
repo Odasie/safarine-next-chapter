@@ -99,8 +99,8 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
       // Authenticate user with our custom function
       const { data: authData, error: authError } = await supabase
         .rpc('b2b_authenticate', {
-          email_param: email,
-          password_param: password
+          user_email: email,
+          user_password: password
         });
 
       if (authError) {

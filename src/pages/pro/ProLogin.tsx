@@ -102,10 +102,12 @@ const ProLogin = () => {
       <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <Link to={`/${locale}`}>
-              <ResponsiveLogo className="max-w-24 w-24" />
-            </Link>
-            <h1 className="mt-6 text-3xl font-bold text-foreground">
+            <div className="flex justify-center mb-6">
+              <Link to={`/${locale}`}>
+                <ResponsiveLogo className="h-16 w-auto" />
+              </Link>
+            </div>
+            <h1 className="text-3xl font-bold text-foreground">
               {t('b2b.login.title')}
             </h1>
             <p className="mt-2 text-muted-foreground">

@@ -8,7 +8,7 @@ const Hero = () => {
   
   return (
     <section className="relative overflow-hidden">
-      {/* Responsive Hero Images with fallback */}
+      {/* Responsive Hero Images with correct naming */}
       {!imageError ? (
         <picture className="absolute inset-0 -z-20">
           {/* Desktop Image */}

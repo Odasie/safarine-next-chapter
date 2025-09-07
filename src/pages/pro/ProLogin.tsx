@@ -13,7 +13,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { AlertCircle } from "lucide-react";
 
 const ProLogin = () => {
-  const { user, signIn, loading } = useUnifiedAuth();
+  const { user, signIn, signUpB2B, loading } = useUnifiedAuth();
   const { t, locale } = useLocale();
   const location = useLocation();
   
@@ -67,12 +67,19 @@ const ProLogin = () => {
     setRegisterLoading(true);
 
     try {
-      // For now, we'll use regular signup and handle B2B registration separately
-      // This is a placeholder - you may need to implement B2B registration through edge functions
-      const { error } = await signIn(registerData.email, registerData.password);
+      const { error } = await signUpB2B({
+        email: registerData.email,
+        password: registerData.password,
+        contactPerson: registerData.contact_person,
+        companyName: registerData.company_name,
+        phone: registerData.phone,
+        country: registerData.country,
+        agencyType: registerData.agency_type,
+        businessRegistration: registerData.business_registration
+      });
       
       if (error) {
-        setRegisterError('B2B registration not yet implemented in unified auth. Please contact support.');
+        setRegisterError(error.message || 'Registration failed. Please try again.');
       } else {
         setRegisterSuccess(true);
         setRegisterData({
@@ -86,8 +93,9 @@ const ProLogin = () => {
           country: ""
         });
       }
-    } catch (err) {
-      setRegisterError('Registration failed. Please contact support.');
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      setRegisterError('Registration failed. Please try again.');
     }
     
     setRegisterLoading(false);

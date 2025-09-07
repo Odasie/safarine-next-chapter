@@ -51,6 +51,16 @@ interface UnifiedAuthContextType {
   userType: 'customer' | 'b2b' | 'admin' | null;
   isAuthenticated: boolean;
   signUp: (email: string, password: string, userData?: { firstName: string; lastName: string }) => Promise<{ error: any }>;
+  signUpB2B: (registerData: {
+    email: string;
+    password: string;
+    contactPerson: string;
+    companyName: string;
+    phone?: string;
+    country?: string;
+    agencyType?: string;
+    businessRegistration?: string;
+  }) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -192,6 +202,45 @@ export const UnifiedAuthProvider: React.FC<UnifiedAuthProviderProps> = ({ childr
     return { error };
   };
 
+  const signUpB2B = async (registerData: {
+    email: string;
+    password: string;
+    contactPerson: string;
+    companyName: string;
+    phone?: string;
+    country?: string;
+    agencyType?: string;
+    businessRegistration?: string;
+  }) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('b2b-secure-register', {
+        body: {
+          email: registerData.email,
+          password: registerData.password,
+          contactPerson: registerData.contactPerson,
+          companyName: registerData.companyName,
+          phone: registerData.phone,
+          country: registerData.country,
+          agencyType: registerData.agencyType,
+          businessRegistration: registerData.businessRegistration
+        }
+      });
+
+      if (error) {
+        return { error };
+      }
+
+      if (!data?.success) {
+        return { error: { message: data?.error || 'Registration failed' } };
+      }
+
+      return { error: null };
+    } catch (err: any) {
+      console.error('B2B registration error:', err);
+      return { error: { message: err.message || 'Registration failed' } };
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
@@ -241,6 +290,7 @@ export const UnifiedAuthProvider: React.FC<UnifiedAuthProviderProps> = ({ childr
     userType: user?.profile.user_type || null,
     isAuthenticated: !!user,
     signUp,
+    signUpB2B,
     signIn,
     signOut,
     refreshUser,

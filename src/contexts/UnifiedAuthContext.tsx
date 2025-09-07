@@ -213,31 +213,72 @@ export const UnifiedAuthProvider: React.FC<UnifiedAuthProviderProps> = ({ childr
     businessRegistration?: string;
   }) => {
     try {
-      const { data, error } = await supabase.functions.invoke('b2b-secure-register', {
-        body: {
-          email: registerData.email,
-          password: registerData.password,
-          contactPerson: registerData.contactPerson,
-          companyName: registerData.companyName,
-          phone: registerData.phone,
-          country: registerData.country,
-          agencyType: registerData.agencyType,
-          businessRegistration: registerData.businessRegistration
+      // 1. Create Supabase auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: registerData.email,
+        password: registerData.password,
+        options: {
+          data: {
+            user_type: 'b2b',
+            company_name: registerData.companyName,
+            contact_person: registerData.contactPerson
+          }
         }
       });
 
-      if (error) {
-        return { error };
+      if (authError) {
+        console.error('Auth signup error:', authError);
+        return { error: { message: authError.message } };
       }
 
-      if (!data?.success) {
-        return { error: { message: data?.error || 'Registration failed' } };
+      if (!authData.user) {
+        return { error: { message: 'User creation failed' } };
+      }
+
+      // 2. Create user profile
+      const [firstName, ...lastNameParts] = registerData.contactPerson.split(' ');
+      const lastName = lastNameParts.join(' ') || '';
+
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .insert({
+          id: authData.user.id,
+          user_type: 'b2b',
+          first_name: firstName,
+          last_name: lastName,
+          phone: registerData.phone || null,
+          country: registerData.country || null
+        });
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        return { error: { message: 'Failed to create user profile' } };
+      }
+
+      // 3. Create B2B user record
+      const { error: b2bError } = await supabase
+        .from('b2b_users')
+        .insert({
+          user_id: authData.user.id,
+          company_name: registerData.companyName,
+          contact_person: registerData.contactPerson,
+          phone: registerData.phone || null,
+          business_registration: registerData.businessRegistration || null,
+          agency_type: registerData.agencyType || null,
+          country: registerData.country || null,
+          status: 'pending',
+          commission_rate: 10.0
+        });
+
+      if (b2bError) {
+        console.error('B2B user creation error:', b2bError);
+        return { error: { message: 'Failed to create B2B user record' } };
       }
 
       return { error: null };
     } catch (err: any) {
       console.error('B2B registration error:', err);
-      return { error: { message: err.message || 'Registration failed' } };
+      return { error: { message: err.message || 'Registration failed. Please try again.' } };
     }
   };
 

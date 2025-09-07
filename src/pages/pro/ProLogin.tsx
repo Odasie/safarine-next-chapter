@@ -271,7 +271,7 @@ const ProLogin = () => {
                           value={registerData.password}
                           onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
                           required
-                          minLength={6}
+                          minLength={8}
                         />
                       </div>
                       

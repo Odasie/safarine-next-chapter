@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { ReactNode } from "react";
-import { useB2BAuth } from "@/contexts/B2BAuthContext";
+import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import { Button } from "@/components/ui/button";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
@@ -15,8 +15,8 @@ const ProLayout: React.FC<ProLayoutProps> = ({
 }) => {
   const {
     user,
-    logout
-  } = useB2BAuth();
+    signOut
+  } = useUnifiedAuth();
   const {
     t,
     locale
@@ -44,8 +44,8 @@ const ProLayout: React.FC<ProLayoutProps> = ({
     href: `/${locale}/pro/settings`,
     icon: Settings
   }];
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
     window.location.href = `/${locale}/pro/login`;
   };
   return <div className="min-h-screen bg-background">

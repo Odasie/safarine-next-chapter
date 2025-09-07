@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useB2BAuth } from '@/contexts/B2BAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface B2BProtectedRouteProps {
@@ -8,7 +8,7 @@ interface B2BProtectedRouteProps {
 }
 
 export const B2BProtectedRoute: React.FC<B2BProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, loading } = useB2BAuth();
+  const { user, loading } = useUnifiedAuth();
   const location = useLocation();
 
   if (loading) {
@@ -19,7 +19,7 @@ export const B2BProtectedRoute: React.FC<B2BProtectedRouteProps> = ({ children }
     );
   }
 
-  if (!isAuthenticated) {
+  if (!user || user.profile.user_type !== 'b2b' || user.b2b?.status !== 'approved') {
     // Redirect to login with return URL
     return <Navigate to="/pro/login" state={{ from: location }} replace />;
   }

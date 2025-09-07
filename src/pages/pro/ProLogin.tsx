@@ -66,6 +66,28 @@ const ProLogin = () => {
     setRegisterError("");
     setRegisterLoading(true);
 
+    // Input validation
+    if (!registerData.email || !registerData.password || !registerData.contact_person || !registerData.company_name) {
+      setRegisterError('Please fill in all required fields');
+      setRegisterLoading(false);
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(registerData.email)) {
+      setRegisterError('Please enter a valid email address');
+      setRegisterLoading(false);
+      return;
+    }
+
+    // Password validation (consistent with edge function)
+    if (registerData.password.length < 8) {
+      setRegisterError('Password must be at least 8 characters long');
+      setRegisterLoading(false);
+      return;
+    }
+
     try {
       const { error } = await signUpB2B({
         email: registerData.email,

@@ -94,6 +94,27 @@ serve(async (req) => {
 
     console.log('Auth user created successfully:', authData.user.id);
 
+    // Create user profile for unified auth system
+    const { error: profileError } = await supabase
+      .from('user_profiles')
+      .insert({
+        id: authData.user.id,
+        user_type: 'b2b',
+        first_name: firstName,
+        last_name: lastName,
+        phone: sanitizedData.phone,
+        country: sanitizedData.country
+      });
+
+    if (profileError) {
+      console.error('User profile creation error:', profileError);
+      // Clean up auth user if profile creation fails
+      await supabase.auth.admin.deleteUser(authData.user.id);
+      throw new Error('Registration failed - profile creation error');
+    }
+
+    console.log('User profile created successfully');
+
     // Create B2B user record linked to auth user
     const { data: newUser, error: insertError } = await supabase
       .from('b2b_users')

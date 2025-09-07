@@ -156,6 +156,42 @@ export type Database = {
           },
         ]
       }
+      email_notifications: {
+        Row: {
+          content: string
+          created_at: string | null
+          email_type: string
+          error_message: string | null
+          id: string
+          recipient_email: string
+          sent_at: string | null
+          status: string | null
+          subject: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          email_type: string
+          error_message?: string | null
+          id?: string
+          recipient_email: string
+          sent_at?: string | null
+          status?: string | null
+          subject: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          email_type?: string
+          error_message?: string | null
+          id?: string
+          recipient_email?: string
+          sent_at?: string | null
+          status?: string | null
+          subject?: string
+        }
+        Relationships: []
+      }
       image_categories: {
         Row: {
           created_at: string | null
@@ -563,7 +599,15 @@ export type Database = {
         Returns: string
       }
       b2b_authenticate: {
-        Args: { user_email: string; user_password: string }
+        Args: { email_param: string; password_param: string }
+        Returns: Json
+      }
+      b2b_authenticate_debug: {
+        Args: { email_param: string; password_param: string }
+        Returns: Json
+      }
+      b2b_secure_authenticate: {
+        Args: { email_param: string; password_param: string }
         Returns: Json
       }
       create_new_tour: {
@@ -578,6 +622,10 @@ export type Database = {
         }
         Returns: string
       }
+      generate_secure_session_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       generate_slug: {
         Args: { title: string }
         Returns: string
@@ -589,6 +637,18 @@ export type Database = {
           stat_name: string
           status: string
         }[]
+      }
+      send_b2b_registration_email: {
+        Args: {
+          company_name: string
+          contact_person: string
+          user_email: string
+        }
+        Returns: Json
+      }
+      test_rpc: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       validate_117_image_system: {
         Args: Record<PropertyKey, never>

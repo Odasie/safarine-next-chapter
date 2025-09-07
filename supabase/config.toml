@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.csv-import-images]
 verify_jwt = false
+
+[functions.b2b-secure-register]
+verify_jwt = false

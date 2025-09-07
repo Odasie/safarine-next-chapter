@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import bcrypt from 'bcryptjs';
 
 interface B2BUser {
   id: string;
@@ -24,11 +23,11 @@ interface B2BAuthContextType {
 interface RegisterData {
   email: string;
   password: string;
-  company_name: string;
-  contact_person: string;
+  contactPerson: string;
+  companyName: string;
   phone?: string;
-  business_registration?: string;
-  agency_type?: string;
+  businessRegistration?: string;
+  agencyType?: string;
   country?: string;
 }
 
@@ -96,11 +95,11 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
     try {
       setLoading(true);
       
-      // Authenticate user with our custom function
+      // Authenticate user with secure function
       const { data: authData, error: authError } = await supabase
-        .rpc('b2b_authenticate', {
-          user_email: email,
-          user_password: password
+        .rpc('b2b_secure_authenticate', {
+          email_param: email,
+          password_param: password
         });
 
       if (authError) {
@@ -129,6 +128,8 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
             return { error: 'Your account application was rejected. Please contact support for more information.' };
           case 'account_suspended':
             return { error: 'Your account has been suspended. Please contact support.' };
+          case 'rate_limit':
+            return { error: 'Too many login attempts. Please wait before trying again.' };
           default:
             return { error: authResponse.message || 'Login failed. Please try again.' };
         }
@@ -136,8 +137,15 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
 
       const userData = authResponse.user;
       
-      // Create session token
-      const token = 'b2b_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+      // Generate secure session token using database function
+      const { data: tokenData, error: tokenError } = await supabase.rpc('generate_secure_session_token');
+      
+      if (tokenError || !tokenData) {
+        console.error('Token generation error:', tokenError);
+        return { error: 'Failed to create secure session. Please try again.' };
+      }
+
+      const token = tokenData;
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
 
@@ -205,37 +213,25 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
     try {
       setLoading(true);
       
-      // Hash the password before storing
-      const hashedPassword = await bcrypt.hash(userData.password, 12);
-      
-      const { error } = await supabase
-        .from('b2b_users')
-        .insert({
-          email: userData.email,
-          password_hash: hashedPassword,
-          company_name: userData.company_name,
-          contact_person: userData.contact_person,
-          phone: userData.phone,
-          business_registration: userData.business_registration,
-          agency_type: userData.agency_type,
-          country: userData.country,
-          status: 'pending'
-        });
+      // Use secure server-side registration function
+      const { data, error } = await supabase.functions.invoke('b2b-secure-register', {
+        body: userData
+      });
 
       if (error) {
-        console.error('Registration error:', error);
-        if (error.code === '23505') { // Unique violation
-          return { error: 'An account with this email already exists.' };
-        }
+        console.error('Registration function error:', error);
         return { error: 'Registration failed. Please try again.' };
       }
 
-      toast({
-        title: "Registration submitted successfully!",
-        description: "Your application is pending approval. You'll receive an email confirmation shortly and we'll contact you within 24-48 hours.",
-      });
-
-      return {};
+      if (data.success) {
+        toast({
+          title: "Registration submitted successfully!",
+          description: "Your application is pending approval. You'll receive an email confirmation shortly and we'll contact you within 24-48 hours.",
+        });
+        return {};
+      } else {
+        return { error: data.error || 'Registration failed. Please try again.' };
+      }
     } catch (error) {
       console.error('Registration error:', error);
       return { error: 'An unexpected error occurred. Please try again.' };

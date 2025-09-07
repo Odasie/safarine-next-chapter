@@ -62,7 +62,16 @@ const ProLogin = () => {
     setRegisterError("");
     setRegisterLoading(true);
 
-    const result = await register(registerData);
+    const result = await register({
+      email: registerData.email,
+      password: registerData.password,
+      contactPerson: registerData.contact_person,
+      companyName: registerData.company_name,
+      phone: registerData.phone,
+      businessRegistration: registerData.business_registration,
+      agencyType: registerData.agency_type,
+      country: registerData.country,
+    });
     
     if (result.error) {
       setRegisterError(result.error);

@@ -122,7 +122,7 @@ export const TourDashboard = () => {
     return matchesSearch && matchesDestination && matchesStatus;
   }) || [];
 
-  const uniqueDestinations = [...new Set(tours?.map(tour => tour.destination).filter(Boolean))] || [];
+  const uniqueDestinations = [...new Set((tours || []).map(tour => tour.destination).filter(Boolean))];
 
   if (toursLoading || statisticsLoading) {
     return (

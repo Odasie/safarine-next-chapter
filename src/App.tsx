@@ -21,6 +21,8 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import AdminImport from "./pages/AdminImport";
 import AdminCSVImport from "./pages/AdminCSVImport";
+import { TourDashboard } from "./pages/admin/TourDashboard";
+import { TourCreationWizard } from "./pages/admin/TourCreationWizard";
 import ProLogin from "./pages/pro/ProLogin";
 import ProDashboard from "./pages/pro/ProDashboard";
 import ProTours from "./pages/pro/ProTours";
@@ -95,6 +97,8 @@ const App = () => (
                     } />
                     <Route path="admin/import" element={<AdminImport />} />
                     <Route path="admin/csv-import" element={<AdminCSVImport />} />
+                    <Route path="admin/tours" element={<TourDashboard />} />
+                    <Route path="admin/tours/create" element={<TourCreationWizard />} />
                   </Route>
                   
                   {/* Default routes (redirect to French) */}
@@ -111,6 +115,8 @@ const App = () => (
                     } />
                     <Route path="/admin/import" element={<AdminImport />} />
                     <Route path="/admin/csv-import" element={<AdminCSVImport />} />
+                    <Route path="/admin/tours" element={<TourDashboard />} />
+                    <Route path="/admin/tours/create" element={<TourCreationWizard />} />
                   </Route>
                   
                   {/* Catch-all */}

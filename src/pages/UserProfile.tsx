@@ -2,11 +2,11 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useUserAuth } from '@/contexts/UserAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useLocale } from '@/contexts/LocaleContext';
 
 const UserProfile: React.FC = () => {
-  const { user, signOut } = useUserAuth();
+  const { user, signOut } = useUnifiedAuth();
   const { t } = useLocale();
 
   const handleSignOut = async () => {
@@ -30,15 +30,59 @@ const UserProfile: React.FC = () => {
               <label className="text-sm font-medium text-muted-foreground">
                 {t('auth.email')}
               </label>
-              <p className="text-sm">{user?.email}</p>
+              <p className="text-sm">{user?.auth.email}</p>
             </div>
+
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">
+                Name
+              </label>
+              <p className="text-sm">
+                {user?.profile.first_name && user?.profile.last_name
+                  ? `${user.profile.first_name} ${user.profile.last_name}`
+                  : 'Not provided'}
+              </p>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">
+                User Type
+              </label>
+              <p className="text-sm capitalize">{user?.profile.user_type}</p>
+            </div>
+
+            {user?.b2b && (
+              <>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Company
+                  </label>
+                  <p className="text-sm">{user.b2b.company_name}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    B2B Status
+                  </label>
+                  <p className="text-sm capitalize">{user.b2b.status}</p>
+                </div>
+              </>
+            )}
+
+            {user?.admin && (
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">
+                  Admin Role
+                </label>
+                <p className="text-sm capitalize">{user.admin.role}</p>
+              </div>
+            )}
             
             <div>
               <label className="text-sm font-medium text-muted-foreground">
                 {t('profile.memberSince')}
               </label>
               <p className="text-sm">
-                {user?.created_at ? new Date(user.created_at).toLocaleDateString() : '-'}
+                {user?.auth.created_at ? new Date(user.auth.created_at).toLocaleDateString() : '-'}
               </p>
             </div>
 

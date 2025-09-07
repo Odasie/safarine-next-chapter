@@ -66,7 +66,6 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
             expires_at,
             b2b_users (
               id,
-              email,
               company_name,
               contact_person,
               status,
@@ -77,8 +76,20 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
           .gt('expires_at', new Date().toISOString())
           .single();
 
-        if (data && !error && data.b2b_users) {
-          setUser(data.b2b_users as B2BUser);
+        if (data && !error && data.b2b_users && Array.isArray(data.b2b_users) && data.b2b_users.length > 0) {
+          const b2bUser = data.b2b_users[0];
+          
+          // Get email from auth user
+          const { data: authUserData } = await supabase.auth.admin.getUserById(data.user_id);
+          
+          setUser({
+            id: b2bUser.id,
+            email: authUserData.user?.email || '',
+            company_name: b2bUser.company_name,
+            contact_person: b2bUser.contact_person,
+            status: b2bUser.status,
+            commission_rate: b2bUser.commission_rate
+          });
         } else {
           localStorage.removeItem('b2b_token');
         }
@@ -164,9 +175,13 @@ export const B2BAuthProvider: React.FC<B2BAuthProviderProps> = ({ children }) =>
 
       // Store token and set user
       localStorage.setItem('b2b_token', token);
+      
+      // Get B2B user data with email from auth user
+      const { data: authUserData } = await supabase.auth.admin.getUserById(userData.id);
+      
       setUser({
         id: userData.id,
-        email: userData.email,
+        email: authUserData.user?.email || '',
         company_name: userData.company_name,
         contact_person: userData.contact_person,
         status: userData.status,

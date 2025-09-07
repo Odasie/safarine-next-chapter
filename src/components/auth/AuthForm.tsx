@@ -13,6 +13,8 @@ export const AuthForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -55,7 +57,10 @@ export const AuthForm: React.FC = () => {
     setError('');
 
     try {
-      const { error } = await signUp(email, password);
+      const { error } = await signUp(email, password, {
+        firstName: firstName.trim(),
+        lastName: lastName.trim()
+      });
       
       if (error) {
         throw error;
@@ -65,6 +70,8 @@ export const AuthForm: React.FC = () => {
       setEmail('');
       setPassword('');
       setConfirmPassword('');
+      setFirstName('');
+      setLastName('');
     } catch (err: any) {
       setError(err.message || t('auth.register.error'));
     } finally {
@@ -125,6 +132,30 @@ export const AuthForm: React.FC = () => {
 
           <TabsContent value="register" className="space-y-4">
             <form onSubmit={handleRegister} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="register-first-name">{t('auth.firstName')}</Label>
+                  <Input
+                    id="register-first-name"
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="register-last-name">{t('auth.lastName')}</Label>
+                  <Input
+                    id="register-last-name"
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="register-email">{t('auth.email')}</Label>
                 <Input

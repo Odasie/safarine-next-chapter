@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string | null
+          department: string | null
+          hired_date: string | null
+          id: string
+          is_active: boolean | null
+          permissions: Json | null
+          role: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          department?: string | null
+          hired_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          permissions?: Json | null
+          role?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          department?: string | null
+          hired_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          permissions?: Json | null
+          role?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       b2b_favorites: {
         Row: {
           created_at: string | null
@@ -91,12 +127,11 @@ export type Database = {
           contact_person: string
           country: string | null
           created_at: string | null
-          email: string
           id: string
-          password_hash: string
           phone: string | null
           status: string | null
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           agency_type?: string | null
@@ -106,12 +141,11 @@ export type Database = {
           contact_person: string
           country?: string | null
           created_at?: string | null
-          email: string
           id?: string
-          password_hash: string
           phone?: string | null
           status?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           agency_type?: string | null
@@ -121,12 +155,11 @@ export type Database = {
           contact_person?: string
           country?: string | null
           created_at?: string | null
-          email?: string
           id?: string
-          password_hash?: string
           phone?: string | null
           status?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -577,6 +610,48 @@ export type Database = {
           namespace?: string | null
           updated_at?: string | null
           value?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          avatar_url: string | null
+          country: string | null
+          created_at: string | null
+          first_name: string | null
+          id: string
+          is_active: boolean | null
+          last_name: string | null
+          phone: string | null
+          preferences: Json | null
+          updated_at: string | null
+          user_type: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          country?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id: string
+          is_active?: boolean | null
+          last_name?: string | null
+          phone?: string | null
+          preferences?: Json | null
+          updated_at?: string | null
+          user_type: string
+        }
+        Update: {
+          avatar_url?: string | null
+          country?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_name?: string | null
+          phone?: string | null
+          preferences?: Json | null
+          updated_at?: string | null
+          user_type?: string
         }
         Relationships: []
       }

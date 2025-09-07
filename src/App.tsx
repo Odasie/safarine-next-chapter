@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,10 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { LocaleProvider } from "@/contexts/LocaleContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
-import { B2BAuthProvider } from "@/contexts/B2BAuthContext";
-import { UserAuthProvider } from "@/contexts/UserAuthContext";
-import { B2BProtectedRoute } from "@/components/b2b/B2BProtectedRoute";
-import { UserProtectedRoute } from "@/components/auth/UserProtectedRoute";
+import { UnifiedAuthProvider } from "@/contexts/UnifiedAuthContext";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import MainLayout from "@/layouts/MainLayout";
 import ProLayout from "@/layouts/ProLayout";
 import Index from "./pages/Index";
@@ -23,6 +20,7 @@ import AdminImport from "./pages/AdminImport";
 import AdminCSVImport from "./pages/AdminCSVImport";
 import { TourDashboard } from "./pages/admin/TourDashboard";
 import { TourCreationWizard } from "./pages/admin/TourCreationWizard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import ProLogin from "./pages/pro/ProLogin";
 import ProDashboard from "./pages/pro/ProDashboard";
 import ProTours from "./pages/pro/ProTours";
@@ -40,8 +38,7 @@ const App = () => (
         <BrowserRouter future={{ v7_relativeSplatPath: true }}>
           <LocaleProvider>
             <CurrencyProvider>
-              <UserAuthProvider>
-                <B2BAuthProvider>
+              <UnifiedAuthProvider>
                 <Routes>
                   {/* B2B Routes */}
                   <Route path="/pro/login" element={<ProLogin />} />
@@ -51,32 +48,44 @@ const App = () => (
                   
                   {/* Protected B2B Routes */}
                   <Route path="/pro/dashboard" element={
-                    <B2BProtectedRoute>
+                    <ProtectedRoute requiredUserType="b2b" requiredApproval={true}>
                       <ProLayout>
                         <ProDashboard />
                       </ProLayout>
-                    </B2BProtectedRoute>
+                    </ProtectedRoute>
                   } />
                   <Route path="/:locale/pro/dashboard" element={
-                    <B2BProtectedRoute>
+                    <ProtectedRoute requiredUserType="b2b" requiredApproval={true}>
                       <ProLayout>
                         <ProDashboard />
                       </ProLayout>
-                    </B2BProtectedRoute>
+                    </ProtectedRoute>
                   } />
                   <Route path="/pro/tours" element={
-                    <B2BProtectedRoute>
+                    <ProtectedRoute requiredUserType="b2b" requiredApproval={true}>
                       <ProLayout>
                         <ProTours />
                       </ProLayout>
-                    </B2BProtectedRoute>
+                    </ProtectedRoute>
                   } />
                   <Route path="/:locale/pro/tours" element={
-                    <B2BProtectedRoute>
+                    <ProtectedRoute requiredUserType="b2b" requiredApproval={true}>
                       <ProLayout>
                         <ProTours />
                       </ProLayout>
-                    </B2BProtectedRoute>
+                    </ProtectedRoute>
+                  } />
+
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={
+                    <ProtectedRoute requiredUserType="admin">
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/:locale/admin" element={
+                    <ProtectedRoute requiredUserType="admin">
+                      <AdminDashboard />
+                    </ProtectedRoute>
                   } />
 
                   {/* User Authentication Routes */}
@@ -91,14 +100,30 @@ const App = () => (
                     <Route path="about" element={<About />} />
                     <Route path="contact" element={<Contact />} />
                     <Route path="profile" element={
-                      <UserProtectedRoute>
+                      <ProtectedRoute>
                         <UserProfile />
-                      </UserProtectedRoute>
+                      </ProtectedRoute>
                     } />
-                    <Route path="admin/import" element={<AdminImport />} />
-                    <Route path="admin/csv-import" element={<AdminCSVImport />} />
-                    <Route path="admin/tours" element={<TourDashboard />} />
-                    <Route path="admin/tours/create" element={<TourCreationWizard />} />
+                    <Route path="admin/import" element={
+                      <ProtectedRoute requiredUserType="admin">
+                        <AdminImport />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="admin/csv-import" element={
+                      <ProtectedRoute requiredUserType="admin">
+                        <AdminCSVImport />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="admin/tours" element={
+                      <ProtectedRoute requiredUserType="admin">
+                        <TourDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="admin/tours/create" element={
+                      <ProtectedRoute requiredUserType="admin">
+                        <TourCreationWizard />
+                      </ProtectedRoute>
+                    } />
                   </Route>
                   
                   {/* Default routes (redirect to French) */}
@@ -109,21 +134,36 @@ const App = () => (
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/profile" element={
-                      <UserProtectedRoute>
+                      <ProtectedRoute>
                         <UserProfile />
-                      </UserProtectedRoute>
+                      </ProtectedRoute>
                     } />
-                    <Route path="/admin/import" element={<AdminImport />} />
-                    <Route path="/admin/csv-import" element={<AdminCSVImport />} />
-                    <Route path="/admin/tours" element={<TourDashboard />} />
-                    <Route path="/admin/tours/create" element={<TourCreationWizard />} />
+                    <Route path="/admin/import" element={
+                      <ProtectedRoute requiredUserType="admin">
+                        <AdminImport />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/admin/csv-import" element={
+                      <ProtectedRoute requiredUserType="admin">
+                        <AdminCSVImport />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/admin/tours" element={
+                      <ProtectedRoute requiredUserType="admin">
+                        <TourDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/admin/tours/create" element={
+                      <ProtectedRoute requiredUserType="admin">
+                        <TourCreationWizard />
+                      </ProtectedRoute>
+                    } />
                   </Route>
                   
                   {/* Catch-all */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-                </B2BAuthProvider>
-              </UserAuthProvider>
+              </UnifiedAuthProvider>
             </CurrencyProvider>
           </LocaleProvider>
         </BrowserRouter>

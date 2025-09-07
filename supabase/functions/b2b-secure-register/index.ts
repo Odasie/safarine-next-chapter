@@ -63,35 +63,42 @@ serve(async (req) => {
       businessRegistration: registerData.businessRegistration?.trim(),
     };
 
-    // Check if user already exists
-    const { data: existingUser } = await supabase
-      .from('b2b_users')
-      .select('email')
-      .eq('email', sanitizedData.email)
-      .single();
+    // Parse contact person into first name and last name
+    const nameParts = sanitizedData.contactPerson.split(' ');
+    const firstName = nameParts[0] || sanitizedData.contactPerson;
+    const lastName = nameParts.slice(1).join(' ') || '';
 
-    if (existingUser) {
-      throw new Error('User with this email already exists');
+    // Create Supabase Auth user first
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email: sanitizedData.email,
+      password: sanitizedData.password,
+      email_confirm: false, // Auto-confirm for B2B users
+      user_metadata: {
+        user_type: 'b2b',
+        first_name: firstName,
+        last_name: lastName,
+        phone: sanitizedData.phone,
+        country: sanitizedData.country,
+        company_name: sanitizedData.companyName,
+        contact_person: sanitizedData.contactPerson
+      }
+    });
+
+    if (authError || !authData.user) {
+      console.error('Auth user creation error:', authError);
+      if (authError?.message.includes('already registered')) {
+        throw new Error('User with this email already exists');
+      }
+      throw new Error('Registration failed - auth error');
     }
 
-    // Hash password using PostgreSQL's crypt function (server-side)
-    const { data: hashedResult, error: hashError } = await supabase
-      .rpc('crypt', {
-        password: sanitizedData.password,
-        salt: await generateSalt()
-      });
+    console.log('Auth user created successfully:', authData.user.id);
 
-    if (hashError) {
-      console.error('Password hashing error:', hashError);
-      throw new Error('Registration failed - security error');
-    }
-
-    // Insert user with hashed password
+    // Create B2B user record linked to auth user
     const { data: newUser, error: insertError } = await supabase
       .from('b2b_users')
       .insert({
-        email: sanitizedData.email,
-        password_hash: hashedResult,
+        user_id: authData.user.id,
         contact_person: sanitizedData.contactPerson,
         company_name: sanitizedData.companyName,
         phone: sanitizedData.phone,
@@ -104,9 +111,13 @@ serve(async (req) => {
       .single();
 
     if (insertError) {
-      console.error('User insertion error:', insertError);
+      console.error('B2B user insertion error:', insertError);
+      // Clean up auth user if B2B record fails
+      await supabase.auth.admin.deleteUser(authData.user.id);
       throw new Error('Registration failed');
     }
+
+    console.log('B2B user created successfully:', newUser.id);
 
     // Trigger registration email notification
     const { error: emailError } = await supabase
@@ -129,7 +140,7 @@ serve(async (req) => {
         message: 'Registration successful. Your account is pending approval.',
         user: {
           id: newUser.id,
-          email: newUser.email,
+          user_id: newUser.user_id,
           company_name: newUser.company_name,
           status: newUser.status
         }
@@ -155,10 +166,3 @@ serve(async (req) => {
     );
   }
 });
-
-// Generate secure salt for password hashing
-async function generateSalt(): Promise<string> {
-  const bytes = new Uint8Array(16);
-  crypto.getRandomValues(bytes);
-  return '$2a$10$' + btoa(String.fromCharCode(...bytes)).slice(0, 22);
-}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { useUserAuth } from '@/contexts/UserAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useLocale } from '@/contexts/LocaleContext';
 
 interface UserProtectedRouteProps {
@@ -9,7 +9,7 @@ interface UserProtectedRouteProps {
 }
 
 export const UserProtectedRoute: React.FC<UserProtectedRouteProps> = ({ children }) => {
-  const { user, loading } = useUserAuth();
+  const { user, loading } = useUnifiedAuth();
   const { locale } = useLocale();
   const location = useLocation();
 

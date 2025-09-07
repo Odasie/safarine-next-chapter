@@ -6,7 +6,7 @@ import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useLocale } from "@/contexts/LocaleContext";
-import { useUserAuth } from "@/contexts/UserAuthContext";
+import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -15,7 +15,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 const SiteHeader = () => {
   const { locale, t } = useLocale();
-  const { user, signOut, loading } = useUserAuth();
+  const { user, signOut, loading } = useUnifiedAuth();
   
   const getLocalizedPath = (path: string) => {
     return `/${locale}${path}`;

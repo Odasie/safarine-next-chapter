@@ -3,11 +3,11 @@ import { Navigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { AuthForm } from '@/components/auth/AuthForm';
-import { useUserAuth } from '@/contexts/UserAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useLocale } from '@/contexts/LocaleContext';
 
 const Auth: React.FC = () => {
-  const { user, loading } = useUserAuth();
+  const { user, loading } = useUnifiedAuth();
   const { locale, t } = useLocale();
   const [searchParams] = useSearchParams();
   const fromUrl = searchParams.get('from');

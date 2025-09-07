@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { useUserAuth } from '@/contexts/UserAuthContext';
+import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { useLocale } from '@/contexts/LocaleContext';
 
 export const AuthForm: React.FC = () => {
@@ -20,7 +20,7 @@ export const AuthForm: React.FC = () => {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('login');
 
-  const { signUp, signIn } = useUserAuth();
+  const { signUp, signIn } = useUnifiedAuth();
   const { t } = useLocale();
 
   const handleLogin = async (e: React.FormEvent) => {

@@ -68,7 +68,7 @@ export const UserManagement: React.FC = () => {
         supabase.from('admin_users').select('user_id, role').in('user_id', userIds)
       ]);
 
-      const { data: allAuthUsers, error: authError } = authUsersResult;
+      const { data: authUsersData, error: authError } = authUsersResult;
       const { data: b2bUsers } = b2bUsersResult;
       const { data: adminUsers } = adminUsersResult;
 
@@ -79,7 +79,12 @@ export const UserManagement: React.FC = () => {
 
       // Combine the data
       const combinedUsers: UserListItem[] = data.map(profile => {
-        const authUser = allAuthUsers && allAuthUsers.users ? allAuthUsers.users.find(au => au.id === profile.id) : undefined;
+        // Find auth user with explicit type handling
+        let authUser: any = null;
+        if (authUsersData?.users && Array.isArray(authUsersData.users)) {
+          authUser = authUsersData.users.find((user: any) => user.id === profile.id);
+        }
+        
         const b2bData = b2bUsers?.find(b2b => b2b.user_id === profile.id);
         const adminData = adminUsers?.find(admin => admin.user_id === profile.id);
         

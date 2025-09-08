@@ -39,7 +39,8 @@ const ProLogin = () => {
 
   // Redirect if already authenticated with B2B access
   if (user && user.profile.user_type === 'b2b' && user.b2b?.status === 'approved' && !loading) {
-    const from = location.state?.from?.pathname || `/${locale}/pro/dashboard`;
+    const urlParams = new URLSearchParams(location.search);
+    const from = urlParams.get('from') || `/${locale}/pro/dashboard`;
     return <Navigate to={from} replace />;
   }
 
@@ -53,6 +54,11 @@ const ProLogin = () => {
       
       if (error) {
         setLoginError(error.message || 'Login failed');
+      } else {
+        // Successful login - redirect to intended destination
+        const urlParams = new URLSearchParams(location.search);
+        const from = urlParams.get('from') || `/${locale}/pro/dashboard`;
+        window.location.href = from; // Force navigation to ensure proper redirect
       }
     } catch (err) {
       setLoginError('Login failed. Please try again.');

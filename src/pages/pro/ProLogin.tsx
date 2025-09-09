@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, Navigate, useLocation } from "react-router-dom";
+import { useState, useMemo } from "react";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -16,6 +16,7 @@ const ProLogin = () => {
   const { user, signIn, signUpB2B, loading } = useUnifiedAuth();
   const { t, locale } = useLocale();
   const location = useLocation();
+  const navigate = useNavigate();
   
   // Login form state
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -58,7 +59,7 @@ const ProLogin = () => {
         // Successful login - redirect to intended destination
         const urlParams = new URLSearchParams(location.search);
         const from = urlParams.get('from') || `/${locale}/pro/dashboard`;
-        window.location.href = from; // Force navigation to ensure proper redirect
+        navigate(from, { replace: true });
       }
     } catch (err) {
       setLoginError('Login failed. Please try again.');
@@ -67,66 +68,81 @@ const ProLogin = () => {
     setLoginLoading(false);
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setRegisterError("");
-    setRegisterLoading(true);
-
-    // Input validation
-    if (!registerData.email || !registerData.password || !registerData.contact_person || !registerData.company_name) {
-      setRegisterError('Please fill in all required fields');
-      setRegisterLoading(false);
-      return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(registerData.email)) {
-      setRegisterError('Please enter a valid email address');
-      setRegisterLoading(false);
-      return;
-    }
-
-    // Password validation (consistent with edge function)
-    if (registerData.password.length < 8) {
-      setRegisterError('Password must be at least 8 characters long');
-      setRegisterLoading(false);
-      return;
-    }
-
-    try {
-      const { error } = await signUpB2B({
-        email: registerData.email,
-        password: registerData.password,
-        contactPerson: registerData.contact_person,
-        companyName: registerData.company_name,
-        phone: registerData.phone,
-        country: registerData.country,
-        agencyType: registerData.agency_type,
-        businessRegistration: registerData.business_registration
-      });
-      
-      if (error) {
-        setRegisterError(error.message || 'Registration failed. Please try again.');
-      } else {
-        setRegisterSuccess(true);
-        setRegisterData({
-          email: "",
-          password: "",
-          company_name: "",
-          contact_person: "",
-          phone: "",
-          business_registration: "",
-          agency_type: "",
-          country: ""
-        });
-      }
-    } catch (err: any) {
-      console.error('Registration error:', err);
-      setRegisterError('Registration failed. Please try again.');
-    }
+  // Debounced registration to prevent rate limiting
+  const debouncedRegister = useMemo(() => {
+    const debounce = <T extends (...args: any[]) => any>(func: T, wait: number) => {
+      let timeout: NodeJS.Timeout;
+      return (...args: Parameters<T>) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+      };
+    };
     
-    setRegisterLoading(false);
+    return debounce(async () => {
+      setRegisterError("");
+      setRegisterLoading(true);
+
+      // Input validation
+      if (!registerData.email || !registerData.password || !registerData.contact_person || !registerData.company_name) {
+        setRegisterError('Please fill in all required fields');
+        setRegisterLoading(false);
+        return;
+      }
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(registerData.email)) {
+        setRegisterError('Please enter a valid email address');
+        setRegisterLoading(false);
+        return;
+      }
+
+      // Password validation (consistent with edge function)
+      if (registerData.password.length < 8) {
+        setRegisterError('Password must be at least 8 characters long');
+        setRegisterLoading(false);
+        return;
+      }
+
+      try {
+        const { error } = await signUpB2B({
+          email: registerData.email,
+          password: registerData.password,
+          contactPerson: registerData.contact_person,
+          companyName: registerData.company_name,
+          phone: registerData.phone,
+          country: registerData.country,
+          agencyType: registerData.agency_type,
+          businessRegistration: registerData.business_registration
+        });
+        
+        if (error) {
+          setRegisterError(error.message || 'Registration failed. Please try again.');
+        } else {
+          setRegisterSuccess(true);
+          setRegisterData({
+            email: "",
+            password: "",
+            company_name: "",
+            contact_person: "",
+            phone: "",
+            business_registration: "",
+            agency_type: "",
+            country: ""
+          });
+        }
+      } catch (err: any) {
+        console.error('Registration error:', err);
+        setRegisterError('Registration failed. Please try again.');
+      }
+      
+      setRegisterLoading(false);
+    }, 1000); // 1 second debounce to prevent rapid submissions
+  }, [registerData, signUpB2B]);
+
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    debouncedRegister();
   };
 
   if (loading) {

@@ -202,6 +202,7 @@ export const UnifiedAuthProvider: React.FC<UnifiedAuthProviderProps> = ({ childr
     return { error };
   };
 
+  // Enhanced B2B signup with proper error handling and cleanup
   const signUpB2B = async (registerData: {
     email: string;
     password: string;
@@ -212,6 +213,24 @@ export const UnifiedAuthProvider: React.FC<UnifiedAuthProviderProps> = ({ childr
     agencyType?: string;
     businessRegistration?: string;
   }) => {
+    let createdUserId: string | null = null;
+    
+    const retryWithBackoff = async (fn: () => Promise<any>, maxRetries = 3): Promise<any> => {
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          return await fn();
+        } catch (error: any) {
+          if (error.message?.includes('429') && attempt < maxRetries) {
+            const delay = Math.pow(2, attempt) * 1000; // Exponential backoff: 2s, 4s, 8s
+            console.log(`Rate limited, retrying in ${delay}ms (attempt ${attempt}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue;
+          }
+          throw error;
+        }
+      }
+    };
+
     try {
       console.log('Starting B2B registration for:', registerData.email);
 
@@ -226,19 +245,26 @@ export const UnifiedAuthProvider: React.FC<UnifiedAuthProviderProps> = ({ childr
         return { error: { message: 'Password must be at least 8 characters long.' } };
       }
 
-      // 1. Create Supabase auth user with email confirmation
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: registerData.email,
-        password: registerData.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/fr/pro`,
-          data: {
-            user_type: 'b2b',
-            company_name: registerData.companyName,
-            contact_person: registerData.contactPerson
+      // Check if user already exists by trying to sign them up first
+      // Supabase will handle the duplicate check automatically
+
+      // 1. Create Supabase auth user with retry logic
+      const authResult = await retryWithBackoff(async () => {
+        return await supabase.auth.signUp({
+          email: registerData.email,
+          password: registerData.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/fr/pro`,
+            data: {
+              user_type: 'b2b',
+              company_name: registerData.companyName,
+              contact_person: registerData.contactPerson
+            }
           }
-        }
+        });
       });
+
+      const { data: authData, error: authError } = authResult;
 
       console.log('Auth signup result:', { authData, authError });
 
@@ -263,12 +289,13 @@ export const UnifiedAuthProvider: React.FC<UnifiedAuthProviderProps> = ({ childr
         return { error: { message: 'User creation failed - no user returned from signup' } };
       }
 
-      console.log('Auth user created successfully:', authData.user.id);
+      createdUserId = authData.user.id;
+      console.log('Auth user created successfully:', createdUserId);
 
       // 2. Wait a moment for the user to be fully created in the system
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // 3. Create user profile
+      // 3. Create user profile with retry logic
       const [firstName, ...lastNameParts] = (registerData.contactPerson || '').split(' ');
       const lastName = lastNameParts.join(' ') || '';
 
@@ -283,18 +310,38 @@ export const UnifiedAuthProvider: React.FC<UnifiedAuthProviderProps> = ({ childr
 
       console.log('Creating profile with data:', profileData);
 
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .insert(profileData);
+      const profileResult = await retryWithBackoff(async () => {
+        return await supabase
+          .from('user_profiles')
+          .insert(profileData);
+      });
+
+      const { error: profileError } = profileResult;
 
       if (profileError) {
         console.error('Profile creation error:', profileError);
+        
+        // Cleanup: Delete auth user if profile creation fails
+        if (createdUserId) {
+          try {
+            await supabase.auth.admin.deleteUser(createdUserId);
+            console.log('Cleaned up auth user after profile creation failure');
+          } catch (cleanupError) {
+            console.error('Failed to cleanup auth user:', cleanupError);
+          }
+        }
+        
+        // Handle specific conflict errors
+        if (profileError.message?.includes('duplicate') || profileError.code === '23505') {
+          return { error: { message: 'An account with this email already exists. Please try logging in instead.' } };
+        }
+        
         return { error: { message: `Profile creation failed: ${profileError.message}` } };
       }
 
       console.log('Profile created successfully');
 
-      // 4. Create B2B user record
+      // 4. Create B2B user record with retry logic
       const b2bData = {
         user_id: authData.user.id,
         company_name: registerData.companyName,
@@ -309,12 +356,28 @@ export const UnifiedAuthProvider: React.FC<UnifiedAuthProviderProps> = ({ childr
 
       console.log('Creating B2B record with data:', b2bData);
 
-      const { error: b2bError } = await supabase
-        .from('b2b_users')
-        .insert(b2bData);
+      const b2bResult = await retryWithBackoff(async () => {
+        return await supabase
+          .from('b2b_users')
+          .insert(b2bData);
+      });
+
+      const { error: b2bError } = b2bResult;
 
       if (b2bError) {
         console.error('B2B record creation error:', b2bError);
+        
+        // Cleanup: Delete auth user and profile if B2B record creation fails
+        if (createdUserId) {
+          try {
+            await supabase.from('user_profiles').delete().eq('id', createdUserId);
+            await supabase.auth.admin.deleteUser(createdUserId);
+            console.log('Cleaned up auth user and profile after B2B creation failure');
+          } catch (cleanupError) {
+            console.error('Failed to cleanup after B2B creation failure:', cleanupError);
+          }
+        }
+        
         return { error: { message: `B2B record creation failed: ${b2bError.message}` } };
       }
 
@@ -323,6 +386,18 @@ export const UnifiedAuthProvider: React.FC<UnifiedAuthProviderProps> = ({ childr
       return { error: null };
     } catch (err: any) {
       console.error('B2B registration error:', err);
+      
+      // Final cleanup attempt if something went wrong
+      if (createdUserId) {
+        try {
+          await supabase.from('user_profiles').delete().eq('id', createdUserId);
+          await supabase.auth.admin.deleteUser(createdUserId);
+          console.log('Final cleanup completed after registration error');
+        } catch (cleanupError) {
+          console.error('Final cleanup failed:', cleanupError);
+        }
+      }
+      
       return { error: { message: err.message || 'Registration failed. Please try again.' } };
     }
   };

@@ -14,10 +14,6 @@ const ProLayout: React.FC<ProLayoutProps> = ({
   children
 }) => {
   const {
-    user,
-    signOut
-  } = useUnifiedAuth();
-  const {
     t,
     locale
   } = useLocale();
@@ -44,10 +40,7 @@ const ProLayout: React.FC<ProLayoutProps> = ({
     href: `/${locale}/pro/settings`,
     icon: Settings
   }];
-  const handleLogout = async () => {
-    await signOut();
-    window.location.href = `/${locale}/pro/login`;
-  };
+  
   return <div className="min-h-screen bg-background">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && <div className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden" onClick={() => setSidebarOpen(false)} />}

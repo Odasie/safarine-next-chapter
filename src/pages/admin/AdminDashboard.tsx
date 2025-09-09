@@ -7,8 +7,6 @@ import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { Users, Shield, Settings, BarChart3 } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {
-  const { user } = useUnifiedAuth();
-
   const adminStats = [
     {
       title: "Total Users",
@@ -53,15 +51,15 @@ const AdminDashboard: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold">Admin Dashboard</h1>
             <p className="text-muted-foreground mt-2">
-              Welcome back, {user?.profile.first_name || 'Admin'}
+              Welcome back, Admin
             </p>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary">
-              {user?.admin?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
+              Admin
             </Badge>
             <Badge variant="outline">
-              {user?.admin?.department || 'General'}
+              General
             </Badge>
           </div>
         </div>

@@ -26,9 +26,7 @@ export const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<UserListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [promotingUsers, setPromotingUsers] = useState<Set<string>>(new Set());
   
-  const { user: currentUser, promoteToAdmin } = useUnifiedAuth();
   const { toast } = useToast();
 
   const fetchUsers = async () => {
@@ -119,40 +117,6 @@ export const UserManagement: React.FC = () => {
     fetchUsers();
   }, []);
 
-  const handlePromoteToAdmin = async (userId: string) => {
-    setPromotingUsers(prev => new Set(prev).add(userId));
-    
-    try {
-      const { error } = await promoteToAdmin(userId);
-      
-      if (error) {
-        toast({
-          title: "Error",
-          description: error,
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: "User promoted to admin successfully",
-        });
-        await fetchUsers(); // Refresh the list
-      }
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to promote user",
-        variant: "destructive"
-      });
-    } finally {
-      setPromotingUsers(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(userId);
-        return newSet;
-      });
-    }
-  };
-
   const filteredUsers = users.filter(user => 
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -186,12 +150,6 @@ export const UserManagement: React.FC = () => {
       default:
         return <Badge variant="outline">Unknown</Badge>;
     }
-  };
-
-  const canPromoteUser = (user: UserListItem) => {
-    return currentUser?.admin?.role === 'super_admin' && 
-           user.user_type !== 'admin' && 
-           user.id !== currentUser.auth.id;
   };
 
   if (loading) {
@@ -257,23 +215,7 @@ export const UserManagement: React.FC = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {canPromoteUser(user) && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handlePromoteToAdmin(user.id)}
-                          disabled={promotingUsers.has(user.id)}
-                        >
-                          {promotingUsers.has(user.id) ? (
-                            <>
-                              <LoadingSpinner size="sm" className="mr-2" />
-                              Promoting...
-                            </>
-                          ) : (
-                            'Promote to Admin'
-                          )}
-                        </Button>
-                      )}
+                      {/* No actions available in demo mode */}
                     </TableCell>
                   </TableRow>
                 ))}

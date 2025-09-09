@@ -16,10 +16,6 @@ import { B2BToursTable } from "@/components/b2b/B2BToursTable";
 import { MapPin, FileText, TrendingUp, Settings, LogOut, User, Phone, Mail, Building, ChevronDown, Download } from "lucide-react";
 const ProDashboard = () => {
   const {
-    user,
-    signOut
-  } = useUnifiedAuth();
-  const {
     t,
     locale
   } = useLocale();
@@ -38,7 +34,7 @@ const ProDashboard = () => {
 
   // Memoized calculations for performance
   const tourStats = useMemo(() => calculateTourStats(tours), [tours]);
-  const commissionRate = useMemo(() => user?.b2b?.commission_rate || 10, [user?.b2b?.commission_rate]);
+  const commissionRate = useMemo(() => 10, []);
   const recentActivity = useMemo(() => [{
     title: t('b2b.dashboard.activity.newTour'),
     description: "Erawan Kayak Adventure",
@@ -55,13 +51,7 @@ const ProDashboard = () => {
     time: t('b2b.dashboard.activity.time3'),
     icon: TrendingUp
   }], [t]);
-  const handleLogout = async () => {
-    await signOut();
-    toast({
-      title: t('b2b.header.logout'),
-      description: "Logged out successfully"
-    });
-  };
+  
   const handleDownloadAllTours = () => {
     try {
       const csvContent = generateToursCSV(tours, commissionRate);
@@ -96,8 +86,8 @@ const ProDashboard = () => {
                 
               </div>
               <div className="hidden md:flex items-center text-sm text-gray-600">
-                <span>{t('b2b.header.welcome')}, {user?.b2b?.contact_person}</span>
-                <span className="ml-2">• {user?.b2b?.company_name}</span>
+                <span>{t('b2b.header.welcome')}, Guest User</span>
+                <span className="ml-2">• Demo Company</span>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -106,7 +96,7 @@ const ProDashboard = () => {
                 <Settings className="h-4 w-4" />
                 <span className="hidden sm:ml-2 sm:inline">{t('b2b.header.settings')}</span>
               </Button>
-              <Button variant="outline" size="sm" onClick={handleLogout} aria-label={t('b2b.header.logout')} className="border-red-200 bg-red-500 hover:bg-red-400 text-slate-50 font-thin">
+              <Button variant="outline" size="sm" onClick={() => {}} aria-label={t('b2b.header.logout')} className="border-red-200 bg-red-500 hover:bg-red-400 text-slate-50 font-thin">
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:ml-2 sm:inline">{t('b2b.header.logout')}</span>
               </Button>
@@ -121,12 +111,12 @@ const ProDashboard = () => {
             <div className="md:hidden text-center mb-4">
               <h1 className="text-xl font-bold text-gray-900">
                  {t('b2b.dashboard.welcome', {
-                name: user?.b2b?.contact_person
+                name: 'Guest User'
               })}
               </h1>
               <p className="text-sm text-gray-600 mt-1">
                  {t('b2b.dashboard.subtitle', {
-                company: user?.b2b?.company_name
+                company: 'Demo Company'
               })}
               </p>
             </div>
@@ -209,21 +199,21 @@ const ProDashboard = () => {
                           <Building className="h-5 w-5 text-gray-400" />
                           <div>
                             <p className="font-medium text-gray-900">{t('b2b.settings.company')}</p>
-                            <p className="text-sm text-gray-600">{user?.b2b?.company_name}</p>
+                            <p className="text-sm text-gray-600">Demo Company</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-3">
                           <User className="h-5 w-5 text-gray-400" />
                           <div>
                             <p className="font-medium text-gray-900">{t('b2b.settings.contact')}</p>
-                            <p className="text-sm text-gray-600">{user?.b2b?.contact_person}</p>
+                            <p className="text-sm text-gray-600">Guest User</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-3">
                           <Mail className="h-5 w-5 text-gray-400" />
                           <div>
                             <p className="font-medium text-gray-900">{t('b2b.settings.email')}</p>
-                            <p className="text-sm text-gray-600">{user?.auth.email}</p>
+                            <p className="text-sm text-gray-600">guest@example.com</p>
                           </div>
                         </div>
                       </div>

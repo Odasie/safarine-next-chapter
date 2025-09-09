@@ -7,7 +7,6 @@ import { HelmetProvider } from "react-helmet-async";
 import { LocaleProvider } from "@/contexts/LocaleContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { UnifiedAuthProvider } from "@/contexts/UnifiedAuthContext";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import MainLayout from "@/layouts/MainLayout";
 import ProLayout from "@/layouts/ProLayout";
 import Index from "./pages/Index";
@@ -21,11 +20,8 @@ import AdminCSVImport from "./pages/AdminCSVImport";
 import { TourDashboard } from "./pages/admin/TourDashboard";
 import { TourCreationWizard } from "./pages/admin/TourCreationWizard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import ProLogin from "./pages/pro/ProLogin";
 import ProDashboard from "./pages/pro/ProDashboard";
 import ProTours from "./pages/pro/ProTours";
-import Auth from "./pages/Auth";
-import UserProfile from "./pages/UserProfile";
 
 const queryClient = new QueryClient();
 
@@ -40,57 +36,41 @@ const App = () => (
             <CurrencyProvider>
               <UnifiedAuthProvider>
                 <Routes>
-                  {/* B2B Routes */}
-                  <Route path="/pro/login" element={<ProLogin />} />
-                  <Route path="/:locale/pro/login" element={<ProLogin />} />
-                  <Route path="/pro" element={<ProLogin />} />
-                  <Route path="/:locale/pro" element={<ProLogin />} />
-                  
-                  {/* Protected B2B Routes */}
+                  {/* B2B Routes - No authentication required */}
+                  <Route path="/pro" element={
+                    <ProLayout>
+                      <ProDashboard />
+                    </ProLayout>
+                  } />
+                  <Route path="/:locale/pro" element={
+                    <ProLayout>
+                      <ProDashboard />
+                    </ProLayout>
+                  } />
                   <Route path="/pro/dashboard" element={
-                    <ProtectedRoute requiredUserType="b2b" requiredApproval={true}>
-                      <ProLayout>
-                        <ProDashboard />
-                      </ProLayout>
-                    </ProtectedRoute>
+                    <ProLayout>
+                      <ProDashboard />
+                    </ProLayout>
                   } />
                   <Route path="/:locale/pro/dashboard" element={
-                    <ProtectedRoute requiredUserType="b2b" requiredApproval={true}>
-                      <ProLayout>
-                        <ProDashboard />
-                      </ProLayout>
-                    </ProtectedRoute>
+                    <ProLayout>
+                      <ProDashboard />
+                    </ProLayout>
                   } />
                   <Route path="/pro/tours" element={
-                    <ProtectedRoute requiredUserType="b2b" requiredApproval={true}>
-                      <ProLayout>
-                        <ProTours />
-                      </ProLayout>
-                    </ProtectedRoute>
+                    <ProLayout>
+                      <ProTours />
+                    </ProLayout>
                   } />
                   <Route path="/:locale/pro/tours" element={
-                    <ProtectedRoute requiredUserType="b2b" requiredApproval={true}>
-                      <ProLayout>
-                        <ProTours />
-                      </ProLayout>
-                    </ProtectedRoute>
+                    <ProLayout>
+                      <ProTours />
+                    </ProLayout>
                   } />
 
-                  {/* Admin Routes */}
-                  <Route path="/admin" element={
-                    <ProtectedRoute requiredUserType="admin">
-                      <AdminDashboard />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/:locale/admin" element={
-                    <ProtectedRoute requiredUserType="admin">
-                      <AdminDashboard />
-                    </ProtectedRoute>
-                  } />
-
-                  {/* User Authentication Routes */}
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/:locale/auth" element={<Auth />} />
+                  {/* Admin Routes - No authentication required */}
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/:locale/admin" element={<AdminDashboard />} />
                   
                   {/* Locale-specific routes */}
                   <Route path="/:locale" element={<MainLayout />}>
@@ -99,31 +79,10 @@ const App = () => (
                     <Route path="tours/:slug" element={<TourDetail />} />
                     <Route path="about" element={<About />} />
                     <Route path="contact" element={<Contact />} />
-                    <Route path="profile" element={
-                      <ProtectedRoute>
-                        <UserProfile />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="admin/import" element={
-                      <ProtectedRoute requiredUserType="admin">
-                        <AdminImport />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="admin/csv-import" element={
-                      <ProtectedRoute requiredUserType="admin">
-                        <AdminCSVImport />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="admin/tours" element={
-                      <ProtectedRoute requiredUserType="admin">
-                        <TourDashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="admin/tours/create" element={
-                      <ProtectedRoute requiredUserType="admin">
-                        <TourCreationWizard />
-                      </ProtectedRoute>
-                    } />
+                    <Route path="admin/import" element={<AdminImport />} />
+                    <Route path="admin/csv-import" element={<AdminCSVImport />} />
+                    <Route path="admin/tours" element={<TourDashboard />} />
+                    <Route path="admin/tours/create" element={<TourCreationWizard />} />
                   </Route>
                   
                   {/* Default routes (redirect to French) */}
@@ -133,31 +92,10 @@ const App = () => (
                     <Route path="/tours/:slug" element={<TourDetail />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
-                    <Route path="/profile" element={
-                      <ProtectedRoute>
-                        <UserProfile />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/admin/import" element={
-                      <ProtectedRoute requiredUserType="admin">
-                        <AdminImport />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/admin/csv-import" element={
-                      <ProtectedRoute requiredUserType="admin">
-                        <AdminCSVImport />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/admin/tours" element={
-                      <ProtectedRoute requiredUserType="admin">
-                        <TourDashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/admin/tours/create" element={
-                      <ProtectedRoute requiredUserType="admin">
-                        <TourCreationWizard />
-                      </ProtectedRoute>
-                    } />
+                    <Route path="/admin/import" element={<AdminImport />} />
+                    <Route path="/admin/csv-import" element={<AdminCSVImport />} />
+                    <Route path="/admin/tours" element={<TourDashboard />} />
+                    <Route path="/admin/tours/create" element={<TourCreationWizard />} />
                   </Route>
                   
                   {/* Catch-all */}

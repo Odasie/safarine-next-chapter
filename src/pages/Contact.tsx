@@ -1,11 +1,13 @@
 import { useForm } from "react-hook-form";
 import { Helmet } from "react-helmet-async";
 import { Phone } from "lucide-react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 interface ContactForm {
   name: string;
   email: string;
@@ -14,22 +16,50 @@ interface ContactForm {
   message: string;
 }
 const Contact = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     register,
     handleSubmit,
     reset,
-    setValue
+    setValue,
+    formState: { errors }
   } = useForm<ContactForm>();
-  const onSubmit = (data: ContactForm) => {
-    console.log("Contact form submitted", data);
-    toast({
-      title: "Message sent",
-      description: "We'll get back to you shortly."
-    });
-    reset(); // Clear all form fields after successful submission
+
+  const onSubmit = async (data: ContactForm) => {
+    setIsSubmitting(true);
+    
+    try {
+      const { error } = await supabase.functions.invoke('send-notification-email', {
+        body: {
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          type: data.type,
+          message: data.message,
+          source: 'contact_page'
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Message sent successfully",
+        description: "We'll get back to you within 24-48 hours."
+      });
+      reset();
+    } catch (error: any) {
+      console.error("Error submitting contact form:", error);
+      toast({
+        title: "Error sending message",
+        description: "Please try again or call us at +66-860491662.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   return <div className="container mx-auto py-10">
       <Helmet>
@@ -79,7 +109,9 @@ const Contact = () => {
         })} placeholder="Tell us about your plans" />
         </div>
         <div className="md:col-span-2 flex justify-end">
-          <Button type="submit">Send Message</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Sending..." : "Send Message"}
+          </Button>
         </div>
       </form>
 

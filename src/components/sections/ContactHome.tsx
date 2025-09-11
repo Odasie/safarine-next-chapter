@@ -1,8 +1,10 @@
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ContactHomeForm {
   name: string;
@@ -12,15 +14,41 @@ interface ContactHomeForm {
 
 const ContactHome = () => {
   const { toast } = useToast();
-  const { register, handleSubmit, reset } = useForm<ContactHomeForm>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactHomeForm>();
   
-  const onSubmit = (data: ContactHomeForm) => {
-    console.log("Contact form submitted", data);
-    toast({
-      title: "Message envoyé",
-      description: "Nous vous répondrons rapidement."
-    });
-    reset(); // Clear all form fields after successful submission
+  const onSubmit = async (data: ContactHomeForm) => {
+    setIsSubmitting(true);
+    
+    try {
+      const { error } = await supabase.functions.invoke('send-notification-email', {
+        body: {
+          name: data.name,
+          email: data.email,
+          message: data.message,
+          source: 'homepage'
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Message envoyé avec succès",
+        description: "Nous vous répondrons dans les 24-48 heures."
+      });
+      reset();
+    } catch (error: any) {
+      console.error("Error submitting contact form:", error);
+      toast({
+        title: "Erreur lors de l'envoi",
+        description: "Veuillez réessayer ou nous appeler au +66-860491662.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   return <section className="bg-accent/10" aria-labelledby="contact-title">
       <div className="container mx-auto grid gap-8 py-12 md:grid-cols-2">
@@ -54,7 +82,9 @@ Safarine Tours - Licence n° 14/03149</li>
               rows={4} 
             />
             <div className="flex justify-end">
-              <Button type="submit" variant="accent">Envoyer</Button>
+              <Button type="submit" variant="accent" disabled={isSubmitting}>
+                {isSubmitting ? "Envoi..." : "Envoyer"}
+              </Button>
             </div>
           </div>
         </form>

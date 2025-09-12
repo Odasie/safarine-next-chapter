@@ -3,10 +3,12 @@ import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { UserManagement } from '@/components/admin/UserManagement';
-import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
+import { useUnifiedAuth } from '@/contexts/ClerkAuthContext';
+import { UserButton } from '@/components/auth/UserButton';
 import { Users, Shield, Settings, BarChart3 } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {
+  const { user, isAdmin } = useUnifiedAuth();
   const adminStats = [
     {
       title: "Total Users",
@@ -51,16 +53,19 @@ const AdminDashboard: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold">Admin Dashboard</h1>
             <p className="text-muted-foreground mt-2">
-              Welcome back, Admin
+              Welcome back, {user?.firstName || 'Admin'}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">
-              Admin
-            </Badge>
-            <Badge variant="outline">
-              General
-            </Badge>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">
+                Admin
+              </Badge>
+              <Badge variant="outline">
+                General
+              </Badge>
+            </div>
+            <UserButton />
           </div>
         </div>
 

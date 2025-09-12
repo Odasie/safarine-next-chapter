@@ -6,7 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { LocaleProvider } from "@/contexts/LocaleContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
-import { UnifiedAuthProvider } from "@/contexts/UnifiedAuthContext";
+import { UnifiedAuthProvider } from "@/contexts/ClerkAuthContext";
+import { AdminProtectedRoute } from "@/components/auth/AdminProtectedRoute";
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
 import MainLayout from "@/layouts/MainLayout";
 import ProLayout from "@/layouts/ProLayout";
 import Index from "./pages/Index";
@@ -68,9 +71,21 @@ const App = () => (
                     </ProLayout>
                   } />
 
-                  {/* Admin Routes - No authentication required */}
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/:locale/admin" element={<AdminDashboard />} />
+                  {/* Authentication Routes */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  
+                  {/* Protected Admin Routes */}
+                  <Route path="/admin" element={
+                    <AdminProtectedRoute>
+                      <AdminDashboard />
+                    </AdminProtectedRoute>
+                  } />
+                  <Route path="/:locale/admin" element={
+                    <AdminProtectedRoute>
+                      <AdminDashboard />
+                    </AdminProtectedRoute>
+                  } />
                   
                   {/* Locale-specific routes */}
                   <Route path="/:locale" element={<MainLayout />}>
@@ -79,10 +94,26 @@ const App = () => (
                     <Route path="tours/:slug" element={<TourDetail />} />
                     <Route path="about" element={<About />} />
                     <Route path="contact" element={<Contact />} />
-                    <Route path="admin/import" element={<AdminImport />} />
-                    <Route path="admin/csv-import" element={<AdminCSVImport />} />
-                    <Route path="admin/tours" element={<TourDashboard />} />
-                    <Route path="admin/tours/create" element={<TourCreationWizard />} />
+                    <Route path="admin/import" element={
+                      <AdminProtectedRoute>
+                        <AdminImport />
+                      </AdminProtectedRoute>
+                    } />
+                    <Route path="admin/csv-import" element={
+                      <AdminProtectedRoute>
+                        <AdminCSVImport />
+                      </AdminProtectedRoute>
+                    } />
+                    <Route path="admin/tours" element={
+                      <AdminProtectedRoute>
+                        <TourDashboard />
+                      </AdminProtectedRoute>
+                    } />
+                    <Route path="admin/tours/create" element={
+                      <AdminProtectedRoute>
+                        <TourCreationWizard />
+                      </AdminProtectedRoute>
+                    } />
                   </Route>
                   
                   {/* Default routes (redirect to French) */}
@@ -92,10 +123,26 @@ const App = () => (
                     <Route path="/tours/:slug" element={<TourDetail />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
-                    <Route path="/admin/import" element={<AdminImport />} />
-                    <Route path="/admin/csv-import" element={<AdminCSVImport />} />
-                    <Route path="/admin/tours" element={<TourDashboard />} />
-                    <Route path="/admin/tours/create" element={<TourCreationWizard />} />
+                    <Route path="/admin/import" element={
+                      <AdminProtectedRoute>
+                        <AdminImport />
+                      </AdminProtectedRoute>
+                    } />
+                    <Route path="/admin/csv-import" element={
+                      <AdminProtectedRoute>
+                        <AdminCSVImport />
+                      </AdminProtectedRoute>
+                    } />
+                    <Route path="/admin/tours" element={
+                      <AdminProtectedRoute>
+                        <TourDashboard />
+                      </AdminProtectedRoute>
+                    } />
+                    <Route path="/admin/tours/create" element={
+                      <AdminProtectedRoute>
+                        <TourCreationWizard />
+                      </AdminProtectedRoute>
+                    } />
                   </Route>
                   
                   {/* Catch-all */}

@@ -1,6 +1,13 @@
 import { createRoot } from 'react-dom/client'
+import { ClerkProvider } from '@clerk/clerk-react'
 import App from './App.tsx'
 import './index.css'
+
+const PUBLISHABLE_KEY = "pk_test_cm9tYW50aWMtc29sZS04MC5jbGVyay5hY2NvdW50cy5kZXYk"
+
+if (!PUBLISHABLE_KEY) {
+  throw new Error("Missing Publishable Key")
+}
 
 function ensureDesignTokens() {
   try {
@@ -47,4 +54,8 @@ header[data-fallback="1"]{background-color:hsl(var(--primary));color:hsl(var(--p
 }
 ensureDesignTokens();
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+    <App />
+  </ClerkProvider>
+);

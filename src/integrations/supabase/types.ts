@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_roles: {
+        Row: {
+          clerk_user_id: string
+          created_at: string | null
+          id: string
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          clerk_user_id: string
+          created_at?: string | null
+          id?: string
+          role?: string
+          updated_at?: string | null
+        }
+        Update: {
+          clerk_user_id?: string
+          created_at?: string | null
+          id?: string
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       admin_users: {
         Row: {
           created_at: string | null

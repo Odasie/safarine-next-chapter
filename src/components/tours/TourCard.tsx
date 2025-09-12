@@ -30,7 +30,7 @@ const TourCard = ({
   slug,
   onBook 
 }: TourCardProps) => {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const currentLocale = locale as 'en' | 'fr';
   const navigate = useNavigate();
 
@@ -131,7 +131,7 @@ const TourCard = ({
           }} 
           className="ml-auto"
         >
-          Réserver
+          {t('tour.card.bookButton')}
         </Button>
       </CardFooter>
     </Card>

@@ -1,0 +1,67 @@
+-- Add Phase 1 and Phase 2 translation keys for comprehensive localization
+INSERT INTO public.translations (key_name, locale, value, category) VALUES
+-- Phase 1: SiteHeader navigation keys
+('aria.searchLabel', 'fr', 'Recherche', 'navigation'),
+('aria.searchLabel', 'en', 'Search', 'navigation'),
+('aria.homeLink', 'fr', 'Accueil Safarine Tours', 'navigation'),
+('aria.homeLink', 'en', 'Safarine Tours Home', 'navigation'),
+('screen.reader.tagline', 'fr', 'SAFARINE • Tours Privés Thaïlande', 'navigation'),
+('screen.reader.tagline', 'en', 'SAFARINE • Private Tours Thailand', 'navigation'),
+
+-- Phase 1: SiteFooter keys
+('footer.tagline', 'fr', 'Expériences thaï authentiques depuis 30 ans.', 'footer'),
+('footer.tagline', 'en', 'Authentic Thai experiences for 30 years.', 'footer'),
+('footer.navigation.tours', 'fr', 'Nos circuits/Activités', 'footer'),
+('footer.navigation.tours', 'en', 'Our Tours/Activities', 'footer'),
+('footer.navigation.about', 'fr', 'À propos', 'footer'),
+('footer.navigation.about', 'en', 'About', 'footer'),
+('footer.navigation.contact', 'fr', 'Contact', 'footer'),
+('footer.navigation.contact', 'en', 'Contact', 'footer'),
+('footer.navigation.proLogin', 'fr', 'Connexion Pro', 'footer'),
+('footer.navigation.proLogin', 'en', 'Pro Login', 'footer'),
+('footer.offices.title', 'fr', 'Agences', 'footer'),
+('footer.offices.title', 'en', 'Offices', 'footer'),
+('footer.offices.kanchanaburi', 'fr', 'Kanchanaburi, Thaïlande', 'footer'),
+('footer.offices.kanchanaburi', 'en', 'Kanchanaburi, Thailand', 'footer'),
+('footer.offices.chiangmai', 'fr', 'Chiang Mai, Thaïlande', 'footer'),
+('footer.offices.chiangmai', 'en', 'Chiang Mai, Thailand', 'footer'),
+('footer.legal.title', 'fr', 'Infos légales', 'footer'),
+('footer.legal.title', 'en', 'Legal Information', 'footer'),
+('footer.legal.copyright', 'fr', 'Tous droits réservés', 'footer'),
+('footer.legal.copyright', 'en', 'All rights reserved', 'footer'),
+('aria.facebook', 'fr', 'Facebook', 'social'),
+('aria.facebook', 'en', 'Facebook', 'social'),
+('aria.instagram', 'fr', 'Instagram', 'social'),
+('aria.instagram', 'en', 'Instagram', 'social'),
+('aria.email', 'fr', 'Email', 'social'),
+('aria.email', 'en', 'Email', 'social'),
+
+-- Phase 2: Tour components keys
+('tour.card.bookButton', 'fr', 'Réserver', 'tours'),
+('tour.card.bookButton', 'en', 'Book Now', 'tours'),
+('tour.card.viewTour', 'fr', 'Voir {title}', 'tours'),
+('tour.card.viewTour', 'en', 'View {title}', 'tours'),
+
+-- WhySafarine component keys
+('whySafarine.title', 'fr', 'Pourquoi choisir Safarine ?', 'sections'),
+('whySafarine.title', 'en', 'Why choose Safarine?', 'sections'),
+('whySafarine.features.authentic', 'fr', 'Immersion locale authentique', 'sections'),
+('whySafarine.features.authentic', 'en', 'Authentic local immersion', 'sections'),
+('whySafarine.features.respect', 'fr', 'Respect des communautés et de la nature', 'sections'),
+('whySafarine.features.respect', 'en', 'Respect for communities and nature', 'sections'),
+('whySafarine.features.offBeaten', 'fr', 'Randonnées hors sentiers battus', 'sections'),
+('whySafarine.features.offBeaten', 'en', 'Off-the-beaten-path hiking', 'sections'),
+('whySafarine.features.guides', 'fr', 'Accompagnateurs passionnés et francophones', 'sections'),
+('whySafarine.features.guides', 'en', 'Passionate French-speaking guides', 'sections'),
+('whySafarine.description', 'fr', 'Depuis 1995, Safarine Tours organise des tours privés, des treks, des balades en kayak en Thaïlande. Nous proposons des expériences sur mesure, loin du tourisme de masse, en harmonie avec la nature et les habitants.', 'sections'),
+('whySafarine.description', 'en', 'Since 1995, Safarine Tours has been organizing private tours, treks, and kayak trips in Thailand. We offer tailor-made experiences, away from mass tourism, in harmony with nature and locals.', 'sections'),
+('whySafarine.image.alt', 'fr', 'Train longeant une falaise en Thaïlande', 'images'),
+('whySafarine.image.alt', 'en', 'Train along a cliff in Thailand', 'images'),
+
+-- ProCTA component keys
+('pro.cta.title', 'fr', 'Professionnels ? Connectez-vous !', 'cta'),
+('pro.cta.title', 'en', 'Professionals? Connect with us!', 'cta'),
+('pro.cta.signup', 'fr', 'Inscription Pro', 'cta'),
+('pro.cta.signup', 'en', 'Pro Registration', 'cta'),
+('pro.cta.login', 'fr', 'Connexion Pro', 'cta'),
+('pro.cta.login', 'en', 'Pro Login', 'cta');

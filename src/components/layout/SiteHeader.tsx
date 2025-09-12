@@ -23,12 +23,12 @@ const SiteHeader = () => {
   return (
     <header data-fallback="1" className="sticky top-0 z-40 w-full border-b bg-primary text-primary-foreground">
       <div className="container mx-auto flex h-16 items-center justify-between">
-        <Link to={getLocalizedPath("/")} className="flex items-center gap-3" aria-label="Safarine Tours home">
+        <Link to={getLocalizedPath("/")} className="flex items-center gap-3" aria-label={t('aria.homeLink')}>
           <ResponsiveLogo 
             className="h-8 md:h-10" 
             theme="light" 
           />
-          <span className="sr-only">SAFARINE • Private Tours Thailand</span>
+          <span className="sr-only">{t('screen.reader.tagline')}</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-2" aria-label="Main navigation">
@@ -39,10 +39,10 @@ const SiteHeader = () => {
         </nav>
 
         <div className="flex items-center gap-3">
-          <button className="inline-flex items-center gap-2 rounded-md border border-primary-foreground/30 bg-transparent px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors" aria-label="Recherche">
-            <Search className="h-4 w-4" />
-            <span className="hidden sm:inline">{t('search.cta')}</span>
-          </button>
+        <button className="inline-flex items-center gap-2 rounded-md border border-primary-foreground/30 bg-transparent px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors" aria-label={t('aria.searchLabel')}>
+          <Search className="h-4 w-4" />
+          <span className="hidden sm:inline">{t('search.cta')}</span>
+        </button>
           
           <LanguageSwitcher />
           <CurrencySwitcher />

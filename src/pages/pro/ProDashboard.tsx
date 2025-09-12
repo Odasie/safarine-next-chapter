@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
-import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
+import { useUnifiedAuth } from "@/contexts/ClerkAuthContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useRawTours } from "@/hooks/use-tours";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -13,8 +13,10 @@ import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { B2BStatsCards } from "@/components/b2b/B2BStatsCards";
 import { B2BQuickActions } from "@/components/b2b/B2BQuickActions";
 import { B2BToursTable } from "@/components/b2b/B2BToursTable";
+import { B2BUserButton } from "@/components/auth/B2BUserButton";
 import { MapPin, FileText, TrendingUp, Settings, LogOut, User, Phone, Mail, Building, ChevronDown, Download } from "lucide-react";
 const ProDashboard = () => {
+  const { user, isAuthenticated } = useUnifiedAuth();
   const {
     t,
     locale
@@ -31,6 +33,15 @@ const ProDashboard = () => {
   // State for collapsible sections
   const [activityOpen, setActivityOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(!isMobile);
+
+  // Extract user info from Clerk metadata
+  const userName = user?.firstName && user?.lastName 
+    ? `${user.firstName} ${user.lastName}` 
+    : user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] || 'B2B User';
+  const userEmail = user?.emailAddresses?.[0]?.emailAddress || '';
+  const companyName = user?.unsafeMetadata?.companyName || 'Professional Account';
+  const userPhone = user?.unsafeMetadata?.phone || 'Not provided';
+  const agencyType = user?.unsafeMetadata?.agencyType || 'Travel Professional';
 
   // Memoized calculations for performance
   const tourStats = useMemo(() => calculateTourStats(tours), [tours]);
@@ -86,20 +97,13 @@ const ProDashboard = () => {
                 
               </div>
               <div className="hidden md:flex items-center text-sm text-gray-600">
-                <span>{t('b2b.header.welcome')}, Guest User</span>
-                <span className="ml-2">• Demo Company</span>
+                <span>{t('b2b.header.welcome')}, {userName}</span>
+                <span className="ml-2">• {companyName}</span>
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <LanguageSwitcher />
-              <Button variant="ghost" size="sm" aria-label={t('b2b.header.settings')} className="text-gray-600 hover:text-blue-600">
-                <Settings className="h-4 w-4" />
-                <span className="hidden sm:ml-2 sm:inline">{t('b2b.header.settings')}</span>
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => {}} aria-label={t('b2b.header.logout')} className="border-red-200 bg-red-500 hover:bg-red-400 text-slate-50 font-thin">
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:ml-2 sm:inline">{t('b2b.header.logout')}</span>
-              </Button>
+              <B2BUserButton />
             </div>
           </div>
         </header>
@@ -111,12 +115,12 @@ const ProDashboard = () => {
             <div className="md:hidden text-center mb-4">
               <h1 className="text-xl font-bold text-gray-900">
                  {t('b2b.dashboard.welcome', {
-                name: 'Guest User'
+                name: userName
               })}
               </h1>
               <p className="text-sm text-gray-600 mt-1">
                  {t('b2b.dashboard.subtitle', {
-                company: 'Demo Company'
+                company: companyName
               })}
               </p>
             </div>
@@ -199,31 +203,31 @@ const ProDashboard = () => {
                           <Building className="h-5 w-5 text-gray-400" />
                           <div>
                             <p className="font-medium text-gray-900">{t('b2b.settings.company')}</p>
-                            <p className="text-sm text-gray-600">Demo Company</p>
+                            <p className="text-sm text-gray-600">{companyName}</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-3">
                           <User className="h-5 w-5 text-gray-400" />
                           <div>
                             <p className="font-medium text-gray-900">{t('b2b.settings.contact')}</p>
-                            <p className="text-sm text-gray-600">Guest User</p>
+                            <p className="text-sm text-gray-600">{userName}</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-3">
                           <Mail className="h-5 w-5 text-gray-400" />
                           <div>
                             <p className="font-medium text-gray-900">{t('b2b.settings.email')}</p>
-                            <p className="text-sm text-gray-600">guest@example.com</p>
+                            <p className="text-sm text-gray-600">{userEmail}</p>
                           </div>
                         </div>
                       </div>
                       <div className="space-y-4">
                          <div className="flex items-center space-x-3">
                            <Phone className="h-5 w-5 text-gray-400" />
-                           <div>
-                             <p className="font-medium text-gray-900">{t('b2b.settings.phone')}</p>
-                             <p className="text-sm text-gray-600">Not provided</p>
-                           </div>
+                            <div>
+                              <p className="font-medium text-gray-900">{t('b2b.settings.phone')}</p>
+                              <p className="text-sm text-gray-600">{userPhone}</p>
+                            </div>
                          </div>
                         <div className="flex items-center space-x-3">
                           <TrendingUp className="h-5 w-5 text-gray-400" />

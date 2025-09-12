@@ -8,8 +8,11 @@ import { LocaleProvider } from "@/contexts/LocaleContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { UnifiedAuthProvider } from "@/contexts/ClerkAuthContext";
 import { AdminProtectedRoute } from "@/components/auth/AdminProtectedRoute";
+import { B2BProtectedRoute } from "@/components/auth/B2BProtectedRoute";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
+import ProLogin from "./pages/pro/ProLogin";
+import ProSignup from "./pages/pro/ProSignup";
 import MainLayout from "@/layouts/MainLayout";
 import ProLayout from "@/layouts/ProLayout";
 import Index from "./pages/Index";
@@ -39,39 +42,55 @@ const App = () => (
             <CurrencyProvider>
               <UnifiedAuthProvider>
                 <Routes>
-                  {/* B2B Routes - No authentication required */}
+                  {/* B2B Authentication Routes */}
+                  <Route path="/pro/login" element={<ProLogin />} />
+                  <Route path="/pro/signup" element={<ProSignup />} />
+                  
+                  {/* Protected B2B Routes */}
                   <Route path="/pro" element={
-                    <ProLayout>
-                      <ProDashboard />
-                    </ProLayout>
+                    <B2BProtectedRoute>
+                      <ProLayout>
+                        <ProDashboard />
+                      </ProLayout>
+                    </B2BProtectedRoute>
                   } />
                   <Route path="/:locale/pro" element={
-                    <ProLayout>
-                      <ProDashboard />
-                    </ProLayout>
+                    <B2BProtectedRoute>
+                      <ProLayout>
+                        <ProDashboard />
+                      </ProLayout>
+                    </B2BProtectedRoute>
                   } />
                   <Route path="/pro/dashboard" element={
-                    <ProLayout>
-                      <ProDashboard />
-                    </ProLayout>
+                    <B2BProtectedRoute>
+                      <ProLayout>
+                        <ProDashboard />
+                      </ProLayout>
+                    </B2BProtectedRoute>
                   } />
                   <Route path="/:locale/pro/dashboard" element={
-                    <ProLayout>
-                      <ProDashboard />
-                    </ProLayout>
+                    <B2BProtectedRoute>
+                      <ProLayout>
+                        <ProDashboard />
+                      </ProLayout>
+                    </B2BProtectedRoute>
                   } />
                   <Route path="/pro/tours" element={
-                    <ProLayout>
-                      <ProTours />
-                    </ProLayout>
+                    <B2BProtectedRoute>
+                      <ProLayout>
+                        <ProTours />
+                      </ProLayout>
+                    </B2BProtectedRoute>
                   } />
                   <Route path="/:locale/pro/tours" element={
-                    <ProLayout>
-                      <ProTours />
-                    </ProLayout>
+                    <B2BProtectedRoute>
+                      <ProLayout>
+                        <ProTours />
+                      </ProLayout>
+                    </B2BProtectedRoute>
                   } />
 
-                  {/* Authentication Routes */}
+                  {/* Admin Authentication Routes */}
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   

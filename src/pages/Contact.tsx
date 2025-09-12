@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useLocale } from "@/contexts/LocaleContext";
 interface ContactForm {
   name: string;
   email: string;
@@ -17,6 +18,7 @@ interface ContactForm {
 }
 const Contact = () => {
   const { toast } = useToast();
+  const { t } = useLocale();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     register,
@@ -46,15 +48,15 @@ const Contact = () => {
       }
 
       toast({
-        title: "Message sent successfully",
-        description: "We'll get back to you within 24-48 hours."
+        title: t("contact.form.success.title"),
+        description: t("contact.form.success.description")
       });
       reset();
     } catch (error: any) {
       console.error("Error submitting contact form:", error);
       toast({
-        title: "Error sending message",
-        description: "Please try again or call us at +66-860491662.",
+        title: t("contact.form.error.title"),
+        description: t("contact.form.error.description"),
         variant: "destructive"
       });
     } finally {
@@ -63,54 +65,75 @@ const Contact = () => {
   };
   return <div className="container mx-auto py-10">
       <Helmet>
-        <title>Contact | Safarine Tours</title>
-        <meta name="description" content="Contactez-nous pour vos demandes de circuits privés en Thaïlande." />
+        <title>{t("contact.title")} | Safarine Tours</title>
+        <meta name="description" content={t("contact.meta.description")} />
         <link rel="canonical" href={`${window.location.origin}/contact`} />
       </Helmet>
 
       <header className="mb-6">
-        <h1 className="text-3xl font-bold">Contactez-nous</h1>
+        <h1 className="text-3xl font-bold">{t("contact.title")}</h1>
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 md:grid-cols-2">
         <div className="grid gap-2">
-          <label htmlFor="name" className="text-sm font-medium">Name</label>
-          <Input id="name" {...register("name", {
-          required: true
-        })} placeholder="Your full name" />
+          <label htmlFor="name" className="text-sm font-medium">{t("contact.form.name")}</label>
+          <Input 
+            id="name" 
+            {...register("name", {
+              required: t("contact.form.validation.nameRequired")
+            })} 
+            placeholder={t("contact.form.placeholders.name")} 
+          />
+          {errors.name && <span className="text-sm text-destructive">{errors.name.message}</span>}
         </div>
         <div className="grid gap-2">
-          <label htmlFor="email" className="text-sm font-medium">Email</label>
-          <Input id="email" type="email" {...register("email", {
-          required: true
-        })} placeholder="you@example.com" />
+          <label htmlFor="email" className="text-sm font-medium">{t("contact.form.email")}</label>
+          <Input 
+            id="email" 
+            type="email" 
+            {...register("email", {
+              required: t("contact.form.validation.emailRequired"),
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: t("contact.form.validation.emailInvalid")
+              }
+            })} 
+            placeholder={t("contact.form.placeholders.email")} 
+          />
+          {errors.email && <span className="text-sm text-destructive">{errors.email.message}</span>}
         </div>
         <div className="grid gap-2">
-          <label htmlFor="phone" className="text-sm font-medium">Phone</label>
-          <Input id="phone" {...register("phone")} placeholder="+66 ..." />
+          <label htmlFor="phone" className="text-sm font-medium">{t("contact.form.phone")}</label>
+          <Input id="phone" {...register("phone")} placeholder={t("contact.form.placeholders.phone")} />
         </div>
         <div className="grid gap-2">
-          <label className="text-sm font-medium">Message type</label>
+          <label className="text-sm font-medium">{t("contact.form.messageType")}</label>
           <Select onValueChange={(value) => setValue("type", value)}>
             <SelectTrigger>
-              <SelectValue placeholder="Select type" />
+              <SelectValue placeholder={t("contact.form.placeholders.messageType")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="booking">Booking inquiry</SelectItem>
-              <SelectItem value="custom">Custom tour request</SelectItem>
-              <SelectItem value="info">General information</SelectItem>
+              <SelectItem value="booking">{t("contact.form.types.booking")}</SelectItem>
+              <SelectItem value="custom">{t("contact.form.types.custom")}</SelectItem>
+              <SelectItem value="info">{t("contact.form.types.info")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="md:col-span-2 grid gap-2">
-          <label htmlFor="message" className="text-sm font-medium">Message</label>
-          <Textarea id="message" rows={6} {...register("message", {
-          required: true
-        })} placeholder="Tell us about your plans" />
+          <label htmlFor="message" className="text-sm font-medium">{t("contact.form.message")}</label>
+          <Textarea 
+            id="message" 
+            rows={6} 
+            {...register("message", {
+              required: t("contact.form.validation.messageRequired")
+            })} 
+            placeholder={t("contact.form.placeholders.message")} 
+          />
+          {errors.message && <span className="text-sm text-destructive">{errors.message.message}</span>}
         </div>
         <div className="md:col-span-2 flex justify-end">
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Sending..." : "Send Message"}
+            {isSubmitting ? t("contact.form.submitting") : t("contact.form.submit")}
           </Button>
         </div>
       </form>

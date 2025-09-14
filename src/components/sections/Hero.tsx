@@ -1,9 +1,10 @@
 import SearchBar from "@/components/search/SearchBar";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useTranslations } from "@/hooks/use-translations";
 import { useState } from "react";
 
 const Hero = () => {
-  const { t } = useLocale();
+  const { t } = useTranslations();
   const [imageError, setImageError] = useState(false);
   
   return (
@@ -37,10 +38,10 @@ const Hero = () => {
 
       <div className="relative z-10 container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-6 py-16 text-center text-white">
         <h1 className="text-4xl md:text-5xl font-bold drop-shadow-lg">
-          {t('hero.title') || 'Découvrez la Thaïlande Authentique'}
+          {t('homepage.hero.title', 'Private Tours Thailand')}
         </h1>
         <p className="text-lg md:text-xl max-w-2xl drop-shadow-md">
-          {t('hero.subtitle') || 'Trek, culture et immersion loin du tourisme de masse'}
+          {t('homepage.hero.subtitle', 'Trek, culture and immersion away from mass tourism')}
         </p>
         <div className="w-full max-w-3xl rounded-full border border-white/20 bg-white/90 backdrop-blur p-4 shadow-lg">
           <SearchBar />

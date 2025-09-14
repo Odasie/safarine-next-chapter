@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
+import { useTranslations } from "@/hooks/use-translations";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -14,7 +15,8 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   }`;
 
 const SiteHeader = () => {
-  const { locale, t } = useLocale();
+  const { locale } = useLocale();
+  const { t } = useTranslations();
   
   const getLocalizedPath = (path: string) => {
     return `/${locale}${path}`;
@@ -23,25 +25,25 @@ const SiteHeader = () => {
   return (
     <header data-fallback="1" className="sticky top-0 z-40 w-full border-b bg-primary text-primary-foreground">
       <div className="container mx-auto flex h-16 items-center justify-between">
-        <Link to={getLocalizedPath("/")} className="flex items-center gap-3" aria-label={t('aria.homeLink')}>
+        <Link to={getLocalizedPath("/")} className="flex items-center gap-3" aria-label="Safarine Tours">
           <ResponsiveLogo 
             className="h-8 md:h-10" 
             theme="light" 
           />
-          <span className="sr-only">{t('screen.reader.tagline')}</span>
+          <span className="sr-only">Safarine Tours</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-2" aria-label="Main navigation">
-          <NavLink to={getLocalizedPath("/tours")} className={navLinkClass}>{t('menu.tours')}</NavLink>
-          <NavLink to={getLocalizedPath("/about")} className={navLinkClass}>{t('menu.about')}</NavLink>
-          <NavLink to={getLocalizedPath("/pro")} className={navLinkClass}>{t('menu.pro')}</NavLink>
-          <NavLink to={getLocalizedPath("/contact")} className={navLinkClass}>{t('menu.contact')}</NavLink>
+        <nav className="hidden md:flex items-center gap-2" aria-label={t('aria.main_navigation', 'Main navigation')}>
+          <NavLink to={getLocalizedPath("/tours")} className={navLinkClass}>{t('navigation.tours', 'Tours')}</NavLink>
+          <NavLink to={getLocalizedPath("/about")} className={navLinkClass}>{t('navigation.about', 'About')}</NavLink>
+          <NavLink to={getLocalizedPath("/pro")} className={navLinkClass}>{t('navigation.pro', 'Pro')}</NavLink>
+          <NavLink to={getLocalizedPath("/contact")} className={navLinkClass}>{t('navigation.contact', 'Contact')}</NavLink>
         </nav>
 
         <div className="flex items-center gap-3">
-        <button className="inline-flex items-center gap-2 rounded-md border border-primary-foreground/30 bg-transparent px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors" aria-label={t('aria.searchLabel')}>
+        <button className="inline-flex items-center gap-2 rounded-md border border-primary-foreground/30 bg-transparent px-3 py-2 text-sm hover:bg-primary-foreground/10 transition-colors" aria-label={t('aria.search_button', 'Search tours')}>
           <Search className="h-4 w-4" />
-          <span className="hidden sm:inline">{t('search.cta')}</span>
+          <span className="hidden sm:inline">{t('navigation.search', 'Search')}</span>
         </button>
           
           <LanguageSwitcher />

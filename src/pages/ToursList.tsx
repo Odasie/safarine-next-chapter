@@ -6,10 +6,10 @@ import { useTours, useCategories } from "@/hooks/use-tours";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useLocale } from "@/contexts/LocaleContext";
+import { useTranslations } from "@/hooks/use-translations";
 
 const ToursList = () => {
-  const { t } = useLocale();
+  const { t } = useTranslations();
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [durationFilter, setDurationFilter] = useState<string>("all");
   const [q, setQ] = useState<string>("");
@@ -43,7 +43,7 @@ const ToursList = () => {
     return (
       <div className="container mx-auto py-10">
         <div className="text-center">
-          <p className="text-destructive">{t('tours.list.error')}</p>
+          <p className="text-destructive">{t('error.tours_load', 'Error loading tours')}</p>
         </div>
       </div>
     );
@@ -52,40 +52,40 @@ const ToursList = () => {
   return (
     <div className="container mx-auto py-10">
       <Helmet>
-        <title>{t('tours.list.title')}</title>
-        <meta name="description" content={t('tours.list.meta.description')} />
+        <title>{t('meta.tours.title', 'Tours & Activities | Safarine Tours Thailand')}</title>
+        <meta name="description" content={t('meta.tours.description', 'Discover our private tours and activities in Thailand. Custom experiences away from mass tourism.')} />
         <link rel="canonical" href={`${window.location.origin}/tours`} />
       </Helmet>
 
       <header className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold">{t('tours.list.header.title')}</h1>
-        <p className="text-muted-foreground">{t('tours.list.header.subtitle')}</p>
+        <h1 className="text-3xl md:text-4xl font-bold">{t('tours.page.title', 'Tours & Activities')}</h1>
+        <p className="text-muted-foreground">{t('tours.page.subtitle', 'Discover our private tours in Thailand')}</p>
       </header>
 
-      <section aria-label={t('tours.list.filters.aria')} className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section aria-label="Tour filters" className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger aria-label={t('tours.list.filters.category.placeholder')}>
-              <SelectValue placeholder={t('tours.list.filters.category.placeholder')} />
+            <SelectTrigger aria-label={t('tours.filter.category', 'All Categories')}>
+              <SelectValue placeholder={t('tours.filter.category', 'All Categories')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('tours.list.filters.category.all')}</SelectItem>
+              <SelectItem value="all">{t('tours.filter.category', 'All Categories')}</SelectItem>
               {categories.map((c) => (
-                <SelectItem key={c.id} value={c.id}>{c.name || t('tours.list.filters.category.unnamed')}</SelectItem>
+                <SelectItem key={c.id} value={c.id}>{c.name || 'Unnamed Category'}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         <div>
           <Select value={durationFilter} onValueChange={setDurationFilter}>
-            <SelectTrigger aria-label={t('tours.list.filters.duration.placeholder')}>
-              <SelectValue placeholder={t('tours.list.filters.duration.placeholder')} />
+            <SelectTrigger aria-label={t('tours.filter.duration', 'All Durations')}>
+              <SelectValue placeholder={t('tours.filter.duration', 'All Durations')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('tours.list.filters.duration.all')}</SelectItem>
-              <SelectItem value="half-day">{t('tours.list.filters.duration.half')}</SelectItem>
-              <SelectItem value="one-day">{t('tours.list.filters.duration.one')}</SelectItem>
-              <SelectItem value="multi-day">{t('tours.list.filters.duration.multi')}</SelectItem>
+              <SelectItem value="all">{t('tours.filter.duration', 'All Durations')}</SelectItem>
+              <SelectItem value="half-day">Half Day</SelectItem>
+              <SelectItem value="one-day">1 Day</SelectItem>
+              <SelectItem value="multi-day">2+ Days</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -93,13 +93,13 @@ const ToursList = () => {
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder={t('tours.list.search.placeholder')}
-            aria-label={t('tours.list.search.aria')}
+            placeholder={t('tours.filter.search', 'Search tours...')}
+            aria-label="Search tours"
           />
         </div>
       </section>
 
-      <section aria-label={t('tours.list.results.aria')} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <section aria-label="Tour results" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {toursLoading ? (
           // Loading skeletons
           Array.from({ length: 8 }).map((_, i) => (
@@ -117,11 +117,11 @@ const ToursList = () => {
           ))
         ) : filtered.length === 0 ? (
           <div className="col-span-full text-center py-8">
-            <p className="text-muted-foreground">{t('tours.list.no.results')}</p>
+            <p className="text-muted-foreground">{t('tours.no_results', 'No tours match your filters')}</p>
           </div>
         ) : (
           filtered.map((tour) => (
-            <Link key={tour.id} to={`/tours/${tour.slug}`} aria-label={t('tours.list.view.aria', { title: tour.title })} className="block">
+            <Link key={tour.id} to={`/tours/${tour.slug}`} aria-label={t('aria.tour_card', 'View {title}', { title: tour.title })} className="block">
               <TourCard
                 imageRecord={tour.imageRecords?.[0]}
                 image={tour.images[0]}

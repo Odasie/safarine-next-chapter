@@ -8,15 +8,17 @@ import TourCard from "@/components/tours/TourCard";
 import { useFeaturedTours } from "@/hooks/use-tours";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "@/hooks/use-translations";
 
 const Index = () => {
   const { data: featured = [], isLoading: featuredLoading } = useFeaturedTours(4);
+  const { t } = useTranslations();
   
   return (
     <div>
       <Helmet>
-        <title>Safarine Tours | Private Tours Thailand</title>
-        <meta name="description" content="Trek, culture et immersion loin du tourisme de masse. Circuits privés en Thaïlande avec Safarine Tours." />
+        <title>{t('meta.homepage.title', 'Safarine Tours | Private Tours Thailand')}</title>
+        <meta name="description" content={t('meta.homepage.description', 'Trek, culture et immersion loin du tourisme de masse. Circuits privés en Thaïlande avec Safarine Tours.')} />
         <link rel="canonical" href={window.location.origin} />
       </Helmet>
 
@@ -26,8 +28,8 @@ const Index = () => {
 
       <section className="container mx-auto py-10" aria-labelledby="featured-title">
         <div className="mb-6 flex items-end justify-between">
-          <h2 id="featured-title" className="text-2xl md:text-3xl font-bold">Nos tours et activités</h2>
-          <Link to="/tours" className="text-primary underline-offset-4 hover:underline">Voir tous les circuits</Link>
+          <h2 id="featured-title" className="text-2xl md:text-3xl font-bold">{t('homepage.featured.title', 'Our tours and activities')}</h2>
+          <Link to="/tours" className="text-primary underline-offset-4 hover:underline">{t('homepage.featured.view_all', 'View all tours')}</Link>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {featuredLoading ? (
@@ -46,16 +48,16 @@ const Index = () => {
               </div>
             ))
           ) : (
-            featured.map((t) => (
-              <Link key={t.id} to={`/tours/${t.slug}`} aria-label={`View ${t.title}`}>
+            featured.map((tour) => (
+              <Link key={tour.id} to={`/tours/${tour.slug}`} aria-label={t('aria.tour_card', 'View {title}', { title: tour.title })}>
                 <TourCard
-                  imageRecord={t.imageRecords?.[0]}
-                  image={t.images[0]}
-                  title={t.title}
-                  description={t.location}
-                  duration={t.duration}
-                  group={t.group}
-                  price={t.price}
+                  imageRecord={tour.imageRecords?.[0]}
+                  image={tour.images[0]}
+                  title={tour.title}
+                  description={tour.location}
+                  duration={tour.duration}
+                  group={tour.group}
+                  price={tour.price}
                 />
               </Link>
             ))

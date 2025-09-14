@@ -11,10 +11,12 @@ import SimpleImageViewer from "@/components/tours/SimpleImageViewer";
 import TourCard from "@/components/tours/TourCard";
 import { MapPin, Clock, CircleDollarSign } from "lucide-react";
 import { durationToText, formatPrice } from "@/lib/tours";
+import { useLocale } from "@/contexts/LocaleContext";
 
 const TourDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const { t } = useLocale();
 
   // Local fallback data
   const localTour = useMemo(() => tours.find((t) => t.slug === slug), [slug]);
@@ -249,14 +251,14 @@ const TourDetail = () => {
 
   const highlights = (tour?.highlights as any) ?? {};
   const included: string[] = Array.isArray(highlights?.included) ? highlights.included : [
-    "Guide local francophone",
-    "Transferts mentionnés",
-    "Activités prévues",
+    t('tours.detail.included.default.guide'),
+    t('tours.detail.included.default.transfers'),
+    t('tours.detail.included.default.activities'),
   ];
   const excluded: string[] = Array.isArray(highlights?.excluded) ? highlights.excluded : [
-    "Vols internationaux",
-    "Assurances",
-    "Dépenses personnelles",
+    t('tours.detail.excluded.default.flights'),
+    t('tours.detail.excluded.default.insurance'),
+    t('tours.detail.excluded.default.personal'),
   ];
 
   if (isLoading) {
@@ -275,7 +277,7 @@ const TourDetail = () => {
           </div>
         </div>
         <div className="text-center mt-8">
-          <p className="text-muted-foreground">Chargement du tour...</p>
+          <p className="text-muted-foreground">{t('tours.detail.loading')}</p>
         </div>
       </div>
     );
@@ -287,17 +289,16 @@ const TourDetail = () => {
     return (
       <div className="container mx-auto py-16 text-center">
         <div className="max-w-md mx-auto">
-          <h1 className="text-3xl font-bold text-foreground mb-4">Tour introuvable</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-4">{t('tours.detail.not.found.title')}</h1>
           <p className="text-muted-foreground mb-6">
-            Désolé, nous n'avons pas trouvé le tour "{slug}". 
-            Il a peut-être été déplacé ou n'existe plus.
+            {t('tours.detail.not.found.message', { slug: slug || '' })}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button asChild>
-              <Link to="/tours">Voir tous les tours</Link>
+              <Link to="/tours">{t('tours.detail.not.found.all.tours')}</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link to="/">Retour à l'accueil</Link>
+              <Link to="/">{t('tours.detail.not.found.home')}</Link>
             </Button>
           </div>
         </div>
@@ -345,10 +346,10 @@ const TourDetail = () => {
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild>
-                <Link to={`/contact?tour=${slug}`}>Je contacte un vendeur Safarine</Link>
+                <Link to={`/contact?tour=${slug}`}>{t('tours.detail.cta.contact')}</Link>
               </Button>
               <Button asChild variant="secondary">
-                <Link to={`/contact?tour=${slug}&action=reserve`}>Je réserve ce voyage !</Link>
+                <Link to={`/contact?tour=${slug}&action=reserve`}>{t('tours.detail.cta.book')}</Link>
               </Button>
             </div>
           </div>
@@ -360,23 +361,23 @@ const TourDetail = () => {
 
       {/* Infos & Prix cards */}
       <section aria-labelledby="infos-prix" className="mb-12 rounded-xl border bg-card p-6">
-        <h2 id="infos-prix" className="sr-only">Infos et prix</h2>
+        <h2 id="infos-prix" className="sr-only">{t('tours.detail.info.title')}</h2>
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader>
-              <CardTitle>Durée & Prix</CardTitle>
+              <CardTitle>{t('tours.detail.duration.price.title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 {durationText && (
                   <div>
-                    <span className="text-sm text-muted-foreground">Durée</span>
+                    <span className="text-sm text-muted-foreground">{t('tours.detail.duration.label')}</span>
                     <div className="font-semibold">{durationText}</div>
                   </div>
                 )}
                 {priceText && (
                   <div>
-                    <span className="text-sm text-muted-foreground">Prix par adulte</span>
+                    <span className="text-sm text-muted-foreground">{t('tours.detail.price.label')}</span>
                     <div className="font-semibold">{priceText}</div>
                   </div>
                 )}
@@ -386,7 +387,7 @@ const TourDetail = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Ce prix inclut</CardTitle>
+              <CardTitle>{t('tours.detail.included.title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
@@ -399,7 +400,7 @@ const TourDetail = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Ce prix n'inclut pas</CardTitle>
+              <CardTitle>{t('tours.detail.excluded.title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
@@ -411,13 +412,13 @@ const TourDetail = () => {
           </Card>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          Tarifs indicatifs, susceptibles d'évoluer selon la saison et la disponibilité.
+          {t('tours.detail.pricing.note')}
         </p>
       </section>
 
       {/* Search again */}
       <section aria-labelledby="autre-recherche" className="mb-8">
-        <h2 id="autre-recherche" className="text-2xl font-semibold">Une autre recherche ?</h2>
+        <h2 id="autre-recherche" className="text-2xl font-semibold">{t('tours.detail.another.search')}</h2>
         <div className="mt-4">
           <SearchBar />
         </div>
@@ -425,7 +426,7 @@ const TourDetail = () => {
 
       {/* Recommendations */}
       <section aria-labelledby="reco-tours" className="mb-4">
-        <h3 id="reco-tours" className="text-xl font-semibold">Nos suggestions</h3>
+        <h3 id="reco-tours" className="text-xl font-semibold">{t('tours.detail.suggestions.title')}</h3>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {tours
             .filter((t) => t.slug !== slug)

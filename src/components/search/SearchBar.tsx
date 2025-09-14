@@ -25,9 +25,9 @@ const SearchBar = () => {
           <SelectValue placeholder={t('search.destination')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="kanchanaburi">Kanchanaburi</SelectItem>
-          <SelectItem value="chiangmai">Chiang Mai</SelectItem>
-          <SelectItem value="isaan">Northeast Thailand</SelectItem>
+          <SelectItem value="kanchanaburi">{t('search.destinations.kanchanaburi')}</SelectItem>
+          <SelectItem value="chiangmai">{t('search.destinations.chiangmai')}</SelectItem>
+          <SelectItem value="isaan">{t('search.destinations.isaan')}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -36,9 +36,9 @@ const SearchBar = () => {
           <SelectValue placeholder={t('search.activity')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="escooter">E-scooter</SelectItem>
-          <SelectItem value="river">River</SelectItem>
-          <SelectItem value="kayak">Kayak</SelectItem>
+          <SelectItem value="escooter">{t('search.activities.escooter')}</SelectItem>
+          <SelectItem value="river">{t('search.activities.river')}</SelectItem>
+          <SelectItem value="kayak">{t('search.activities.kayak')}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -47,9 +47,9 @@ const SearchBar = () => {
           <SelectValue placeholder={t('search.duration')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="halfday">1/2 {t('labels.days')}</SelectItem>
-          <SelectItem value="1d">1 {t('labels.days')}</SelectItem>
-          <SelectItem value="2d">2+ {t('labels.days')}</SelectItem>
+          <SelectItem value="halfday">{t('search.durations.halfday')} {t('labels.days')}</SelectItem>
+          <SelectItem value="1d">{t('search.durations.oneday')} {t('labels.days')}</SelectItem>
+          <SelectItem value="2d">{t('search.durations.multiday')} {t('labels.days')}</SelectItem>
         </SelectContent>
       </Select>
 

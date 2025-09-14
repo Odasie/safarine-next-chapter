@@ -6,8 +6,10 @@ import { useTours, useCategories } from "@/hooks/use-tours";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLocale } from "@/contexts/LocaleContext";
 
 const ToursList = () => {
+  const { t } = useLocale();
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [durationFilter, setDurationFilter] = useState<string>("all");
   const [q, setQ] = useState<string>("");
@@ -41,7 +43,7 @@ const ToursList = () => {
     return (
       <div className="container mx-auto py-10">
         <div className="text-center">
-          <p className="text-destructive">Erreur lors du chargement des circuits</p>
+          <p className="text-destructive">{t('tours.list.error')}</p>
         </div>
       </div>
     );
@@ -50,40 +52,40 @@ const ToursList = () => {
   return (
     <div className="container mx-auto py-10">
       <Helmet>
-        <title>Circuits & Activités en Thaïlande | Safarine Tours</title>
-        <meta name="description" content="Découvrez nos circuits privés et activités en Thaïlande. Filtrez par destination, durée et mots-clés." />
+        <title>{t('tours.list.title')}</title>
+        <meta name="description" content={t('tours.list.meta.description')} />
         <link rel="canonical" href={`${window.location.origin}/tours`} />
       </Helmet>
 
       <header className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold">Nos circuits et activités</h1>
-        <p className="text-muted-foreground">Trek, culture et immersion loin du tourisme de masse.</p>
+        <h1 className="text-3xl md:text-4xl font-bold">{t('tours.list.header.title')}</h1>
+        <p className="text-muted-foreground">{t('tours.list.header.subtitle')}</p>
       </header>
 
-      <section aria-label="Filtres" className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section aria-label={t('tours.list.filters.aria')} className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger aria-label="Catégorie">
-              <SelectValue placeholder="Catégorie" />
+            <SelectTrigger aria-label={t('tours.list.filters.category.placeholder')}>
+              <SelectValue placeholder={t('tours.list.filters.category.placeholder')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Toutes les catégories</SelectItem>
+              <SelectItem value="all">{t('tours.list.filters.category.all')}</SelectItem>
               {categories.map((c) => (
-                <SelectItem key={c.id} value={c.id}>{c.name || 'Catégorie sans nom'}</SelectItem>
+                <SelectItem key={c.id} value={c.id}>{c.name || t('tours.list.filters.category.unnamed')}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         <div>
           <Select value={durationFilter} onValueChange={setDurationFilter}>
-            <SelectTrigger aria-label="Durée">
-              <SelectValue placeholder="Durée" />
+            <SelectTrigger aria-label={t('tours.list.filters.duration.placeholder')}>
+              <SelectValue placeholder={t('tours.list.filters.duration.placeholder')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Toute durée</SelectItem>
-              <SelectItem value="half-day">Moins d'une journée</SelectItem>
-              <SelectItem value="one-day">1 jour</SelectItem>
-              <SelectItem value="multi-day">2+ jours</SelectItem>
+              <SelectItem value="all">{t('tours.list.filters.duration.all')}</SelectItem>
+              <SelectItem value="half-day">{t('tours.list.filters.duration.half')}</SelectItem>
+              <SelectItem value="one-day">{t('tours.list.filters.duration.one')}</SelectItem>
+              <SelectItem value="multi-day">{t('tours.list.filters.duration.multi')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -91,13 +93,13 @@ const ToursList = () => {
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Rechercher par titre, destination..."
-            aria-label="Recherche"
+            placeholder={t('tours.list.search.placeholder')}
+            aria-label={t('tours.list.search.aria')}
           />
         </div>
       </section>
 
-      <section aria-label="Résultats" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <section aria-label={t('tours.list.results.aria')} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {toursLoading ? (
           // Loading skeletons
           Array.from({ length: 8 }).map((_, i) => (
@@ -115,20 +117,20 @@ const ToursList = () => {
           ))
         ) : filtered.length === 0 ? (
           <div className="col-span-full text-center py-8">
-            <p className="text-muted-foreground">Aucun circuit trouvé pour ces critères</p>
+            <p className="text-muted-foreground">{t('tours.list.no.results')}</p>
           </div>
         ) : (
-          filtered.map((t) => (
-            <Link key={t.id} to={`/tours/${t.slug}`} aria-label={`Voir ${t.title}`} className="block">
+          filtered.map((tour) => (
+            <Link key={tour.id} to={`/tours/${tour.slug}`} aria-label={t('tours.list.view.aria', { title: tour.title })} className="block">
               <TourCard
-                imageRecord={t.imageRecords?.[0]}
-                image={t.images[0]}
-                title={t.title}
-                description={t.location}
-                duration={t.duration}
-                group={t.group}
-                price={t.price}
-                slug={t.slug}
+                imageRecord={tour.imageRecords?.[0]}
+                image={tour.images[0]}
+                title={tour.title}
+                description={tour.location}
+                duration={tour.duration}
+                group={tour.group}
+                price={tour.price}
+                slug={tour.slug}
               />
             </Link>
           ))

@@ -1,0 +1,85 @@
+-- Add comprehensive admin interface translation keys
+INSERT INTO translations (key_name, locale, value, category, is_active) VALUES
+-- Admin Dashboard
+('admin.dashboard.title', 'en', 'Admin Dashboard', 'admin', true),
+('admin.dashboard.title', 'fr', 'Tableau de Bord Admin', 'admin', true),
+('admin.dashboard.meta.description', 'en', 'Admin dashboard for managing users and system settings', 'admin', true),
+('admin.dashboard.meta.description', 'fr', 'Tableau de bord administrateur pour gérer les utilisateurs et les paramètres système', 'admin', true),
+('admin.dashboard.welcome', 'en', 'Welcome back, {name}', 'admin', true),
+('admin.dashboard.welcome', 'fr', 'Bienvenue, {name}', 'admin', true),
+('admin.dashboard.role.admin', 'en', 'Admin', 'admin', true),
+('admin.dashboard.role.admin', 'fr', 'Admin', 'admin', true),
+('admin.dashboard.role.general', 'en', 'General', 'admin', true),
+('admin.dashboard.role.general', 'fr', 'Général', 'admin', true),
+
+-- Admin Stats Cards
+('admin.stats.totalUsers.title', 'en', 'Total Users', 'admin', true),
+('admin.stats.totalUsers.title', 'fr', 'Utilisateurs Totaux', 'admin', true),
+('admin.stats.totalUsers.description', 'en', 'Active users across all types', 'admin', true),
+('admin.stats.totalUsers.description', 'fr', 'Utilisateurs actifs de tous types', 'admin', true),
+('admin.stats.b2bPartners.title', 'en', 'B2B Partners', 'admin', true),
+('admin.stats.b2bPartners.title', 'fr', 'Partenaires B2B', 'admin', true),
+('admin.stats.b2bPartners.description', 'en', 'Approved B2B partners', 'admin', true),
+('admin.stats.b2bPartners.description', 'fr', 'Partenaires B2B approuvés', 'admin', true),
+('admin.stats.pendingApprovals.title', 'en', 'Pending Approvals', 'admin', true),
+('admin.stats.pendingApprovals.title', 'fr', 'Approbations en Attente', 'admin', true),
+('admin.stats.pendingApprovals.description', 'en', 'B2B applications awaiting review', 'admin', true),
+('admin.stats.pendingApprovals.description', 'fr', 'Demandes B2B en attente d''examen', 'admin', true),
+('admin.stats.monthlyGrowth.title', 'en', 'Monthly Growth', 'admin', true),
+('admin.stats.monthlyGrowth.title', 'fr', 'Croissance Mensuelle', 'admin', true),
+('admin.stats.monthlyGrowth.description', 'en', 'User growth this month', 'admin', true),
+('admin.stats.monthlyGrowth.description', 'fr', 'Croissance utilisateurs ce mois', 'admin', true),
+
+-- User Management
+('admin.users.title', 'en', 'User Management', 'admin', true),
+('admin.users.title', 'fr', 'Gestion des Utilisateurs', 'admin', true),
+('admin.users.search.placeholder', 'en', 'Search users by email, name, or company...', 'admin', true),
+('admin.users.search.placeholder', 'fr', 'Rechercher par email, nom ou entreprise...', 'admin', true),
+
+-- User Management Table Headers
+('admin.users.table.user', 'en', 'User', 'admin', true),
+('admin.users.table.user', 'fr', 'Utilisateur', 'admin', true),
+('admin.users.table.email', 'en', 'Email', 'admin', true),
+('admin.users.table.email', 'fr', 'Email', 'admin', true),
+('admin.users.table.type', 'en', 'Type', 'admin', true),
+('admin.users.table.type', 'fr', 'Type', 'admin', true),
+('admin.users.table.company', 'en', 'Company', 'admin', true),
+('admin.users.table.company', 'fr', 'Entreprise', 'admin', true),
+('admin.users.table.created', 'en', 'Created', 'admin', true),
+('admin.users.table.created', 'fr', 'Créé', 'admin', true),
+('admin.users.table.status', 'en', 'Status', 'admin', true),
+('admin.users.table.status', 'fr', 'Statut', 'admin', true),
+('admin.users.table.actions', 'en', 'Actions', 'admin', true),
+('admin.users.table.actions', 'fr', 'Actions', 'admin', true),
+
+-- User Types and Status
+('admin.users.type.customer', 'en', 'Customer', 'admin', true),
+('admin.users.type.customer', 'fr', 'Client', 'admin', true),
+('admin.users.type.b2b', 'en', 'B2B', 'admin', true),
+('admin.users.type.b2b', 'fr', 'B2B', 'admin', true),
+('admin.users.type.admin', 'en', 'Admin', 'admin', true),
+('admin.users.type.admin', 'fr', 'Admin', 'admin', true),
+('admin.users.type.unknown', 'en', 'Unknown', 'admin', true),
+('admin.users.type.unknown', 'fr', 'Inconnu', 'admin', true),
+('admin.users.status.active', 'en', 'Active', 'admin', true),
+('admin.users.status.active', 'fr', 'Actif', 'admin', true),
+('admin.users.status.inactive', 'en', 'Inactive', 'admin', true),
+('admin.users.status.inactive', 'fr', 'Inactif', 'admin', true),
+('admin.users.status.approved', 'en', 'approved', 'admin', true),
+('admin.users.status.approved', 'fr', 'approuvé', 'admin', true),
+('admin.users.status.pending', 'en', 'pending', 'admin', true),
+('admin.users.status.pending', 'fr', 'en attente', 'admin', true),
+('admin.users.status.rejected', 'en', 'rejected', 'admin', true),
+('admin.users.status.rejected', 'fr', 'rejeté', 'admin', true),
+
+-- User Management Messages
+('admin.users.noName', 'en', 'No name provided', 'admin', true),
+('admin.users.noName', 'fr', 'Aucun nom fourni', 'admin', true),
+('admin.users.noResults', 'en', 'No users found matching your search criteria.', 'admin', true),
+('admin.users.noResults', 'fr', 'Aucun utilisateur trouvé correspondant à vos critères de recherche.', 'admin', true),
+
+-- Error Messages
+('admin.error.title', 'en', 'Error', 'admin', true),
+('admin.error.title', 'fr', 'Erreur', 'admin', true),
+('admin.error.fetchUsers', 'en', 'Failed to fetch users', 'admin', true),
+('admin.error.fetchUsers', 'fr', 'Échec du chargement des utilisateurs', 'admin', true);

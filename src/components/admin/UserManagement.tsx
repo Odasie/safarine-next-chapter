@@ -8,6 +8,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useUnifiedAuth } from '@/contexts/UnifiedAuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useLocale } from '@/contexts/LocaleContext';
 
 interface UserListItem {
   id: string;
@@ -28,6 +29,7 @@ export const UserManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   
   const { toast } = useToast();
+  const { t } = useLocale();
 
   const fetchUsers = async () => {
     try {
@@ -104,8 +106,8 @@ export const UserManagement: React.FC = () => {
     } catch (err) {
       console.error('Fetch users error:', err);
       toast({
-        title: "Error",
-        description: "Failed to fetch users",
+        title: t('admin.error.title'),
+        description: t('admin.error.fetchUsers'),
         variant: "destructive"
       });
     } finally {
@@ -126,14 +128,14 @@ export const UserManagement: React.FC = () => {
   const getUserTypeBadge = (userType: string, b2bStatus?: string, adminRole?: string) => {
     switch (userType) {
       case 'customer':
-        return <Badge variant="default">Customer</Badge>;
+        return <Badge variant="default">{t('admin.users.type.customer')}</Badge>;
       case 'b2b':
         return (
           <div className="flex gap-1">
-            <Badge variant="secondary">B2B</Badge>
+            <Badge variant="secondary">{t('admin.users.type.b2b')}</Badge>
             {b2bStatus && (
               <Badge variant={b2bStatus === 'approved' ? 'default' : 'outline'}>
-                {b2bStatus}
+                {t(`admin.users.status.${b2bStatus}`)}
               </Badge>
             )}
           </div>
@@ -141,14 +143,14 @@ export const UserManagement: React.FC = () => {
       case 'admin':
         return (
           <div className="flex gap-1">
-            <Badge variant="destructive">Admin</Badge>
+            <Badge variant="destructive">{t('admin.users.type.admin')}</Badge>
             {adminRole && (
               <Badge variant="outline">{adminRole}</Badge>
             )}
           </div>
         );
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="outline">{t('admin.users.type.unknown')}</Badge>;
     }
   };
 
@@ -164,12 +166,12 @@ export const UserManagement: React.FC = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>User Management</CardTitle>
+          <CardTitle>{t('admin.users.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
             <Input
-              placeholder="Search users by email, name, or company..."
+              placeholder={t('admin.users.search.placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-md"
@@ -180,13 +182,13 @@ export const UserManagement: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{t('admin.users.table.user')}</TableHead>
+                  <TableHead>{t('admin.users.table.email')}</TableHead>
+                  <TableHead>{t('admin.users.table.type')}</TableHead>
+                  <TableHead>{t('admin.users.table.company')}</TableHead>
+                  <TableHead>{t('admin.users.table.created')}</TableHead>
+                  <TableHead>{t('admin.users.table.status')}</TableHead>
+                  <TableHead>{t('admin.users.table.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -197,7 +199,7 @@ export const UserManagement: React.FC = () => {
                         <div className="font-medium">
                           {user.first_name && user.last_name 
                             ? `${user.first_name} ${user.last_name}` 
-                            : 'No name provided'}
+                            : t('admin.users.noName')}
                         </div>
                       </div>
                     </TableCell>
@@ -211,7 +213,7 @@ export const UserManagement: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Badge variant={user.is_active ? 'default' : 'secondary'}>
-                        {user.is_active ? 'Active' : 'Inactive'}
+                        {user.is_active ? t('admin.users.status.active') : t('admin.users.status.inactive')}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -225,7 +227,7 @@ export const UserManagement: React.FC = () => {
 
           {filteredUsers.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              No users found matching your search criteria.
+              {t('admin.users.noResults')}
             </div>
           )}
         </CardContent>

@@ -5,36 +5,39 @@ import { Badge } from '@/components/ui/badge';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { useUnifiedAuth } from '@/contexts/ClerkAuthContext';
 import { UserButton } from '@/components/auth/UserButton';
+import { useLocale } from '@/contexts/LocaleContext';
 import { Users, Shield, Settings, BarChart3 } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {
   const { user, isAdmin } = useUnifiedAuth();
+  const { t } = useLocale();
+  
   const adminStats = [
     {
-      title: "Total Users",
+      titleKey: "admin.stats.totalUsers.title",
       value: "1,234",
-      description: "Active users across all types",
+      descriptionKey: "admin.stats.totalUsers.description",
       icon: Users,
       trend: "+12%"
     },
     {
-      title: "B2B Partners",
+      titleKey: "admin.stats.b2bPartners.title",
       value: "87",
-      description: "Approved B2B partners",
+      descriptionKey: "admin.stats.b2bPartners.description",
       icon: Shield,
       trend: "+5%"
     },
     {
-      title: "Pending Approvals",
+      titleKey: "admin.stats.pendingApprovals.title",
       value: "23",
-      description: "B2B applications awaiting review",
+      descriptionKey: "admin.stats.pendingApprovals.description",
       icon: Settings,
       trend: "+8%"
     },
     {
-      title: "Monthly Growth",
+      titleKey: "admin.stats.monthlyGrowth.title",
       value: "15.3%",
-      description: "User growth this month",
+      descriptionKey: "admin.stats.monthlyGrowth.description",
       icon: BarChart3,
       trend: "+2.1%"
     }
@@ -43,26 +46,26 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <Helmet>
-        <title>Admin Dashboard - Safarine Tours</title>
-        <meta name="description" content="Admin dashboard for managing users and system settings" />
+        <title>{t('admin.dashboard.title')} - Safarine Tours</title>
+        <meta name="description" content={t('admin.dashboard.meta.description')} />
       </Helmet>
 
       <div className="space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <h1 className="text-3xl font-bold">{t('admin.dashboard.title')}</h1>
             <p className="text-muted-foreground mt-2">
-              Welcome back, {user?.firstName || 'Admin'}
+              {t('admin.dashboard.welcome', { name: user?.firstName || 'Admin' })}
             </p>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <Badge variant="secondary">
-                Admin
+                {t('admin.dashboard.role.admin')}
               </Badge>
               <Badge variant="outline">
-                General
+                {t('admin.dashboard.role.general')}
               </Badge>
             </div>
             <UserButton />
@@ -77,14 +80,14 @@ const AdminDashboard: React.FC = () => {
               <Card key={index}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    {stat.title}
+                    {t(stat.titleKey)}
                   </CardTitle>
                   <Icon className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stat.value}</div>
                   <p className="text-xs text-muted-foreground">
-                    {stat.description}
+                    {t(stat.descriptionKey)}
                   </p>
                   <div className="flex items-center mt-2">
                     <Badge variant="outline" className="text-xs">

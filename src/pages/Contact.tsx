@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useTranslations } from "@/hooks/use-translations";
+import { useLocale } from "@/contexts/LocaleContext";
+
 interface ContactForm {
   name: string;
   email: string;
@@ -16,9 +17,10 @@ interface ContactForm {
   type?: string;
   message: string;
 }
+
 const Contact = () => {
   const { toast } = useToast();
-  const { t } = useTranslations();
+  const { t } = useLocale();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     register,
@@ -48,93 +50,104 @@ const Contact = () => {
       }
 
       toast({
-        title: "Success!",
-        description: t('contact.success', 'Thank you! Your message has been sent successfully.')
+        title: t('contact.form.success.title'),
+        description: t('contact.form.success.description')
       });
       reset();
     } catch (error: any) {
       console.error("Error submitting contact form:", error);
       toast({
-        title: "Error",
-        description: t('contact.error', 'Sorry, there was an error sending your message. Please try again.'),
+        title: t('contact.form.error.title'),
+        description: t('contact.form.error.description'),
         variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-  return <div className="container mx-auto py-10">
+
+  return (
+    <div className="container mx-auto py-10">
       <Helmet>
-        <title>{t('meta.contact.title', 'Contact Us | Safarine Tours Thailand')}</title>
-        <meta name="description" content={t('meta.contact.description', 'Get in touch with Safarine Tours for custom private tours in Thailand. Contact our team today.')} />
+        <title>{t('contact.title')} | Safarine Tours</title>
+        <meta name="description" content={t('contact.meta.description')} />
         <link rel="canonical" href={`${window.location.origin}/contact`} />
       </Helmet>
 
       <header className="mb-6">
-        <h1 className="text-3xl font-bold">{t('contact.page.title', 'Contact Us')}</h1>
+        <h1 className="text-3xl font-bold">{t('contact.title')}</h1>
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 md:grid-cols-2">
         <div className="grid gap-2">
-          <label htmlFor="name" className="text-sm font-medium">{t('contact.form.name', 'Full Name')}</label>
+          <label htmlFor="name" className="text-sm font-medium">
+            {t('contact.form.name')}
+          </label>
           <Input 
             id="name" 
-            {...register("name", {
-              required: "Name is required"
-            })} 
-            placeholder="Your full name" 
+            {...register("name", { required: true })} 
+            placeholder={t('contact.form.placeholders.name')} 
           />
-          {errors.name && <span className="text-sm text-destructive">{errors.name.message}</span>}
         </div>
         <div className="grid gap-2">
-          <label htmlFor="email" className="text-sm font-medium">{t('contact.form.email', 'Email Address')}</label>
+          <label htmlFor="email" className="text-sm font-medium">
+            {t('contact.form.email')}
+          </label>
           <Input 
             id="email" 
             type="email" 
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "Invalid email address"
-              }
-            })} 
-            placeholder="your.email@example.com" 
+            {...register("email", { required: true })} 
+            placeholder={t('contact.form.placeholders.email')} 
           />
-          {errors.email && <span className="text-sm text-destructive">{errors.email.message}</span>}
         </div>
         <div className="grid gap-2">
-          <label htmlFor="phone" className="text-sm font-medium">{t('contact.form.phone', 'Phone Number')}</label>
-          <Input id="phone" {...register("phone")} placeholder="+66 123 456 789" />
+          <label htmlFor="phone" className="text-sm font-medium">
+            {t('contact.form.phone')}
+          </label>
+          <Input 
+            id="phone" 
+            {...register("phone")} 
+            placeholder={t('contact.form.placeholders.phone')} 
+          />
         </div>
         <div className="grid gap-2">
-          <label className="text-sm font-medium">{t('contact.form.message_type', 'Message Type')}</label>
+          <label className="text-sm font-medium">
+            {t('contact.form.messageType')}
+          </label>
           <Select onValueChange={(value) => setValue("type", value)}>
             <SelectTrigger>
-              <SelectValue placeholder="Select message type" />
+              <SelectValue placeholder={t('contact.form.selectType')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="booking">{t('contact.type.booking', 'Booking Request')}</SelectItem>
-              <SelectItem value="custom">{t('contact.type.custom', 'Custom Tour')}</SelectItem>
-              <SelectItem value="general">{t('contact.type.general', 'General Inquiry')}</SelectItem>
-              <SelectItem value="partnership">{t('contact.type.partnership', 'Partnership')}</SelectItem>
+              <SelectItem value="booking">
+                {t('contact.form.types.booking')}
+              </SelectItem>
+              <SelectItem value="custom">
+                {t('contact.form.types.custom')}
+              </SelectItem>
+              <SelectItem value="info">
+                {t('contact.form.types.info')}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="md:col-span-2 grid gap-2">
-          <label htmlFor="message" className="text-sm font-medium">{t('contact.form.message', 'Your Message')}</label>
+          <label htmlFor="message" className="text-sm font-medium">
+            {t('contact.form.message')}
+          </label>
           <Textarea 
             id="message" 
             rows={6} 
-            {...register("message", {
-              required: "Message is required"
-            })} 
-            placeholder="Tell us about your trip plans..." 
+            {...register("message", { required: true })} 
+            placeholder={t('contact.form.placeholders.message')} 
           />
-          {errors.message && <span className="text-sm text-destructive">{errors.message.message}</span>}
         </div>
         <div className="md:col-span-2 flex justify-end">
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? t('contact.form.submitting', 'Sending...') : t('contact.form.submit', 'Send Message')}
+            {isSubmitting 
+              ? t('contact.form.sending') 
+              : t('contact.form.submit')
+            }
           </Button>
         </div>
       </form>
@@ -147,6 +160,8 @@ const Contact = () => {
           +66-860491662
         </p>
       </aside>
-    </div>;
+    </div>
+  );
 };
+
 export default Contact;

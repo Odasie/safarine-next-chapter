@@ -8,8 +8,32 @@ interface LocaleContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
   t: (key: string, params?: Record<string, string>) => string;
-  loading: boolean;
+  isLoading: boolean;
 }
+
+// Minimal fallback translations for critical keys
+const fallbackTranslations: Record<Locale, Record<string, string>> = {
+  en: {
+    'menu.tours': 'Tours',
+    'menu.about': 'About',
+    'menu.contact': 'Contact',
+    'hero.title': 'Discover Thailand with Safarine',
+    'hero.subtitle': 'Authentic adventures in the heart of Southeast Asia',
+    'common.loading': 'Loading...',
+    'tours.card.book': 'Book Tour',
+    'search.destination': 'Destination'
+  },
+  fr: {
+    'menu.tours': 'Circuits',
+    'menu.about': 'À propos',
+    'menu.contact': 'Contact',
+    'hero.title': 'Découvrez la Thaïlande avec Safarine',
+    'hero.subtitle': 'Des aventures authentiques au cœur de l\'Asie du Sud-Est',
+    'common.loading': 'Chargement...',
+    'tours.card.book': 'Réserver',
+    'search.destination': 'Destination'
+  }
+};
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 
@@ -21,9 +45,17 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 export const LocaleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [locale, setLocaleState] = useState<Locale>('fr');
   const [translations, setTranslations] = useState<Record<string, Record<string, string>>>({});
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Load locale from localStorage on mount
+  useEffect(() => {
+    const savedLocale = localStorage.getItem('safarine-locale');
+    if (savedLocale && (savedLocale === 'en' || savedLocale === 'fr')) {
+      setLocaleState(savedLocale as Locale);
+    }
+  }, []);
 
   // Fetch translations from Supabase
   const fetchTranslations = async () => {
@@ -31,8 +63,13 @@ export const LocaleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     
     // Use cache if available and not expired
     if (Object.keys(translationCache).length > 0 && (now - cacheTimestamp) < CACHE_DURATION) {
-      setTranslations(translationCache);
-      setLoading(false);
+      // Merge with fallback translations
+      const mergedTranslations = {
+        en: { ...fallbackTranslations.en, ...translationCache.en },
+        fr: { ...fallbackTranslations.fr, ...translationCache.fr }
+      };
+      setTranslations(mergedTranslations);
+      setIsLoading(false);
       return;
     }
 
@@ -45,28 +82,47 @@ export const LocaleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
       if (error) {
         console.error('Error fetching translations:', error);
-        setLoading(false);
+        setTranslations(fallbackTranslations);
+        setIsLoading(false);
         return;
       }
 
       console.log(`Loaded ${data?.length || 0} translations from database`);
 
       // Transform to nested object structure
-      const translationMap: Record<string, Record<string, string>> = {};
+      const translationMap: Record<string, Record<string, string>> = {
+        en: {},
+        fr: {}
+      };
+      
       data?.forEach(({ key_name, locale, value }) => {
-        if (!translationMap[locale]) translationMap[locale] = {};
-        translationMap[locale][key_name] = value;
+        if (locale === 'en' || locale === 'fr') {
+          translationMap[locale][key_name] = value;
+        }
       });
 
+      // Merge with fallback translations
+      const mergedTranslations = {
+        en: { ...fallbackTranslations.en, ...translationMap.en },
+        fr: { ...fallbackTranslations.fr, ...translationMap.fr }
+      };
+
       // Update cache
-      translationCache = translationMap;
+      translationCache = mergedTranslations;
       cacheTimestamp = now;
       
-      setTranslations(translationMap);
+      setTranslations(mergedTranslations);
+      
+      console.log('Loaded translations:', {
+        en: Object.keys(translationMap.en).length,
+        fr: Object.keys(translationMap.fr).length,
+        total: data?.length || 0
+      });
     } catch (err) {
-      console.error('Failed to fetch translations:', err);
+      console.warn('Failed to fetch translations from Supabase, using fallback:', err);
+      setTranslations(fallbackTranslations);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -98,6 +154,9 @@ export const LocaleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const newPath = '/' + pathSegments.join('/');
     navigate(newPath);
     setLocaleState(newLocale);
+    
+    // Save to localStorage
+    localStorage.setItem('safarine-locale', newLocale);
   };
 
   const t = (key: string, params: Record<string, string> = {}): string => {
@@ -131,7 +190,7 @@ export const LocaleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   return (
-    <LocaleContext.Provider value={{ locale, setLocale, t, loading }}>
+    <LocaleContext.Provider value={{ locale, setLocale, t, isLoading }}>
       {children}
     </LocaleContext.Provider>
   );

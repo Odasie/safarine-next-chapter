@@ -17,7 +17,7 @@ export const B2BStatsCards: React.FC<B2BStatsCardsProps> = ({
   commissionRate,
   isLoading = false
 }) => {
-  const { t, loading: translationsLoading } = useLocale();
+  const { t, isLoading: translationsLoading } = useLocale();
 
   // Show loading if either data is loading or translations are loading
   const shouldShowLoading = isLoading || translationsLoading;

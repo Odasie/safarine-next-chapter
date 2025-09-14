@@ -1,0 +1,132 @@
+-- Phase 2: Add comprehensive translation keys for admin form validation and wizard components
+-- Using correct translations table structure with key_name, value, locale columns
+
+-- Tour Creation Wizard Keys
+INSERT INTO translations (key_name, value, locale, category) VALUES
+-- Wizard Steps (English)
+('admin.wizard.steps.basic_info.title', 'Basic Tour Information', 'en', 'admin'),
+('admin.wizard.steps.basic_info.description', 'Enter the essential details for your tour', 'en', 'admin'),
+('admin.wizard.steps.itinerary.title', 'Build Itinerary', 'en', 'admin'),
+('admin.wizard.steps.itinerary.description', 'Create a detailed day-by-day schedule', 'en', 'admin'),
+('admin.wizard.steps.highlights.title', 'Tour Highlights', 'en', 'admin'),
+('admin.wizard.steps.highlights.description', 'Add key features and attractions', 'en', 'admin'),
+('admin.wizard.steps.inclusions.title', 'Inclusions & Exclusions', 'en', 'admin'),
+('admin.wizard.steps.inclusions.description', 'Define what''s included in the package', 'en', 'admin'),
+('admin.wizard.steps.images.title', 'Image Management', 'en', 'admin'),
+('admin.wizard.steps.images.description', 'Upload hero and gallery images', 'en', 'admin'),
+
+-- Wizard Steps (French)
+('admin.wizard.steps.basic_info.title', 'Informations de Base du Tour', 'fr', 'admin'),
+('admin.wizard.steps.basic_info.description', 'Entrez les détails essentiels de votre tour', 'fr', 'admin'),
+('admin.wizard.steps.itinerary.title', 'Construire l''Itinéraire', 'fr', 'admin'),
+('admin.wizard.steps.itinerary.description', 'Créez un programme détaillé jour par jour', 'fr', 'admin'),
+('admin.wizard.steps.highlights.title', 'Points Forts du Tour', 'fr', 'admin'),
+('admin.wizard.steps.highlights.description', 'Ajoutez les caractéristiques et attractions clés', 'fr', 'admin'),
+('admin.wizard.steps.inclusions.title', 'Inclusions et Exclusions', 'fr', 'admin'),
+('admin.wizard.steps.inclusions.description', 'Définissez ce qui est inclus dans le forfait', 'fr', 'admin'),
+('admin.wizard.steps.images.title', 'Gestion des Images', 'fr', 'admin'),
+('admin.wizard.steps.images.description', 'Téléchargez les images principales et de galerie', 'fr', 'admin'),
+
+-- Wizard Navigation (English)
+('admin.wizard.navigation.back_to_tours', 'Back to Tours', 'en', 'admin'),
+('admin.wizard.navigation.save_draft', 'Save Draft', 'en', 'admin'),
+('admin.wizard.navigation.previous', 'Previous', 'en', 'admin'),
+('admin.wizard.navigation.next', 'Next', 'en', 'admin'),
+('admin.wizard.navigation.create_tour', 'Create Tour', 'en', 'admin'),
+('admin.wizard.navigation.step_of', 'Step {current} of {total}', 'en', 'admin'),
+
+-- Wizard Navigation (French)
+('admin.wizard.navigation.back_to_tours', 'Retour aux Tours', 'fr', 'admin'),
+('admin.wizard.navigation.save_draft', 'Sauvegarder le Brouillon', 'fr', 'admin'),
+('admin.wizard.navigation.previous', 'Précédent', 'fr', 'admin'),
+('admin.wizard.navigation.next', 'Suivant', 'fr', 'admin'),
+('admin.wizard.navigation.create_tour', 'Créer le Tour', 'fr', 'admin'),
+('admin.wizard.navigation.step_of', 'Étape {current} sur {total}', 'fr', 'admin'),
+
+-- Basic Tour Info Step (English)
+('admin.wizard.basic.tour_titles', 'Tour Titles', 'en', 'admin'),
+('admin.wizard.basic.title_english', 'Title (English)', 'en', 'admin'),
+('admin.wizard.basic.title_french', 'Title (French)', 'en', 'admin'),
+('admin.wizard.basic.location_duration', 'Location & Duration', 'en', 'admin'),
+('admin.wizard.basic.destination', 'Destination', 'en', 'admin'),
+('admin.wizard.basic.select_destination', 'Select destination', 'en', 'admin'),
+('admin.wizard.basic.days', 'Days', 'en', 'admin'),
+('admin.wizard.basic.nights', 'Nights', 'en', 'admin'),
+('admin.wizard.basic.pricing', 'Pricing', 'en', 'admin'),
+('admin.wizard.basic.price', 'Price', 'en', 'admin'),
+('admin.wizard.basic.currency', 'Currency', 'en', 'admin'),
+('admin.wizard.basic.tour_settings', 'Tour Settings', 'en', 'admin'),
+('admin.wizard.basic.difficulty_level', 'Difficulty Level', 'en', 'admin'),
+('admin.wizard.basic.min_group_size', 'Min Group Size', 'en', 'admin'),
+('admin.wizard.basic.max_group_size', 'Max Group Size', 'en', 'admin'),
+('admin.wizard.basic.supported_languages', 'Supported Languages', 'en', 'admin'),
+('admin.wizard.basic.descriptions', 'Descriptions', 'en', 'admin'),
+('admin.wizard.basic.description_english', 'Description (English)', 'en', 'admin'),
+('admin.wizard.basic.description_french', 'Description (French)', 'en', 'admin'),
+
+-- Basic Tour Info Step (French)
+('admin.wizard.basic.tour_titles', 'Titres des Tours', 'fr', 'admin'),
+('admin.wizard.basic.title_english', 'Titre (Anglais)', 'fr', 'admin'),
+('admin.wizard.basic.title_french', 'Titre (Français)', 'fr', 'admin'),
+('admin.wizard.basic.location_duration', 'Lieu et Durée', 'fr', 'admin'),
+('admin.wizard.basic.destination', 'Destination', 'fr', 'admin'),
+('admin.wizard.basic.select_destination', 'Sélectionner la destination', 'fr', 'admin'),
+('admin.wizard.basic.days', 'Jours', 'fr', 'admin'),
+('admin.wizard.basic.nights', 'Nuits', 'fr', 'admin'),
+('admin.wizard.basic.pricing', 'Tarification', 'fr', 'admin'),
+('admin.wizard.basic.price', 'Prix', 'fr', 'admin'),
+('admin.wizard.basic.currency', 'Devise', 'fr', 'admin'),
+('admin.wizard.basic.tour_settings', 'Paramètres du Tour', 'fr', 'admin'),
+('admin.wizard.basic.difficulty_level', 'Niveau de Difficulté', 'fr', 'admin'),
+('admin.wizard.basic.min_group_size', 'Taille Min du Groupe', 'fr', 'admin'),
+('admin.wizard.basic.max_group_size', 'Taille Max du Groupe', 'fr', 'admin'),
+('admin.wizard.basic.supported_languages', 'Langues Supportées', 'fr', 'admin'),
+('admin.wizard.basic.descriptions', 'Descriptions', 'fr', 'admin'),
+('admin.wizard.basic.description_english', 'Description (Anglais)', 'fr', 'admin'),
+('admin.wizard.basic.description_french', 'Description (Français)', 'fr', 'admin'),
+
+-- Validation Error Messages (English)
+('validation.errors.required', 'This field is required', 'en', 'validation'),
+('validation.errors.email.invalid', 'Please enter a valid email address', 'en', 'validation'),
+('validation.errors.email.too_long', 'Email address is too long (max 254 characters)', 'en', 'validation'),
+('validation.errors.password.too_short', 'Password must be at least 8 characters long', 'en', 'validation'),
+('validation.errors.password.missing_uppercase', 'Password must contain at least one uppercase letter', 'en', 'validation'),
+('validation.errors.password.missing_lowercase', 'Password must contain at least one lowercase letter', 'en', 'validation'),
+('validation.errors.password.missing_number', 'Password must contain at least one number', 'en', 'validation'),
+('validation.errors.password.missing_special', 'Password must contain at least one special character', 'en', 'validation'),
+('validation.errors.text.too_short', '{field} must be at least {min} characters long', 'en', 'validation'),
+('validation.errors.text.too_long', '{field} must be no more than {max} characters long', 'en', 'validation'),
+('validation.errors.text.invalid_chars', '{field} contains invalid characters', 'en', 'validation'),
+('validation.errors.phone.invalid', 'Please enter a valid phone number', 'en', 'validation'),
+
+-- Validation Error Messages (French)
+('validation.errors.required', 'Ce champ est requis', 'fr', 'validation'),
+('validation.errors.email.invalid', 'Veuillez entrer une adresse e-mail valide', 'fr', 'validation'),
+('validation.errors.email.too_long', 'L''adresse e-mail est trop longue (max 254 caractères)', 'fr', 'validation'),
+('validation.errors.password.too_short', 'Le mot de passe doit contenir au moins 8 caractères', 'fr', 'validation'),
+('validation.errors.password.missing_uppercase', 'Le mot de passe doit contenir au moins une lettre majuscule', 'fr', 'validation'),
+('validation.errors.password.missing_lowercase', 'Le mot de passe doit contenir au moins une lettre minuscule', 'fr', 'validation'),
+('validation.errors.password.missing_number', 'Le mot de passe doit contenir au moins un chiffre', 'fr', 'validation'),
+('validation.errors.password.missing_special', 'Le mot de passe doit contenir au moins un caractère spécial', 'fr', 'validation'),
+('validation.errors.text.too_short', '{field} doit contenir au moins {min} caractères', 'fr', 'validation'),
+('validation.errors.text.too_long', '{field} ne doit pas dépasser {max} caractères', 'fr', 'validation'),
+('validation.errors.text.invalid_chars', '{field} contient des caractères invalides', 'fr', 'validation'),
+('validation.errors.phone.invalid', 'Veuillez entrer un numéro de téléphone valide', 'fr', 'validation'),
+
+-- Toast Messages (English)
+('admin.messages.tour_created', 'Tour created successfully', 'en', 'admin'),
+('admin.messages.tour_updated', 'Tour updated successfully', 'en', 'admin'),
+('admin.messages.tour_deleted', 'Tour deleted successfully', 'en', 'admin'),
+('admin.messages.draft_saved', 'Draft saved successfully', 'en', 'admin'),
+('admin.messages.validation_failed', 'Please fix validation errors before proceeding', 'en', 'admin'),
+('admin.messages.upload_failed', 'File upload failed', 'en', 'admin'),
+('admin.messages.upload_success', 'File uploaded successfully', 'en', 'admin'),
+
+-- Toast Messages (French)
+('admin.messages.tour_created', 'Tour créé avec succès', 'fr', 'admin'),
+('admin.messages.tour_updated', 'Tour mis à jour avec succès', 'fr', 'admin'),
+('admin.messages.tour_deleted', 'Tour supprimé avec succès', 'fr', 'admin'),
+('admin.messages.draft_saved', 'Brouillon sauvegardé avec succès', 'fr', 'admin'),
+('admin.messages.validation_failed', 'Veuillez corriger les erreurs de validation avant de continuer', 'fr', 'admin'),
+('admin.messages.upload_failed', 'Échec du téléchargement de fichier', 'fr', 'admin'),
+('admin.messages.upload_success', 'Fichier téléchargé avec succès', 'fr', 'admin');

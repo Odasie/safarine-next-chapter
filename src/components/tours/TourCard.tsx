@@ -133,7 +133,7 @@ const TourCard = ({
           }} 
           className="ml-auto"
         >
-          {t('tours.card.book')}
+          {t('tour.card.bookButton')}
         </Button>
       </CardFooter>
     </Card>

@@ -133,6 +133,11 @@ const App = () => (
                         <TourCreationWizard />
                       </AdminProtectedRoute>
                     } />
+                    <Route path="admin/tours/edit/:id" element={
+                      <AdminProtectedRoute>
+                        <TourCreationWizard mode="edit" />
+                      </AdminProtectedRoute>
+                    } />
                   </Route>
                   
                   {/* Default routes (redirect to French) */}
@@ -160,6 +165,11 @@ const App = () => (
                     <Route path="/admin/tours/create" element={
                       <AdminProtectedRoute>
                         <TourCreationWizard />
+                      </AdminProtectedRoute>
+                    } />
+                    <Route path="/admin/tours/edit/:id" element={
+                      <AdminProtectedRoute>
+                        <TourCreationWizard mode="edit" />
                       </AdminProtectedRoute>
                     } />
                   </Route>

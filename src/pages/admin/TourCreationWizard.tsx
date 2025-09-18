@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -54,11 +54,21 @@ const STEPS = [
   { id: 5, title: "Images", description: "Hero and gallery images" },
 ];
 
-export const TourCreationWizard = () => {
+interface TourCreationWizardProps {
+  mode?: 'create' | 'edit';
+}
+
+export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps) => {
   const navigate = useNavigate();
+  const { id: tourId } = useParams<{ id: string }>();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
+
+  // Add mode detection
+  const isEditMode = mode === 'edit' || (tourId && window.location.pathname.includes('/edit/'));
+
+  console.log('🔧 Wizard mode:', isEditMode ? 'edit' : 'create', 'Tour ID:', tourId);
   const [formData, setFormData] = useState<TourFormData>({
     title_en: "",
     title_fr: "",
@@ -342,9 +352,11 @@ export const TourCreationWizard = () => {
           </Button>
         </div>
         
-        <h1 className="text-3xl font-bold mb-2">Create New Tour</h1>
+        <h1 className="text-3xl font-bold mb-2">
+          {isEditMode ? 'Edit Tour' : 'Create New Tour'}
+        </h1>
         <p className="text-muted-foreground mb-6">
-          Follow the steps below to create a comprehensive tour listing
+          Follow the steps below to {isEditMode ? 'update your' : 'create a comprehensive'} tour listing
         </p>
         
         <div className="mb-6">

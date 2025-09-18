@@ -12,7 +12,7 @@ import { BasicTourInfoStep } from "@/components/admin/wizard/BasicTourInfoStep";
 import { ItineraryBuilderStep } from "@/components/admin/wizard/ItineraryBuilderStep";
 import { HighlightsStep } from "@/components/admin/wizard/HighlightsStep";
 import { InclusionsStep } from "@/components/admin/wizard/InclusionsStep";
-import { ImageManagementStep } from "@/components/admin/wizard/ImageManagementStep";
+import { ImageUploadSection } from "@/components/admin/ImageUploadSection";
 
 export interface TourFormData {
   // Tour ID for updates
@@ -394,11 +394,21 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
         );
       case 5:
         return (
-          <ImageManagementStep
-            data={formData}
-            updateData={updateFormData}
-            isEditMode={isEditMode}
-          />
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Images</h2>
+              <p className="text-muted-foreground">Hero and gallery images</p>
+            </div>
+
+            <ImageUploadSection
+              tourId={tourId || 'new'}
+              tourData={{
+                destination: formData.destination,
+                title_en: formData.title_en
+              }}
+              isEditMode={mode === 'edit'}
+            />
+          </div>
         );
       default:
         return null;

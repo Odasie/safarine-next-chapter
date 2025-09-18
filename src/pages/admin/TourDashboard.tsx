@@ -31,6 +31,22 @@ const TourDashboardComponent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDestination, setFilterDestination] = useState<string | undefined>(undefined);
   const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
+
+  const handleDestinationChange = (value: string) => {
+    if (value === "all-destinations") {
+      setFilterDestination(undefined);
+    } else {
+      setFilterDestination(value);
+    }
+  };
+
+  const handleStatusChange = (value: string) => {
+    if (value === "all-statuses") {
+      setFilterStatus(undefined);
+    } else {
+      setFilterStatus(value);
+    }
+  };
   
   const { statistics, statisticsLoading, validateTour } = useTourManagement();
   const { data: tours, isLoading: toursLoading } = useRawTours();
@@ -225,14 +241,14 @@ const TourDashboardComponent = () => {
             </div>
             
             <Select 
-              value={filterDestination || ""} 
-              onValueChange={(value) => setFilterDestination(value === "" ? undefined : value)}
+              value={filterDestination || "all-destinations"} 
+              onValueChange={handleDestinationChange}
             >
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="All Destinations" />
               </SelectTrigger>
               <SelectContent className="bg-background border shadow-lg z-50">
-                <SelectItem value="">All Destinations</SelectItem>
+                <SelectItem value="all-destinations">All Destinations</SelectItem>
                 {uniqueDestinations.map(dest => (
                   <SelectItem key={dest} value={dest}>{dest}</SelectItem>
                 ))}
@@ -240,14 +256,14 @@ const TourDashboardComponent = () => {
             </Select>
             
             <Select 
-              value={filterStatus || ""} 
-              onValueChange={(value) => setFilterStatus(value === "" ? undefined : value)}
+              value={filterStatus || "all-statuses"} 
+              onValueChange={handleStatusChange}
             >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent className="bg-background border shadow-lg z-50">
-                <SelectItem value="">All Status</SelectItem>
+                <SelectItem value="all-statuses">All Status</SelectItem>
                 <SelectItem value="complete">Complete</SelectItem>
                 <SelectItem value="partial">Partial</SelectItem>
                 <SelectItem value="incomplete">Incomplete</SelectItem>

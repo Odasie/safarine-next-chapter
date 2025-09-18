@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -68,27 +68,112 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
   // Add mode detection
   const isEditMode = mode === 'edit' || (tourId && window.location.pathname.includes('/edit/'));
 
+  // Data loading states
+  const [existingTourData, setExistingTourData] = useState(null);
+  const [loadingTourData, setLoadingTourData] = useState(false);
+  const [loadError, setLoadError] = useState(null);
+
   console.log('🔧 Wizard mode:', isEditMode ? 'edit' : 'create', 'Tour ID:', tourId);
-  const [formData, setFormData] = useState<TourFormData>({
-    title_en: "",
-    title_fr: "",
-    destination: "Kanchanaburi",
-    duration_days: 1,
-    duration_nights: 0,
-    price: 0,
-    currency: "THB",
-    difficulty_level: "moderate",
-    group_size_min: 2,
-    group_size_max: 8,
-    languages: ["en", "fr"],
-    description_en: "",
-    description_fr: "",
-    itinerary: {},
-    highlights: { main_highlights: [] },
-    included_items: [],
-    excluded_items: [],
-    gallery_images: [],
+  
+  const [formData, setFormData] = useState<TourFormData>(() => {
+    // Default values for create mode
+    return {
+      title_en: "",
+      title_fr: "",
+      destination: "Kanchanaburi",
+      duration_days: 1,
+      duration_nights: 0,
+      price: 0,
+      currency: "THB",
+      difficulty_level: "moderate",
+      group_size_min: 2,
+      group_size_max: 8,
+      languages: ["en", "fr"],
+      description_en: "",
+      description_fr: "",
+      itinerary: {},
+      highlights: { main_highlights: [] },
+      included_items: [],
+      excluded_items: [],
+      gallery_images: [],
+    };
   });
+
+  // Load tour data in edit mode
+  useEffect(() => {
+    const loadTourData = async () => {
+      if (!isEditMode || !tourId) return;
+
+      try {
+        setLoadingTourData(true);
+        setLoadError(null);
+        
+        console.log('🔍 Loading tour data for ID:', tourId);
+        
+        const { data, error } = await supabase
+          .from('tours')
+          .select('*')
+          .eq('id', tourId)
+          .single();
+
+        if (error) {
+          console.error('❌ Error loading tour:', error);
+          setLoadError(error.message);
+          toast.error('Failed to load tour data');
+          return;
+        }
+
+        if (!data) {
+          setLoadError('Tour not found');
+          toast.error('Tour not found');
+          return;
+        }
+
+        console.log('✅ Tour data loaded:', data);
+        setExistingTourData(data);
+        
+      } catch (err) {
+        console.error('❌ Error in loadTourData:', err);
+        setLoadError(err.message);
+        toast.error('Failed to load tour data');
+      } finally {
+        setLoadingTourData(false);
+      }
+    };
+
+    loadTourData();
+  }, [isEditMode, tourId]);
+
+  // Pre-populate form when tour data loads
+  useEffect(() => {
+    if (isEditMode && existingTourData) {
+      console.log('📝 Pre-populating form with existing data');
+      
+      setFormData({
+        id: existingTourData.id,
+        title_en: existingTourData.title_en || "",
+        title_fr: existingTourData.title_fr || "",
+        destination: existingTourData.destination || "Kanchanaburi",
+        duration_days: existingTourData.duration_days || 1,
+        duration_nights: existingTourData.duration_nights || 0,
+        price: existingTourData.price || 0,
+        currency: existingTourData.currency || "THB",
+        difficulty_level: existingTourData.difficulty_level || "moderate",
+        group_size_min: existingTourData.group_size_min || 2,
+        group_size_max: existingTourData.group_size_max || 8,
+        languages: existingTourData.languages || ["en", "fr"],
+        description_en: existingTourData.description_en || "",
+        description_fr: existingTourData.description_fr || "",
+        itinerary: existingTourData.itinerary || {},
+        highlights: existingTourData.highlights || { main_highlights: [] },
+        included_items: existingTourData.included_items || [],
+        excluded_items: existingTourData.excluded_items || [],
+        gallery_images: []
+      });
+      
+      toast.success('Tour data loaded successfully');
+    }
+  }, [existingTourData, isEditMode]);
 
   const updateFormData = (updates: Partial<TourFormData>) => {
     setFormData(prev => ({ ...prev, ...updates }));
@@ -109,59 +194,73 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
   const handleSaveDraft = async () => {
     try {
       setIsLoading(true);
-      console.log('💾 Saving tour as draft...');
       
-      // Prepare tour data for database
-      const tourData = {
-        ...(formData.id && { id: formData.id }),
+      const draftData = {
         title_en: formData.title_en,
         title_fr: formData.title_fr,
         destination: formData.destination,
         duration_days: formData.duration_days,
         duration_nights: formData.duration_nights,
-        price: formData.price || 0,
-        currency: formData.currency || 'THB',
-        difficulty_level: formData.difficulty_level || 'moderate',
-        group_size_min: formData.group_size_min || 2,
-        group_size_max: formData.group_size_max || 8,
-        languages: formData.languages || ['en', 'fr'],
-        description_en: formData.description_en || '',
-        description_fr: formData.description_fr || '',
-        itinerary: formData.itinerary || {},
-        highlights: formData.highlights || {},
-        included_items: formData.included_items || [],
-        excluded_items: formData.excluded_items || [],
-        is_private: true, // Draft tours are private
-        updated_at: new Date().toISOString()
+        price: formData.price,
+        currency: formData.currency,
+        difficulty_level: formData.difficulty_level,
+        group_size_min: formData.group_size_min,
+        group_size_max: formData.group_size_max,
+        languages: formData.languages,
+        description_en: formData.description_en,
+        description_fr: formData.description_fr,
+        itinerary: formData.itinerary,
+        highlights: formData.highlights,
+        included_items: formData.included_items,
+        excluded_items: formData.excluded_items,
+        is_private: true,  // Drafts are private
+        updated_at: new Date().toISOString(),
       };
 
-      console.log('📝 Draft data being saved:', tourData);
-
-      const { data, error } = await supabase
-        .from('tours')
-        .upsert(tourData, { 
-          onConflict: 'id',
-          ignoreDuplicates: false 
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-
-      // Update form data with the returned ID if it's a new tour
-      if (data?.id && !formData.id) {
-        setFormData(prev => ({ ...prev, id: data.id }));
-      }
-
-      toast.success("Draft saved successfully");
-      console.log('✅ Draft saved successfully:', data);
+      let result;
       
-    } catch (error: any) {
-      console.error('Failed to save draft:', error);
-      toast.error(`Failed to save draft: ${error.message || 'Unknown error'}`);
+      if (isEditMode && tourId) {
+        // UPDATE existing tour as draft
+        console.log('💾 Saving draft for existing tour:', tourId);
+        
+        result = await supabase
+          .from('tours')
+          .update(draftData)
+          .eq('id', tourId)
+          .select();
+          
+      } else {
+        // CREATE new draft tour
+        console.log('💾 Creating new draft tour');
+        const draftDataWithTimestamp = {
+          ...draftData,
+          created_at: new Date().toISOString()
+        };
+        
+        result = await supabase
+          .from('tours')
+          .insert([draftDataWithTimestamp])
+          .select();
+      }
+
+      if (result.error) {
+        console.error('❌ Error saving draft:', result.error);
+        toast.error('Failed to save draft');
+        return;
+      }
+
+      console.log('✅ Draft saved successfully:', result.data);
+      toast.success('Draft saved successfully!');
+      
+      // If this was a new tour, update the URL to edit mode
+      if (!isEditMode && result.data && result.data[0]) {
+        const newTourId = result.data[0].id;
+        navigate(`/admin/tours/edit/${newTourId}`, { replace: true });
+      }
+      
+    } catch (error) {
+      console.error('❌ Error in handleSaveDraft:', error);
+      toast.error('Failed to save draft');
     } finally {
       setIsLoading(false);
     }
@@ -183,94 +282,81 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
-      console.log('🚀 Publishing tour with correct visibility settings...');
       
-      // Validate required fields
-      const validationErrors = validateTourForPublication();
-      if (validationErrors.length > 0) {
-        toast.error(`Cannot publish tour:\n${validationErrors.join('\n')}`);
-        setIsLoading(false);
-        return;
-      }
-
-      // Generate slugs using the database function
-      const slugEn = formData.title_en.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      const slugFr = formData.title_fr.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-
-      // Prepare tour data with EXPLICIT public visibility settings
       const tourData = {
-        ...(formData.id && { id: formData.id }),
         title_en: formData.title_en,
         title_fr: formData.title_fr,
-        slug_en: slugEn,
-        slug_fr: slugFr,
         destination: formData.destination,
         duration_days: formData.duration_days,
         duration_nights: formData.duration_nights,
-        price: formData.price || 0,
-        currency: formData.currency || 'THB',
-        difficulty_level: formData.difficulty_level || 'moderate',
-        group_size_min: formData.group_size_min || 2,
-        group_size_max: formData.group_size_max || 8,
-        languages: formData.languages || ['en', 'fr'],
-        description_en: formData.description_en || '',
-        description_fr: formData.description_fr || '',
-        itinerary: formData.itinerary || {},
-        highlights: formData.highlights || {},
-        included_items: formData.included_items || [],
-        excluded_items: formData.excluded_items || [],
-        is_private: false, // CRITICAL: Set to false for public visibility
+        price: formData.price,
+        currency: formData.currency,
+        difficulty_level: formData.difficulty_level,
+        group_size_min: formData.group_size_min,
+        group_size_max: formData.group_size_max,
+        languages: formData.languages,
+        description_en: formData.description_en,
+        description_fr: formData.description_fr,
+        itinerary: formData.itinerary,
+        highlights: formData.highlights,
+        included_items: formData.included_items,
+        excluded_items: formData.excluded_items,
+        is_private: false,
         published_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
 
-      console.log('📝 Tour data being saved:', tourData);
-
-      const { data, error } = await supabase
-        .from('tours')
-        .upsert(tourData, { 
-          onConflict: 'id',
-          ignoreDuplicates: false 
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('❌ Supabase error:', error);
-        throw error;
-      }
-
-      console.log('✅ Tour published successfully:', data);
+      let result;
       
-      // Verify the tour was saved correctly
-      const { data: verifyData } = await supabase
-        .from('tours')
-        .select('id, title_en, is_private, published_at')
-        .eq('id', data.id)
-        .single();
-      
-      console.log('🔍 Verification - Tour in database:', verifyData);
-      
-      // Test if it appears in public query
-      const { data: publicCheck } = await supabase
-        .from('tours')
-        .select('id, title_en')
-        .eq('is_private', false)
-        .eq('id', data.id);
-      
-      console.log('🔍 Public visibility check:', publicCheck);
-      
-      if (publicCheck && publicCheck.length > 0) {
-        toast.success("🎉 Tour published successfully and is now visible to customers!");
+      if (isEditMode && tourId) {
+        // UPDATE existing tour
+        console.log('🔄 Updating tour:', tourId);
+        console.log('📝 Update data:', tourData);
+        
+        result = await supabase
+          .from('tours')
+          .update(tourData)
+          .eq('id', tourId)
+          .select();
+          
+        if (result.error) {
+          console.error('❌ Error updating tour:', result.error);
+          toast.error('Failed to update tour');
+          return;
+        }
+        
+        console.log('✅ Tour updated successfully:', result.data);
+        toast.success('Tour updated successfully!');
+        
       } else {
-        toast.error("⚠️ Tour saved but may not be visible publicly. Check admin dashboard.");
+        // CREATE new tour
+        console.log('➕ Creating new tour');
+        const tourDataWithTimestamp = {
+          ...tourData,
+          created_at: new Date().toISOString()
+        };
+        
+        result = await supabase
+          .from('tours')
+          .insert([tourDataWithTimestamp])
+          .select();
+          
+        if (result.error) {
+          console.error('❌ Error creating tour:', result.error);
+          toast.error('Failed to create tour');
+          return;
+        }
+        
+        console.log('✅ Tour created successfully:', result.data);
+        toast.success('Tour created successfully!');
       }
       
-      navigate("/admin/tours");
+      // Redirect to admin tours dashboard
+      navigate('/admin/tours');
       
-    } catch (error: any) {
-      console.error('Failed to create tour:', error);
-      toast.error(`Failed to create tour: ${error.message || 'Unknown error'}`);
+    } catch (error) {
+      console.error('❌ Error in handleSubmit:', error);
+      toast.error(isEditMode ? 'Failed to update tour' : 'Failed to create tour');
     } finally {
       setIsLoading(false);
     }
@@ -320,9 +406,76 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
 
   const progress = (currentStep / STEPS.length) * 100;
 
+  // Show loading while fetching tour data
+  if (isEditMode && loadingTourData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+          <p className="mt-4 text-lg">Loading tour data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (isEditMode && loadError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-destructive mb-4">Error Loading Tour</h2>
+          <p className="text-muted-foreground mb-4">{loadError}</p>
+          <Button onClick={() => navigate('/admin/tours')}>
+            Back to Tours
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Breadcrumb component
+  const Breadcrumb = () => (
+    <nav className="flex mb-6" aria-label="Breadcrumb">
+      <ol className="inline-flex items-center space-x-1 md:space-x-3">
+        <li className="inline-flex items-center">
+          <button 
+            onClick={() => navigate('/admin')}
+            className="text-muted-foreground hover:text-primary"
+          >
+            Admin
+          </button>
+        </li>
+        <li>
+          <div className="flex items-center">
+            <svg className="w-6 h-6 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
+            </svg>
+            <button 
+              onClick={() => navigate('/admin/tours')}
+              className="ml-1 text-muted-foreground hover:text-primary md:ml-2"
+            >
+              Tours
+            </button>
+          </div>
+        </li>
+        <li>
+          <div className="flex items-center">
+            <svg className="w-6 h-6 text-muted-foreground" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
+            </svg>
+            <span className="ml-1 text-muted-foreground md:ml-2">
+              {isEditMode ? 'Edit' : 'Create'}
+            </span>
+          </div>
+        </li>
+      </ol>
+    </nav>
+  );
+
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8">
+        <Breadcrumb />
         <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"
@@ -346,7 +499,7 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                Save Draft
+                {isEditMode ? 'Save Changes' : 'Save Draft'}
               </>
             )}
           </Button>
@@ -354,6 +507,11 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
         
         <h1 className="text-3xl font-bold mb-2">
           {isEditMode ? 'Edit Tour' : 'Create New Tour'}
+          {isEditMode && existingTourData && (
+            <span className="text-lg font-normal text-muted-foreground block mt-2">
+              {existingTourData.title_en}
+            </span>
+          )}
         </h1>
         <p className="text-muted-foreground mb-6">
           Follow the steps below to {isEditMode ? 'update your' : 'create a comprehensive'} tour listing
@@ -430,11 +588,11 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
                   {isLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Creating...
+                      {isEditMode ? 'Updating...' : 'Creating...'}
                     </>
                   ) : (
                     <>
-                      Create Tour
+                      {isEditMode ? 'Update Tour' : 'Create Tour'}
                       <Save className="w-4 h-4" />
                     </>
                   )}

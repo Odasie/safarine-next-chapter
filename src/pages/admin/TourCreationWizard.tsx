@@ -397,6 +397,7 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
           <ImageManagementStep
             data={formData}
             updateData={updateFormData}
+            isEditMode={isEditMode}
           />
         );
       default:

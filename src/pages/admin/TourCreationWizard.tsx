@@ -142,7 +142,8 @@ export const TourCreationWizard = () => {
       }
 
       toast.success("Draft saved successfully");
-      console.log('Tour draft saved:', data);
+      console.log('💾 Tour draft saved successfully:', data);
+      console.log('📋 Draft data:', tourData);
       
     } catch (error: any) {
       console.error('Failed to save draft:', error);
@@ -206,7 +207,8 @@ export const TourCreationWizard = () => {
       }
 
       toast.success("Tour created successfully");
-      console.log('Tour published:', data);
+      console.log('🎉 Tour published successfully:', data);
+      console.log('📋 Tour data saved:', tourData);
       navigate("/admin/tours");
       
     } catch (error: any) {

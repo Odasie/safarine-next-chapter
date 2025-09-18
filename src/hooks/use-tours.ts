@@ -127,6 +127,7 @@ export function useTours() {
   return useQuery({
     queryKey: ["tours"],
     queryFn: async () => {
+      console.log('🔍 Fetching public tours...');
       const { data, error } = await supabase
         .from("tours")
         .select(`
@@ -151,6 +152,7 @@ export function useTours() {
           excluded_items,
           total_images,
           gallery_images,
+          is_private,
           page:pages!tours_page_id_fkey(
             id,
             url,
@@ -185,6 +187,7 @@ export function useTours() {
             alt_fr
           )
         `)
+        .eq('is_private', false)
         .order('duration_days', { ascending: true });
 
       if (error) {
@@ -192,6 +195,8 @@ export function useTours() {
         throw error;
       }
 
+      console.log(`✅ Found ${data?.length || 0} public tours`);
+      console.log('📊 Tours data:', data);
       return (data as any[]).map(transformTour);
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -246,6 +251,7 @@ export function useFeaturedTours(limit: number = 3) {
           excluded_items,
           total_images,
           gallery_images,
+          is_private,
           page:pages!tours_page_id_fkey(
             id,
             url,
@@ -280,6 +286,7 @@ export function useFeaturedTours(limit: number = 3) {
             alt_fr
           )
         `)
+        .eq('is_private', false)
         .order('duration_days', { ascending: true })
         .limit(limit);
 

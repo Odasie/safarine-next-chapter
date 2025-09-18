@@ -58,6 +58,7 @@ export const TourCreationWizard = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPublishDialog, setShowPublishDialog] = useState(false);
   const [formData, setFormData] = useState<TourFormData>({
     title_en: "",
     title_fr: "",
@@ -98,6 +99,7 @@ export const TourCreationWizard = () => {
   const handleSaveDraft = async () => {
     try {
       setIsLoading(true);
+      console.log('💾 Saving tour as draft...');
       
       // Prepare tour data for database
       const tourData = {
@@ -120,7 +122,10 @@ export const TourCreationWizard = () => {
         included_items: formData.included_items || [],
         excluded_items: formData.excluded_items || [],
         is_private: true, // Draft tours are private
+        updated_at: new Date().toISOString()
       };
+
+      console.log('📝 Draft data being saved:', tourData);
 
       const { data, error } = await supabase
         .from('tours')
@@ -142,8 +147,7 @@ export const TourCreationWizard = () => {
       }
 
       toast.success("Draft saved successfully");
-      console.log('💾 Tour draft saved successfully:', data);
-      console.log('📋 Draft data:', tourData);
+      console.log('✅ Draft saved successfully:', data);
       
     } catch (error: any) {
       console.error('Failed to save draft:', error);
@@ -153,13 +157,29 @@ export const TourCreationWizard = () => {
     }
   };
 
+  const validateTourForPublication = (): string[] => {
+    const errors: string[] = [];
+    
+    if (!formData.title_en?.trim()) errors.push('English title is required');
+    if (!formData.title_fr?.trim()) errors.push('French title is required');
+    if (!formData.destination) errors.push('Destination is required');
+    if (!formData.description_en?.trim()) errors.push('English description is required');
+    if (!formData.description_fr?.trim()) errors.push('French description is required');
+    if (!formData.price || formData.price <= 0) errors.push('Valid price is required');
+    
+    return errors;
+  };
+
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
+      console.log('🚀 Publishing tour with correct visibility settings...');
       
       // Validate required fields
-      if (!formData.title_en || !formData.title_fr || !formData.destination) {
-        toast.error("Please fill in all required fields");
+      const validationErrors = validateTourForPublication();
+      if (validationErrors.length > 0) {
+        toast.error(`Cannot publish tour:\n${validationErrors.join('\n')}`);
+        setIsLoading(false);
         return;
       }
 
@@ -167,7 +187,7 @@ export const TourCreationWizard = () => {
       const slugEn = formData.title_en.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       const slugFr = formData.title_fr.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-      // Prepare tour data for final submission
+      // Prepare tour data with EXPLICIT public visibility settings
       const tourData = {
         ...(formData.id && { id: formData.id }),
         title_en: formData.title_en,
@@ -189,8 +209,12 @@ export const TourCreationWizard = () => {
         highlights: formData.highlights || {},
         included_items: formData.included_items || [],
         excluded_items: formData.excluded_items || [],
-        is_private: false, // Published tours are public
+        is_private: false, // CRITICAL: Set to false for public visibility
+        published_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
+
+      console.log('📝 Tour data being saved:', tourData);
 
       const { data, error } = await supabase
         .from('tours')
@@ -202,13 +226,36 @@ export const TourCreationWizard = () => {
         .single();
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('❌ Supabase error:', error);
         throw error;
       }
 
-      toast.success("Tour created successfully");
-      console.log('🎉 Tour published successfully:', data);
-      console.log('📋 Tour data saved:', tourData);
+      console.log('✅ Tour published successfully:', data);
+      
+      // Verify the tour was saved correctly
+      const { data: verifyData } = await supabase
+        .from('tours')
+        .select('id, title_en, is_private, published_at')
+        .eq('id', data.id)
+        .single();
+      
+      console.log('🔍 Verification - Tour in database:', verifyData);
+      
+      // Test if it appears in public query
+      const { data: publicCheck } = await supabase
+        .from('tours')
+        .select('id, title_en')
+        .eq('is_private', false)
+        .eq('id', data.id);
+      
+      console.log('🔍 Public visibility check:', publicCheck);
+      
+      if (publicCheck && publicCheck.length > 0) {
+        toast.success("🎉 Tour published successfully and is now visible to customers!");
+      } else {
+        toast.error("⚠️ Tour saved but may not be visible publicly. Check admin dashboard.");
+      }
+      
       navigate("/admin/tours");
       
     } catch (error: any) {
@@ -394,6 +441,36 @@ export const TourCreationWizard = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Publish Confirmation Dialog */}
+      {showPublishDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md">
+            <h3 className="text-lg font-semibold mb-4">Publish Tour?</h3>
+            <p className="text-gray-600 mb-6">
+              This will make your tour live and visible to customers immediately. 
+              Are you sure you want to publish "{formData.title_en}"?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowPublishDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => {
+                  setShowPublishDialog(false);
+                  handleSubmit();
+                }}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                Yes, Publish Tour
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

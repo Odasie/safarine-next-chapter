@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Save } from "lucide-react";
+import { ArrowLeft, ArrowRight, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 // Step components
 import { BasicTourInfoStep } from "@/components/admin/wizard/BasicTourInfoStep";
@@ -14,6 +15,9 @@ import { InclusionsStep } from "@/components/admin/wizard/InclusionsStep";
 import { ImageManagementStep } from "@/components/admin/wizard/ImageManagementStep";
 
 export interface TourFormData {
+  // Tour ID for updates
+  id?: string;
+  
   // Basic Info
   title_en: string;
   title_fr: string;
@@ -53,6 +57,7 @@ const STEPS = [
 export const TourCreationWizard = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<TourFormData>({
     title_en: "",
     title_fr: "",
@@ -90,18 +95,125 @@ export const TourCreationWizard = () => {
     }
   };
 
-  const handleSaveDraft = () => {
-    // TODO: Implement auto-save functionality
-    toast.success("Draft saved successfully");
+  const handleSaveDraft = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Prepare tour data for database
+      const tourData = {
+        ...(formData.id && { id: formData.id }),
+        title_en: formData.title_en,
+        title_fr: formData.title_fr,
+        destination: formData.destination,
+        duration_days: formData.duration_days,
+        duration_nights: formData.duration_nights,
+        price: formData.price || 0,
+        currency: formData.currency || 'THB',
+        difficulty_level: formData.difficulty_level || 'moderate',
+        group_size_min: formData.group_size_min || 2,
+        group_size_max: formData.group_size_max || 8,
+        languages: formData.languages || ['en', 'fr'],
+        description_en: formData.description_en || '',
+        description_fr: formData.description_fr || '',
+        itinerary: formData.itinerary || {},
+        highlights: formData.highlights || {},
+        included_items: formData.included_items || [],
+        excluded_items: formData.excluded_items || [],
+        is_private: true, // Draft tours are private
+      };
+
+      const { data, error } = await supabase
+        .from('tours')
+        .upsert(tourData, { 
+          onConflict: 'id',
+          ignoreDuplicates: false 
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      // Update form data with the returned ID if it's a new tour
+      if (data?.id && !formData.id) {
+        setFormData(prev => ({ ...prev, id: data.id }));
+      }
+
+      toast.success("Draft saved successfully");
+      console.log('Tour draft saved:', data);
+      
+    } catch (error: any) {
+      console.error('Failed to save draft:', error);
+      toast.error(`Failed to save draft: ${error.message || 'Unknown error'}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = async () => {
     try {
-      // TODO: Implement final submission logic
-      toast.success("Tour created successfully!");
+      setIsLoading(true);
+      
+      // Validate required fields
+      if (!formData.title_en || !formData.title_fr || !formData.destination) {
+        toast.error("Please fill in all required fields");
+        return;
+      }
+
+      // Generate slugs using the database function
+      const slugEn = formData.title_en.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const slugFr = formData.title_fr.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+      // Prepare tour data for final submission
+      const tourData = {
+        ...(formData.id && { id: formData.id }),
+        title_en: formData.title_en,
+        title_fr: formData.title_fr,
+        slug_en: slugEn,
+        slug_fr: slugFr,
+        destination: formData.destination,
+        duration_days: formData.duration_days,
+        duration_nights: formData.duration_nights,
+        price: formData.price || 0,
+        currency: formData.currency || 'THB',
+        difficulty_level: formData.difficulty_level || 'moderate',
+        group_size_min: formData.group_size_min || 2,
+        group_size_max: formData.group_size_max || 8,
+        languages: formData.languages || ['en', 'fr'],
+        description_en: formData.description_en || '',
+        description_fr: formData.description_fr || '',
+        itinerary: formData.itinerary || {},
+        highlights: formData.highlights || {},
+        included_items: formData.included_items || [],
+        excluded_items: formData.excluded_items || [],
+        is_private: false, // Published tours are public
+      };
+
+      const { data, error } = await supabase
+        .from('tours')
+        .upsert(tourData, { 
+          onConflict: 'id',
+          ignoreDuplicates: false 
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      toast.success("Tour created successfully");
+      console.log('Tour published:', data);
       navigate("/admin/tours");
-    } catch (error) {
-      toast.error("Failed to create tour");
+      
+    } catch (error: any) {
+      console.error('Failed to create tour:', error);
+      toast.error(`Failed to create tour: ${error.message || 'Unknown error'}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -164,10 +276,20 @@ export const TourCreationWizard = () => {
           <Button
             variant="outline"
             onClick={handleSaveDraft}
+            disabled={isLoading}
             className="flex items-center gap-2"
           >
-            <Save className="w-4 h-4" />
-            Save Draft
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                Save Draft
+              </>
+            )}
           </Button>
         </div>
         
@@ -239,12 +361,29 @@ export const TourCreationWizard = () => {
             
             <div className="flex gap-2">
               {currentStep === STEPS.length ? (
-                <Button onClick={handleSubmit} className="flex items-center gap-2">
-                  Create Tour
-                  <Save className="w-4 h-4" />
+                <Button 
+                  onClick={handleSubmit} 
+                  disabled={isLoading}
+                  className="flex items-center gap-2"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      Create Tour
+                      <Save className="w-4 h-4" />
+                    </>
+                  )}
                 </Button>
               ) : (
-                <Button onClick={handleNext} className="flex items-center gap-2">
+                <Button 
+                  onClick={handleNext}
+                  disabled={isLoading}
+                  className="flex items-center gap-2"
+                >
                   Next
                   <ArrowRight className="w-4 h-4" />
                 </Button>

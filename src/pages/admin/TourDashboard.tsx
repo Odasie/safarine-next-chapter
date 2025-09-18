@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,11 +26,11 @@ import { useRawTours } from "@/hooks/use-tours";
 import { formatPrice } from "@/lib/tours";
 import { toast } from "sonner";
 
-export const TourDashboard = () => {
+const TourDashboardComponent = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterDestination, setFilterDestination] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
+  const [filterDestination, setFilterDestination] = useState<string | undefined>(undefined);
+  const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
   
   const { statistics, statisticsLoading, validateTour } = useTourManagement();
   const { data: tours, isLoading: toursLoading } = useRawTours();
@@ -223,11 +224,14 @@ export const TourDashboard = () => {
               </div>
             </div>
             
-            <Select value={filterDestination} onValueChange={setFilterDestination}>
+            <Select 
+              value={filterDestination || ""} 
+              onValueChange={(value) => setFilterDestination(value === "" ? undefined : value)}
+            >
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="All Destinations" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border shadow-lg z-50">
                 <SelectItem value="">All Destinations</SelectItem>
                 {uniqueDestinations.map(dest => (
                   <SelectItem key={dest} value={dest}>{dest}</SelectItem>
@@ -235,11 +239,14 @@ export const TourDashboard = () => {
               </SelectContent>
             </Select>
             
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <Select 
+              value={filterStatus || ""} 
+              onValueChange={(value) => setFilterStatus(value === "" ? undefined : value)}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border shadow-lg z-50">
                 <SelectItem value="">All Status</SelectItem>
                 <SelectItem value="complete">Complete</SelectItem>
                 <SelectItem value="partial">Partial</SelectItem>
@@ -317,7 +324,7 @@ export const TourDashboard = () => {
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
                         <DropdownMenuItem onClick={() => handleEditTour(tour.id)}>
                           <Edit className="w-4 h-4 mr-2" />
                           Edit
@@ -366,3 +373,9 @@ export const TourDashboard = () => {
     </div>
   );
 };
+
+export const TourDashboard = () => (
+  <ErrorBoundary>
+    <TourDashboardComponent />
+  </ErrorBoundary>
+);

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import SearchBar from "@/components/search/SearchBar";
 import SimpleImageViewer from "@/components/tours/SimpleImageViewer";
 import TourCard from "@/components/tours/TourCard";
+import { ImageGallery } from "@/components/tours/ImageGallery";
 import { MapPin, Clock, CircleDollarSign } from "lucide-react";
 import { durationToText, formatPrice } from "@/lib/tours";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -359,6 +360,13 @@ const TourDetail = () => {
         </div>
       </header>
 
+      {/* Enhanced Image Gallery */}
+      {tour?.id && (
+        <section className="mb-8">
+          <ImageGallery tourId={tour.id} />
+        </section>
+      )}
+
       {/* Infos & Prix cards */}
       <section aria-labelledby="infos-prix" className="mb-12 rounded-xl border bg-card p-6">
         <h2 id="infos-prix" className="sr-only">{t('tours.detail.info.title')}</h2>
@@ -428,18 +436,20 @@ const TourDetail = () => {
       <section aria-labelledby="reco-tours" className="mb-4">
         <h3 id="reco-tours" className="text-xl font-semibold">{t('tours.detail.suggestions.title')}</h3>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {tours
+           {tours
             .filter((t) => t.slug !== slug)
             .slice(0, 6)
             .map((t) => (
               <TourCard
                 key={t.id}
+                tourId={undefined} // Static data doesn't have database IDs
                 image={t.images[0] || "/placeholder.svg"}
                 title={t.title}
                 description={t.location}
                 duration={t.duration}
                 group={t.group}
                 price={t.price}
+                slug={t.slug}
                 onBook={() => navigate(`/contact?tour=${t.slug}`)}
               />
             ))}

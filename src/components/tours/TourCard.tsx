@@ -7,8 +7,10 @@ import { useLocale } from "@/contexts/LocaleContext";
 import { createTourUrl } from "@/lib/tours";
 import { useNavigate } from "react-router-dom";
 import { useTranslations } from "@/hooks/use-translations";
+import { useTourImages } from "@/hooks/useTourImages";
 
 export interface TourCardProps {
+  tourId?: string; // New: tour ID for image loading
   image?: string;
   imageRecord?: ImageRecord;
   title: string;
@@ -21,6 +23,7 @@ export interface TourCardProps {
 }
 
 const TourCard = ({ 
+  tourId,
   image, 
   imageRecord, 
   title, 
@@ -36,9 +39,12 @@ const TourCard = ({
   const currentLocale = locale as 'en' | 'fr';
   const navigate = useNavigate();
 
-  // Use imageRecord if available, otherwise fall back to simple image string
+  // Use new image management system if tourId is provided
+  const { heroImage, loading: imageLoading } = useTourImages(tourId || '');
+
+  // Use imageRecord if available, otherwise fall back to simple image string or hero image
   // Clean image paths to prevent 2x requests that cause 404s
-  const rawImageSrc = imageRecord?.src || image;
+  const rawImageSrc = heroImage?.file_path || imageRecord?.src || image;
   
   // Try multiple fallback images from the tour's image collection
   let imageSrc = rawImageSrc?.replace(/_2x\.webp$/, '.webp');
@@ -53,7 +59,10 @@ const TourCard = ({
   if (!imageSrc) {
     imageSrc = "/placeholder.svg";
   }
-  const imageAlt = imageRecord 
+  // Get alt text from hero image or fallback
+  const imageAlt = heroImage 
+    ? (currentLocale === 'fr' && heroImage.alt_fr ? heroImage.alt_fr : heroImage.alt_en) || `${title}${description ? ` - ${description}` : ''}`
+    : imageRecord 
     ? getLocalizedImageText(imageRecord, 'alt', currentLocale) || `${title}${description ? ` - ${description}` : ''}`
     : `${title}${description ? ` - ${description}` : ''}`;
 
@@ -69,7 +78,26 @@ const TourCard = ({
       className="overflow-hidden transition-shadow hover:shadow-md cursor-pointer" 
       onClick={handleCardClick}
     >
-      {imageRecord ? (
+      {imageLoading ? (
+        <div className="h-44 w-full bg-muted animate-pulse" />
+      ) : heroImage && heroImage.width && heroImage.height ? (
+        <ResponsiveImage
+          src={imageSrc}
+          alt={imageAlt}
+          width={heroImage.width}
+          height={heroImage.height}
+          loadingStrategy="lazy"
+          priority="medium"
+          className="h-44 w-full object-cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          onError={(e) => {
+            const target = e.currentTarget;
+            if (target.src !== '/placeholder.svg') {
+              target.src = '/placeholder.svg';
+            }
+          }}
+        />
+      ) : imageRecord ? (
         <ResponsiveImage
           src={imageSrc}
           alt={imageAlt}

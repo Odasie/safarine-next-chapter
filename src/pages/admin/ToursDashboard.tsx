@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Loader2, Eye, Edit, Trash2, Plus, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ToursDebugger from '@/components/admin/ToursDebugger';
+import { TourImagePreview } from '@/components/admin/TourImagePreview';
 
 interface Tour {
   id: string;
@@ -237,18 +238,21 @@ export default function ToursDashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Image</TableHead>
                     <TableHead>Title</TableHead>
                     <TableHead>Destination</TableHead>
                     <TableHead>Duration</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {tours.map((tour) => (
                     <TableRow key={tour.id}>
+                      <TableCell>
+                        <TourImagePreview tourId={tour.id} />
+                      </TableCell>
                       <TableCell>
                         <div>
                           <div className="font-medium">{tour.title_en}</div>
@@ -264,9 +268,6 @@ export default function ToursDashboard() {
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(tour)}
-                      </TableCell>
-                      <TableCell>
-                        N/A
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">

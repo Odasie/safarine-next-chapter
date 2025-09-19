@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { generateImageFilename, generateImageFolderPath, optimizeImage, getImageDimensions } from '@/utils/imageUtils';
+import { generateImageFilename, generateImageFolderPath } from '@/utils/imageUtils';
+import { optimizeImage, validateImageFile, IMAGE_PRESETS } from '@/utils/imageOptimization';
 import { useToast } from '@/hooks/use-toast';
 
 export interface TourImageData {
@@ -62,6 +63,12 @@ export const useImageManagement = (tourId: string) => {
   ) => {
     setUploading(true);
     try {
+      // Validate file
+      const validation = validateImageFile(file);
+      if (!validation.valid) {
+        throw new Error(validation.error);
+      }
+
       // Get next position for the image type
       const existingImages = images.filter(img => img.image_type === imageType);
       const nextPosition = existingImages.length > 0 
@@ -77,18 +84,18 @@ export const useImageManagement = (tourId: string) => {
       );
       const folderPath = generateImageFolderPath(tourData.destination, tourData.title_en);
 
-      // Get original dimensions
-      const originalDimensions = await getImageDimensions(file);
-
-      // Optimize image
-      const maxWidth = imageType === 'hero' ? 1920 : imageType === 'thumbnail' ? 400 : 1200;
-      const optimizedBlob = await optimizeImage(file, maxWidth);
+      // Optimize image using presets
+      const preset = IMAGE_PRESETS[imageType] || IMAGE_PRESETS.gallery;
+      const { blob: optimizedBlob, dimensions } = await optimizeImage(file, preset);
       const optimizedFile = new File([optimizedBlob], filename, { type: 'image/webp' });
 
-      // Upload to Supabase Storage
+      // Calculate compression ratio
+      const compressionRatio = optimizedFile.size / file.size;
+
+      // Upload to Supabase Storage (using tour-images bucket)
       const filePath = `${folderPath}/${filename}`;
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('site-images')
+        .from('tour-images')
         .upload(filePath, optimizedFile, {
           cacheControl: '3600',
           upsert: false
@@ -98,7 +105,7 @@ export const useImageManagement = (tourId: string) => {
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('site-images')
+        .from('tour-images')
         .getPublicUrl(uploadData.path);
 
       // Save to database
@@ -115,11 +122,12 @@ export const useImageManagement = (tourId: string) => {
           title_fr: titleFr,
           position: nextPosition,
           published: true,
-          width: originalDimensions.width,
-          height: originalDimensions.height,
+          width: dimensions.width,
+          height: dimensions.height,
           size_bytes: optimizedFile.size,
           loading_strategy: imageType === 'hero' ? 'eager' : 'lazy',
-          priority: imageType === 'hero' ? 'high' : 'medium'
+          priority: imageType === 'hero' ? 'high' : 'medium',
+          comments: `Original: ${file.size} bytes, Optimized: ${optimizedFile.size} bytes, Ratio: ${compressionRatio.toFixed(2)}`
         })
         .select()
         .single();
@@ -131,7 +139,7 @@ export const useImageManagement = (tourId: string) => {
       
       toast({
         title: "Success",
-        description: "Image uploaded successfully",
+        description: `Image uploaded and optimized (${(compressionRatio * 100).toFixed(0)}% of original size)`,
       });
       
       return imageData;
@@ -139,7 +147,7 @@ export const useImageManagement = (tourId: string) => {
       console.error('Error uploading image:', error);
       toast({
         title: "Error",
-        description: "Failed to upload image",
+        description: error instanceof Error ? error.message : "Failed to upload image",
         variant: "destructive",
       });
       throw error;
@@ -242,6 +250,44 @@ export const useImageManagement = (tourId: string) => {
     }
   }, [toast]);
 
+  const cleanupUnusedImages = useCallback(async () => {
+    try {
+      // Get all inactive image paths for this tour
+      const { data: tourImages } = await supabase
+        .from('images')
+        .select('file_path')
+        .eq('tour_id', tourId)
+        .eq('published', false);
+
+      if (tourImages && tourImages.length > 0) {
+        // Extract file paths from URLs
+        const filePaths = tourImages.map(img => {
+          if (!img.file_path) return null;
+          const url = new URL(img.file_path);
+          return url.pathname.replace('/storage/v1/object/public/tour-images/', '');
+        }).filter(Boolean);
+
+        if (filePaths.length > 0) {
+          // Delete files from storage
+          const { error } = await supabase.storage
+            .from('tour-images')
+            .remove(filePaths);
+
+          if (error) throw error;
+
+          // Delete database records
+          await supabase
+            .from('images')
+            .delete()
+            .eq('tour_id', tourId)
+            .eq('published', false);
+        }
+      }
+    } catch (error) {
+      console.error('Error cleaning up images:', error);
+    }
+  }, [tourId]);
+
   return {
     images,
     loading,
@@ -250,6 +296,7 @@ export const useImageManagement = (tourId: string) => {
     uploadImage,
     deleteImage,
     updateImageOrder,
-    updateImageMetadata
+    updateImageMetadata,
+    cleanupUnusedImages
   };
 };

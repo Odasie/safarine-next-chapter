@@ -522,6 +522,7 @@ export type Database = {
       tours: {
         Row: {
           booking_method: string | null
+          created_at: string | null
           currency: string
           description_en: string | null
           description_fr: string | null
@@ -546,13 +547,16 @@ export type Database = {
           price: number | null
           slug_en: string | null
           slug_fr: string | null
+          status: string | null
           thumbnail_image_id: string | null
           title_en: string | null
           title_fr: string | null
           total_images: number | null
+          updated_at: string | null
         }
         Insert: {
           booking_method?: string | null
+          created_at?: string | null
           currency?: string
           description_en?: string | null
           description_fr?: string | null
@@ -577,13 +581,16 @@ export type Database = {
           price?: number | null
           slug_en?: string | null
           slug_fr?: string | null
+          status?: string | null
           thumbnail_image_id?: string | null
           title_en?: string | null
           title_fr?: string | null
           total_images?: number | null
+          updated_at?: string | null
         }
         Update: {
           booking_method?: string | null
+          created_at?: string | null
           currency?: string
           description_en?: string | null
           description_fr?: string | null
@@ -608,10 +615,12 @@ export type Database = {
           price?: number | null
           slug_en?: string | null
           slug_fr?: string | null
+          status?: string | null
           thumbnail_image_id?: string | null
           title_en?: string | null
           title_fr?: string | null
           total_images?: number | null
+          updated_at?: string | null
         }
         Relationships: [
           {

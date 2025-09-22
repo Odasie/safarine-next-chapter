@@ -26,6 +26,7 @@ import AdminCSVImport from "./pages/AdminCSVImport";
 import { TourDashboard } from "./pages/admin/TourDashboard";
 import { TourCreationWizard } from "./pages/admin/TourCreationWizard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import { ImageMigrationManager } from "./components/admin/ImageMigrationManager";
 import ProDashboard from "./pages/pro/ProDashboard";
 import ProTours from "./pages/pro/ProTours";
 
@@ -133,12 +134,17 @@ const App = () => (
                         <TourCreationWizard />
                       </AdminProtectedRoute>
                     } />
-                    <Route path="admin/tours/edit/:id" element={
-                      <AdminProtectedRoute>
-                        <TourCreationWizard mode="edit" />
-                      </AdminProtectedRoute>
-                    } />
-                  </Route>
+                  <Route path="admin/tours/edit/:id" element={
+                    <AdminProtectedRoute>
+                      <TourCreationWizard mode="edit" />
+                    </AdminProtectedRoute>
+                  } />
+                  <Route path="admin/image-migration" element={
+                    <AdminProtectedRoute>
+                      <ImageMigrationManager />
+                    </AdminProtectedRoute>
+                  } />
+                </Route>
                   
                   {/* Default routes (redirect to French) */}
                   <Route element={<MainLayout />}>
@@ -170,6 +176,11 @@ const App = () => (
                     <Route path="/admin/tours/edit/:id" element={
                       <AdminProtectedRoute>
                         <TourCreationWizard mode="edit" />
+                      </AdminProtectedRoute>
+                    } />
+                    <Route path="/admin/image-migration" element={
+                      <AdminProtectedRoute>
+                        <ImageMigrationManager />
                       </AdminProtectedRoute>
                     } />
                   </Route>

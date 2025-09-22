@@ -2,11 +2,12 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { useUnifiedAuth } from '@/contexts/ClerkAuthContext';
 import { UserButton } from '@/components/auth/UserButton';
 import { useLocale } from '@/contexts/LocaleContext';
-import { Users, Shield, Settings, BarChart3 } from 'lucide-react';
+import { Users, Shield, Settings, BarChart3, Upload, Download } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {
   const { user, isAdmin } = useUnifiedAuth();
@@ -99,6 +100,44 @@ const AdminDashboard: React.FC = () => {
             );
           })}
         </div>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>
+              Access frequently used admin tools and features
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Button 
+                variant="outline" 
+                className="h-20 flex-col gap-2"
+                onClick={() => window.location.href = '/admin/tours'}
+              >
+                <Settings className="w-6 h-6" />
+                <span>Manage Tours</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-20 flex-col gap-2"
+                onClick={() => window.location.href = '/admin/image-migration'}
+              >
+                <Upload className="w-6 h-6" />
+                <span>Image Migration</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-20 flex-col gap-2"
+                onClick={() => window.location.href = '/admin/import'}
+              >
+                <Download className="w-6 h-6" />
+                <span>Import Data</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* User Management */}
         <UserManagement />

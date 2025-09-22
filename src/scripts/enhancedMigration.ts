@@ -27,8 +27,8 @@ export class EnhancedImageMigrationService {
   private readonly imagePattern = /\.(webp|jpg|jpeg|png)$/i;
 
   async discoverTourImages(
-    repoOwner: string = 'safarine',
-    repoName: string = 'safarine-tours',
+    repoOwner: string = 'Odasie',
+    repoName: string = 'safarine-next-chapter',
     branch: string = 'main'
   ): Promise<TourImageMapping[]> {
     const mappings: TourImageMapping[] = [];
@@ -196,6 +196,8 @@ export class EnhancedImageMigrationService {
 
         // Update database with new image URLs
         const imageUpdates: any = {};
+        let galleryUrls: string[] = [];
+        
         results.forEach((result, index) => {
           if (result) {
             const migration = migrations[index];
@@ -208,8 +210,7 @@ export class EnhancedImageMigrationService {
             } else if (migration.type === 'thumbnail') {
               imageUpdates.thumbnail_image_url = result.url;
             } else if (migration.type === 'gallery') {
-              if (!imageUpdates.gallery_images) imageUpdates.gallery_images = [];
-              imageUpdates.gallery_images.push(result.url);
+              galleryUrls.push(result.url);
             }
           } else {
             const migration = migrations[index];
@@ -221,6 +222,11 @@ export class EnhancedImageMigrationService {
             });
           }
         });
+        
+        // Add gallery URLs array to updates
+        if (galleryUrls.length > 0) {
+          imageUpdates.gallery_images_urls = JSON.stringify(galleryUrls);
+        }
 
         // Update tour record
         if (Object.keys(imageUpdates).length > 0) {

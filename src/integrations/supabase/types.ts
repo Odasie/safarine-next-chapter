@@ -532,10 +532,12 @@ export type Database = {
           duration_nights: number | null
           excluded_items: string[] | null
           gallery_images: number | null
+          gallery_images_urls: Json | null
           group_size_max: number | null
           group_size_min: number | null
           hero_image: string | null
           hero_image_id: string | null
+          hero_image_url: string | null
           highlights: Json | null
           id: string
           image_count: number | null
@@ -549,6 +551,7 @@ export type Database = {
           slug_fr: string | null
           status: string | null
           thumbnail_image_id: string | null
+          thumbnail_image_url: string | null
           title_en: string | null
           title_fr: string | null
           total_images: number | null
@@ -566,10 +569,12 @@ export type Database = {
           duration_nights?: number | null
           excluded_items?: string[] | null
           gallery_images?: number | null
+          gallery_images_urls?: Json | null
           group_size_max?: number | null
           group_size_min?: number | null
           hero_image?: string | null
           hero_image_id?: string | null
+          hero_image_url?: string | null
           highlights?: Json | null
           id?: string
           image_count?: number | null
@@ -583,6 +588,7 @@ export type Database = {
           slug_fr?: string | null
           status?: string | null
           thumbnail_image_id?: string | null
+          thumbnail_image_url?: string | null
           title_en?: string | null
           title_fr?: string | null
           total_images?: number | null
@@ -600,10 +606,12 @@ export type Database = {
           duration_nights?: number | null
           excluded_items?: string[] | null
           gallery_images?: number | null
+          gallery_images_urls?: Json | null
           group_size_max?: number | null
           group_size_min?: number | null
           hero_image?: string | null
           hero_image_id?: string | null
+          hero_image_url?: string | null
           highlights?: Json | null
           id?: string
           image_count?: number | null
@@ -617,6 +625,7 @@ export type Database = {
           slug_fr?: string | null
           status?: string | null
           thumbnail_image_id?: string | null
+          thumbnail_image_url?: string | null
           title_en?: string | null
           title_fr?: string | null
           total_images?: number | null

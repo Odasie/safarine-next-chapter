@@ -214,7 +214,7 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
         included_items: formData.included_items,
         excluded_items: formData.excluded_items,
         is_private: true,  // Drafts are private
-        updated_at: new Date().toISOString(),
+        status: 'draft',   // Set as draft
       };
 
       let result;
@@ -232,10 +232,8 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
       } else {
         // CREATE new draft tour
         console.log('💾 Creating new draft tour');
-        const draftDataWithTimestamp = {
-          ...draftData,
-          created_at: new Date().toISOString()
-        };
+        // Database will handle created_at automatically
+        const draftDataWithTimestamp = draftData;
         
         result = await supabase
           .from('tours')
@@ -302,8 +300,7 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
         included_items: formData.included_items,
         excluded_items: formData.excluded_items,
         is_private: false,
-        published_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        status: 'published',  // Set as published
       };
 
       let result;
@@ -338,10 +335,8 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
       } else {
         // CREATE new tour
         console.log('➕ Creating new tour');
-        const tourDataWithTimestamp = {
-          ...tourData,
-          created_at: new Date().toISOString()
-        };
+        // Database will handle created_at automatically
+        const tourDataWithTimestamp = tourData;
         
         result = await supabase
           .from('tours')

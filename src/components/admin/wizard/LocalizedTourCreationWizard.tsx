@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useAdminTranslations } from "@/hooks/use-translations";
+import { supabase } from "@/integrations/supabase/client";
 
 // Step components
 import { BasicTourInfoStep } from "@/components/admin/wizard/BasicTourInfoStep";
@@ -112,12 +113,78 @@ export const LocalizedTourCreationWizard = () => {
     }
   };
 
-  const handleSaveDraft = () => {
-    toast.success(t('admin.messages.draft_saved', 'Draft saved successfully'));
+  const handleSaveDraft = async () => {
+    try {
+      const draftData = {
+        title_en: formData.title_en,
+        title_fr: formData.title_fr,
+        destination: formData.destination,
+        duration_days: formData.duration_days,
+        duration_nights: formData.duration_nights,
+        price: formData.price,
+        currency: formData.currency,
+        difficulty_level: formData.difficulty_level,
+        group_size_min: formData.group_size_min,
+        group_size_max: formData.group_size_max,
+        languages: formData.languages,
+        description_en: formData.description_en,
+        description_fr: formData.description_fr,
+        itinerary: formData.itinerary,
+        highlights: formData.highlights,
+        included_items: formData.included_items,
+        excluded_items: formData.excluded_items,
+        is_private: true,
+        status: 'draft',
+      };
+
+      const { error } = await supabase
+        .from('tours')
+        .insert([draftData]);
+
+      if (error) {
+        toast.error(t('admin.messages.draft_save_failed', 'Failed to save draft'));
+        return;
+      }
+
+      toast.success(t('admin.messages.draft_saved', 'Draft saved successfully'));
+    } catch (error) {
+      toast.error(t('admin.messages.draft_save_failed', 'Failed to save draft'));
+    }
   };
 
   const handleSubmit = async () => {
     try {
+      const tourData = {
+        title_en: formData.title_en,
+        title_fr: formData.title_fr,
+        destination: formData.destination,
+        duration_days: formData.duration_days,
+        duration_nights: formData.duration_nights,
+        price: formData.price,
+        currency: formData.currency,
+        difficulty_level: formData.difficulty_level,
+        group_size_min: formData.group_size_min,
+        group_size_max: formData.group_size_max,
+        languages: formData.languages,
+        description_en: formData.description_en,
+        description_fr: formData.description_fr,
+        itinerary: formData.itinerary,
+        highlights: formData.highlights,
+        included_items: formData.included_items,
+        excluded_items: formData.excluded_items,
+        is_private: false,
+        status: 'published',
+      };
+
+      const { error } = await supabase
+        .from('tours')
+        .insert([tourData]);
+
+      if (error) {
+        toast.error(t('admin.messages.validation_failed', 'Failed to create tour'));
+        return;
+      }
+
       toast.success(t('admin.messages.tour_created', 'Tour created successfully!'));
       navigate("/admin/tours");
     } catch (error) {

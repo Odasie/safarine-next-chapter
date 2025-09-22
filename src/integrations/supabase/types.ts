@@ -547,6 +547,7 @@ export type Database = {
           languages: string[] | null
           page_id: string | null
           price: number | null
+          published_at: string | null
           slug_en: string | null
           slug_fr: string | null
           status: string | null
@@ -584,6 +585,7 @@ export type Database = {
           languages?: string[] | null
           page_id?: string | null
           price?: number | null
+          published_at?: string | null
           slug_en?: string | null
           slug_fr?: string | null
           status?: string | null
@@ -621,6 +623,7 @@ export type Database = {
           languages?: string[] | null
           page_id?: string | null
           price?: number | null
+          published_at?: string | null
           slug_en?: string | null
           slug_fr?: string | null
           status?: string | null

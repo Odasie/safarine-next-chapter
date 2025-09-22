@@ -13,27 +13,33 @@ import { ImageGallery } from "@/components/tours/ImageGallery";
 import { MapPin, Clock, CircleDollarSign } from "lucide-react";
 import { durationToText, formatPrice } from "@/lib/tours";
 import { useLocale } from "@/contexts/LocaleContext";
-
 const TourDetail = () => {
-  const { slug } = useParams();
+  const {
+    slug
+  } = useParams();
   const navigate = useNavigate();
-  const { t } = useLocale();
+  const {
+    t
+  } = useLocale();
 
   // Local fallback data
-  const localTour = useMemo(() => tours.find((t) => t.slug === slug), [slug]);
+  const localTour = useMemo(() => tours.find(t => t.slug === slug), [slug]);
 
   // Fetch tour data with robust slug handling using new slug system
-  const { data: tour, isLoading, error } = useQuery({
+  const {
+    data: tour,
+    isLoading,
+    error
+  } = useQuery({
     queryKey: ["tour", slug],
     queryFn: async () => {
       if (!slug) throw new Error('No slug provided');
-
       const normalizedSlug = decodeURIComponent(slug);
-      
+
       // Strategy 1: Try to find by new slug fields first (most efficient)
-      const { data: slugData } = await supabase
-        .from('tours')
-        .select(`
+      const {
+        data: slugData
+      } = await supabase.from('tours').select(`
           *,
           images:images!images_tour_id_fkey (
             id,
@@ -56,18 +62,15 @@ const TourDetail = () => {
             meta_desc,
             content_md
           )
-        `)
-        .or(`slug_en.eq.${normalizedSlug},slug_fr.eq.${normalizedSlug}`)
-        .maybeSingle();
-
+        `).or(`slug_en.eq.${normalizedSlug},slug_fr.eq.${normalizedSlug}`).maybeSingle();
       if (slugData) {
         return slugData;
       }
 
       // Strategy 2: Find by page slug (legacy support)
-      const { data: pageData } = await supabase
-        .from('pages')
-        .select(`
+      const {
+        data: pageData
+      } = await supabase.from('pages').select(`
           id,
           title,
           slug,
@@ -91,10 +94,7 @@ const TourDetail = () => {
               height
             )
           )
-        `)
-        .eq('slug', `/tours/${normalizedSlug}`)
-        .maybeSingle();
-
+        `).eq('slug', `/tours/${normalizedSlug}`).maybeSingle();
       if (pageData?.tours?.[0]) {
         const tourWithPage = pageData.tours[0];
         (tourWithPage as any).page = {
@@ -110,9 +110,9 @@ const TourDetail = () => {
       }
 
       // Strategy 2: Try without leading slash
-      const { data: pageData2 } = await supabase
-        .from('pages')
-        .select(`
+      const {
+        data: pageData2
+      } = await supabase.from('pages').select(`
           id,
           title,
           slug,
@@ -136,10 +136,7 @@ const TourDetail = () => {
               height
             )
           )
-        `)
-        .eq('slug', `tours/${normalizedSlug}`)
-        .maybeSingle();
-
+        `).eq('slug', `tours/${normalizedSlug}`).maybeSingle();
       if (pageData2?.tours?.[0]) {
         const tourWithPage = pageData2.tours[0];
         (tourWithPage as any).page = {
@@ -155,14 +152,10 @@ const TourDetail = () => {
       }
 
       // Strategy 3: Search by tour title (fallback)
-      const searchTitle = normalizedSlug
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-      
-      const { data: tourByTitle } = await supabase
-        .from('tours')
-        .select(`
+      const searchTitle = normalizedSlug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+      const {
+        data: tourByTitle
+      } = await supabase.from('tours').select(`
           *,
           page:pages!tours_page_id_fkey (
             id,
@@ -186,19 +179,14 @@ const TourDetail = () => {
             width,
             height
           )
-        `)
-        .or(`title_fr.ilike.%${searchTitle}%,title_en.ilike.%${searchTitle}%`)
-        .limit(1)
-        .maybeSingle();
-
+        `).or(`title_fr.ilike.%${searchTitle}%,title_en.ilike.%${searchTitle}%`).limit(1).maybeSingle();
       if (tourByTitle) {
         return tourByTitle;
       }
-
       throw new Error(`Tour not found: ${slug}`);
     },
     enabled: !!slug,
-    retry: false,
+    retry: false
   });
 
   // Process tour data with fallbacks
@@ -207,28 +195,25 @@ const TourDetail = () => {
   const metaDesc = pageData?.meta_desc ?? `${displayTitle} – ${tour?.destination ?? localTour?.location ?? ""}.`;
   const durationText = tour?.duration_days != null ? durationToText(tour.duration_days, localTour?.duration) : localTour?.duration;
   const priceText = tour?.price != null ? formatPrice(tour.price, tour.currency) : localTour?.price;
-  
+
   // Create ImageRecord array with proper image references
   const imageRecords = useMemo(() => {
     if (tour?.images && tour.images.length > 0) {
-      return tour.images
-        .filter((img: any) => img.published)
-        .sort((a: any, b: any) => (a.position || 0) - (b.position || 0))
-        .map((img: any) => ({
-          id: img.id,
-          src: img.file_path || '/placeholder.svg',
-          alt: img.alt_fr || img.alt_en || `${displayTitle} ${img.position || 1}`,
-          alt_fr: img.alt_fr,
-          alt_en: img.alt_en,
-          title_fr: img.title_fr,
-          title_en: img.title_en,
-          loading_strategy: 'lazy',
-          priority: img.position === 0 ? 'high' : 'medium',
-          width: img.width,
-          height: img.height
-        }));
+      return tour.images.filter((img: any) => img.published).sort((a: any, b: any) => (a.position || 0) - (b.position || 0)).map((img: any) => ({
+        id: img.id,
+        src: img.file_path || '/placeholder.svg',
+        alt: img.alt_fr || img.alt_en || `${displayTitle} ${img.position || 1}`,
+        alt_fr: img.alt_fr,
+        alt_en: img.alt_en,
+        title_fr: img.title_fr,
+        title_en: img.title_en,
+        loading_strategy: 'lazy',
+        priority: img.position === 0 ? 'high' : 'medium',
+        width: img.width,
+        height: img.height
+      }));
     }
-    
+
     // Fallback to local tour images if no database images
     if (localTour?.images && localTour.images.length > 0) {
       return localTour.images.map((src, index) => ({
@@ -239,7 +224,7 @@ const TourDetail = () => {
         priority: index === 0 ? 'high' : 'medium'
       }));
     }
-    
+
     // Final fallback to placeholder
     return [{
       id: 'placeholder',
@@ -249,22 +234,11 @@ const TourDetail = () => {
       priority: 'medium'
     }];
   }, [tour, localTour, displayTitle]);
-
-  const highlights = (tour?.highlights as any) ?? {};
-  const included: string[] = Array.isArray(highlights?.included) ? highlights.included : [
-    t('tours.detail.included.default.guide'),
-    t('tours.detail.included.default.transfers'),
-    t('tours.detail.included.default.activities'),
-  ];
-  const excluded: string[] = Array.isArray(highlights?.excluded) ? highlights.excluded : [
-    t('tours.detail.excluded.default.flights'),
-    t('tours.detail.excluded.default.insurance'),
-    t('tours.detail.excluded.default.personal'),
-  ];
-
+  const highlights = tour?.highlights as any ?? {};
+  const included: string[] = Array.isArray(highlights?.included) ? highlights.included : [t('tours.detail.included.default.guide'), t('tours.detail.included.default.transfers'), t('tours.detail.included.default.activities')];
+  const excluded: string[] = Array.isArray(highlights?.excluded) ? highlights.excluded : [t('tours.detail.excluded.default.flights'), t('tours.detail.excluded.default.insurance'), t('tours.detail.excluded.default.personal')];
   if (isLoading) {
-    return (
-      <div className="container mx-auto py-16">
+    return <div className="container mx-auto py-16">
         <div className="animate-pulse space-y-6">
           <div className="space-y-2">
             <div className="h-8 bg-muted rounded w-3/4"></div>
@@ -280,19 +254,19 @@ const TourDetail = () => {
         <div className="text-center mt-8">
           <p className="text-muted-foreground">{t('tours.detail.loading')}</p>
         </div>
-      </div>
-    );
+      </div>;
   }
 
   // Enhanced error handling with better French UX
   const nothingFound = !tour && !localTour;
   if (nothingFound) {
-    return (
-      <div className="container mx-auto py-16 text-center">
+    return <div className="container mx-auto py-16 text-center">
         <div className="max-w-md mx-auto">
           <h1 className="text-3xl font-bold text-foreground mb-4">{t('tours.detail.not.found.title')}</h1>
           <p className="text-muted-foreground mb-6">
-            {t('tours.detail.not.found.message', { slug: slug || '' })}
+            {t('tours.detail.not.found.message', {
+            slug: slug || ''
+          })}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button asChild>
@@ -303,12 +277,9 @@ const TourDetail = () => {
             </Button>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <article className="container mx-auto py-10">
+  return <article className="container mx-auto py-10">
       <Helmet>
         <title>{displayTitle} | Safarine Tours</title>
         <meta name="description" content={metaDesc} />
@@ -323,27 +294,21 @@ const TourDetail = () => {
       {/* Hero + Intro + Enhanced Image Viewer */}
       <header className="mb-8">
         <h1 className="text-3xl font-bold">{displayTitle}</h1>
-        {localTour?.location && (
-          <p className="mt-1 flex items-center gap-2 text-muted-foreground">
+        {localTour?.location && <p className="mt-1 flex items-center gap-2 text-muted-foreground">
             <MapPin className="h-4 w-4" /> {localTour.location}
-          </p>
-        )}
+          </p>}
         <div className="mt-6 grid gap-6 md:grid-cols-3">
           <div className="md:col-span-2">
             <p className="text-muted-foreground">
-              {pageData?.content_md?.split("\n").find((p) => p.trim().length > 0) || metaDesc}
+              {pageData?.content_md?.split("\n").find(p => p.trim().length > 0) || metaDesc}
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
-              {durationText && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-3 py-1 text-sm">
+              {durationText && <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-3 py-1 text-sm">
                   <Clock className="h-4 w-4" /> {durationText}
-                </span>
-              )}
-              {priceText && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-3 py-1 text-sm">
+                </span>}
+              {priceText && <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-3 py-1 text-sm">
                   <CircleDollarSign className="h-4 w-4" /> {priceText}
-                </span>
-              )}
+                </span>}
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild>
@@ -354,18 +319,14 @@ const TourDetail = () => {
               </Button>
             </div>
           </div>
-          <div>
-            <SimpleImageViewer images={imageRecords} altPrefix={displayTitle} />
-          </div>
+          
         </div>
       </header>
 
       {/* Enhanced Image Gallery */}
-      {tour?.id && (
-        <section className="mb-8">
+      {tour?.id && <section className="mb-8">
           <ImageGallery tourId={tour.id} />
-        </section>
-      )}
+        </section>}
 
       {/* Infos & Prix cards */}
       <section aria-labelledby="infos-prix" className="mb-12 rounded-xl border bg-card p-6">
@@ -377,18 +338,14 @@ const TourDetail = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {durationText && (
-                  <div>
+                {durationText && <div>
                     <span className="text-sm text-muted-foreground">{t('tours.detail.duration.label')}</span>
                     <div className="font-semibold">{durationText}</div>
-                  </div>
-                )}
-                {priceText && (
-                  <div>
+                  </div>}
+                {priceText && <div>
                     <span className="text-sm text-muted-foreground">{t('tours.detail.price.label')}</span>
                     <div className="font-semibold">{priceText}</div>
-                  </div>
-                )}
+                  </div>}
               </div>
             </CardContent>
           </Card>
@@ -399,9 +356,7 @@ const TourDetail = () => {
             </CardHeader>
             <CardContent>
               <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                {included.map((item, i) => (
-                  <li key={i}>{item}</li>
-                ))}
+                {included.map((item, i) => <li key={i}>{item}</li>)}
               </ul>
             </CardContent>
           </Card>
@@ -412,9 +367,7 @@ const TourDetail = () => {
             </CardHeader>
             <CardContent>
               <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                {excluded.map((item, i) => (
-                  <li key={i}>{item}</li>
-                ))}
+                {excluded.map((item, i) => <li key={i}>{item}</li>)}
               </ul>
             </CardContent>
           </Card>
@@ -436,27 +389,10 @@ const TourDetail = () => {
       <section aria-labelledby="reco-tours" className="mb-4">
         <h3 id="reco-tours" className="text-xl font-semibold">{t('tours.detail.suggestions.title')}</h3>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-           {tours
-            .filter((t) => t.slug !== slug)
-            .slice(0, 6)
-            .map((t) => (
-              <TourCard
-                key={t.id}
-                tourId={undefined} // Static data doesn't have database IDs
-                image={t.images[0] || "/placeholder.svg"}
-                title={t.title}
-                description={t.location}
-                duration={t.duration}
-                group={t.group}
-                price={t.price}
-                slug={t.slug}
-                onBook={() => navigate(`/contact?tour=${t.slug}`)}
-              />
-            ))}
+           {tours.filter(t => t.slug !== slug).slice(0, 6).map(t => <TourCard key={t.id} tourId={undefined} // Static data doesn't have database IDs
+        image={t.images[0] || "/placeholder.svg"} title={t.title} description={t.location} duration={t.duration} group={t.group} price={t.price} slug={t.slug} onBook={() => navigate(`/contact?tour=${t.slug}`)} />)}
         </div>
       </section>
-    </article>
-  );
+    </article>;
 };
-
 export default TourDetail;

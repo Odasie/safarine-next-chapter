@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useSupabaseAuth } from '@/services/supabaseAuth';
 import { toast } from 'sonner';
 
 export interface TourValidation {
@@ -39,6 +40,7 @@ export interface AddImageParams {
 export const useTourManagement = () => {
   const queryClient = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
+  const { executeWithAuth, validateAuth } = useSupabaseAuth();
 
   // Fetch tour statistics
   const {
@@ -67,14 +69,23 @@ export const useTourManagement = () => {
   const createTourMutation = useMutation({
     mutationFn: async (params: CreateTourParams): Promise<string> => {
       setIsCreating(true);
-      const { data, error } = await supabase.rpc('create_new_tour', {
-        title_en_param: params.title_en,
-        title_fr_param: params.title_fr,
-        destination_param: params.destination || 'Kanchanaburi',
-        duration_days_param: params.duration_days || 1,
-        duration_nights_param: params.duration_nights || 0,
-        price_param: params.price || null,
-        currency_param: params.currency || 'THB',
+      
+      // Validate authentication before creating
+      const authStatus = await validateAuth();
+      if (!authStatus.isAuthenticated || !authStatus.tokenValid) {
+        throw new Error(`Authentication required: ${authStatus.error || 'Invalid session'}`);
+      }
+      
+      const { data, error } = await executeWithAuth(async (authClient) => {
+        return await authClient.rpc('create_new_tour', {
+          title_en_param: params.title_en,
+          title_fr_param: params.title_fr,
+          destination_param: params.destination || 'Kanchanaburi',
+          duration_days_param: params.duration_days || 1,
+          duration_nights_param: params.duration_nights || 0,
+          price_param: params.price || null,
+          currency_param: params.currency || 'THB',
+        });
       });
       
       if (error) throw error;
@@ -96,15 +107,23 @@ export const useTourManagement = () => {
   // Add image to tour mutation
   const addImageMutation = useMutation({
     mutationFn: async (params: AddImageParams): Promise<string> => {
-      const { data, error } = await supabase.rpc('add_tour_image', {
-        tour_id_param: params.tour_id,
-        image_type_param: params.image_type,
-        file_path_param: params.file_path,
-        alt_en_param: params.alt_en,
-        alt_fr_param: params.alt_fr,
-        title_en_param: params.title_en || null,
-        title_fr_param: params.title_fr || null,
-        position_param: params.position || 0,
+      // Validate authentication before adding image
+      const authStatus = await validateAuth();
+      if (!authStatus.isAuthenticated || !authStatus.tokenValid) {
+        throw new Error(`Authentication required: ${authStatus.error || 'Invalid session'}`);
+      }
+      
+      const { data, error } = await executeWithAuth(async (authClient) => {
+        return await authClient.rpc('add_tour_image', {
+          tour_id_param: params.tour_id,
+          image_type_param: params.image_type,
+          file_path_param: params.file_path,
+          alt_en_param: params.alt_en,
+          alt_fr_param: params.alt_fr,
+          title_en_param: params.title_en || null,
+          title_fr_param: params.title_fr || null,
+          position_param: params.position || 0,
+        });
       });
       
       if (error) throw error;

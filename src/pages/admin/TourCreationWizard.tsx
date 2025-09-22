@@ -7,6 +7,8 @@ import { ArrowLeft, ArrowRight, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { validateSupabaseSchema, testPublishedAtColumn } from "@/utils/supabaseSchemaTest";
+import { useSupabaseAuth } from "@/services/supabaseAuth";
+import { useAuth } from "@clerk/clerk-react";
 
 // Step components
 import { BasicTourInfoStep } from "@/components/admin/wizard/BasicTourInfoStep";
@@ -15,6 +17,7 @@ import { HighlightsStep } from "@/components/admin/wizard/HighlightsStep";
 import { InclusionsStep } from "@/components/admin/wizard/InclusionsStep";
 import { ImageUploadSection } from "@/components/admin/ImageUploadSection";
 import { SchemaTestButton } from "@/components/admin/SchemaTestButton";
+import { AuthenticationStatus } from "@/components/admin/AuthenticationStatus";
 
 export interface TourFormData {
   // Tour ID for updates
@@ -66,6 +69,10 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
+  
+  // Authentication hooks
+  const { isSignedIn, isLoaded } = useAuth();
+  const { executeWithAuth, validateAuth } = useSupabaseAuth();
 
   // Add mode detection
   const isEditMode = mode === 'edit' || (tourId && window.location.pathname.includes('/edit/'));
@@ -199,8 +206,22 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
       return;
     }
 
+    // Check authentication before proceeding
+    if (!isSignedIn) {
+      toast.error("Please sign in to save tour drafts");
+      return;
+    }
+
     setIsLoading(true);
     try {
+      // Validate authentication
+      console.log('🔐 Validating authentication before saving draft...');
+      const authStatus = await validateAuth();
+      if (!authStatus.isAuthenticated || !authStatus.tokenValid) {
+        toast.error(`Authentication error: ${authStatus.error || 'Invalid session'}`);
+        setIsLoading(false);
+        return;
+      }
       // Test schema before attempting save
       console.log('🔄 Testing schema before save...');
       const schemaValid = await testPublishedAtColumn();
@@ -234,27 +255,28 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
 
       let result;
       
-      if (isEditMode && tourId) {
-        // UPDATE existing tour as draft
-        console.log('💾 Saving draft for existing tour:', tourId);
-        
-        result = await supabase
-          .from('tours')
-          .update(draftData)
-          .eq('id', tourId)
-          .select();
+      // Execute database operation with authentication
+      result = await executeWithAuth(async (authClient) => {
+        if (isEditMode && tourId) {
+          // UPDATE existing tour as draft
+          console.log('💾 Saving draft for existing tour:', tourId);
           
-      } else {
-        // CREATE new draft tour
-        console.log('💾 Creating new draft tour');
-        // Database will handle created_at automatically
-        const draftDataWithTimestamp = draftData;
-        
-        result = await supabase
-          .from('tours')
-          .insert([draftDataWithTimestamp])
-          .select();
-      }
+          return await authClient
+            .from('tours')
+            .update(draftData)
+            .eq('id', tourId)
+            .select();
+            
+        } else {
+          // CREATE new draft tour
+          console.log('💾 Creating new draft tour');
+          
+          return await authClient
+            .from('tours')
+            .insert([draftData])
+            .select();
+        }
+      });
 
       if (result.error) {
         console.error('❌ Error saving draft:', result.error);
@@ -274,10 +296,12 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
     } catch (error) {
       console.error('❌ Error saving draft:', error);
       
-      // Enhanced error handling
+      // Enhanced error handling with authentication-specific messages
       if (error && typeof error === 'object' && 'code' in error) {
         const supabaseError = error as any;
-        if (supabaseError.code === 'PGRST204') {
+        if (supabaseError.code === '42501') {
+          toast.error("Permission denied. Please ensure you're logged in as an admin user.");
+        } else if (supabaseError.code === 'PGRST204') {
           toast.error("Schema cache error. Please refresh the page and try again.");
           console.log('🔄 Running full schema validation...');
           validateSupabaseSchema().then(result => {
@@ -287,7 +311,7 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
           toast.error(`Database error: ${supabaseError.message || 'Unknown error'}`);
         }
       } else {
-        toast.error("Error saving draft. Please try again.");
+        toast.error("Error saving draft. Please check your connection and try again.");
       }
     } finally {
       setIsLoading(false);
@@ -314,8 +338,22 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
       return;
     }
 
+    // Check authentication before proceeding
+    if (!isSignedIn) {
+      toast.error("Please sign in to publish tours");
+      return;
+    }
+
     setIsLoading(true);
     try {
+      // Validate authentication
+      console.log('🔐 Validating authentication before publishing tour...');
+      const authStatus = await validateAuth();
+      if (!authStatus.isAuthenticated || !authStatus.tokenValid) {
+        toast.error(`Authentication error: ${authStatus.error || 'Invalid session'}`);
+        setIsLoading(false);
+        return;
+      }
       // Test schema before attempting submission
       console.log('🔄 Testing schema before submission...');
       const schemaValid = await testPublishedAtColumn();
@@ -349,73 +387,60 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
 
       let result;
       
-      if (isEditMode && tourId) {
-        // UPDATE existing tour
-        console.log('🔄 Updating tour:', tourId);
-        console.log('📝 Update data:', tourData);
-        
-        result = await supabase
-          .from('tours')
-          .update(tourData)
-          .eq('id', tourId)
-          .select();
+      // Execute database operation with authentication
+      result = await executeWithAuth(async (authClient) => {
+        if (isEditMode && tourId) {
+          // UPDATE existing tour
+          console.log('🔄 Updating tour:', tourId);
+          console.log('📝 Update data:', tourData);
           
-        if (result.error) {
-          console.error('❌ Error updating tour:', result.error);
-          console.error('📋 Error details:', JSON.stringify(result.error, null, 2));
+          return await authClient
+            .from('tours')
+            .update(tourData)
+            .eq('id', tourId)
+            .select();
+            
+        } else {
+          // CREATE new tour
+          console.log('➕ Creating new tour');
           
-          // More specific error messages
-          if (result.error.message?.includes('permission denied') || result.error.message?.includes('RLS')) {
-            toast.error('Permission denied: Please ensure you are logged in as an admin');
-          } else {
-            toast.error(`Failed to update tour: ${result.error.message}`);
-          }
-          return;
+          return await authClient
+            .from('tours')
+            .insert([tourData])
+            .select();
         }
+      });
+      
+      if (result.error) {
+        console.error('❌ Error with tour operation:', result.error);
+        console.error('📋 Error details:', JSON.stringify(result.error, null, 2));
         
-        console.log('✅ Tour updated successfully:', result.data);
-        toast.success('Tour updated successfully!');
-        
-      } else {
-        // CREATE new tour
-        console.log('➕ Creating new tour');
-        // Database will handle created_at automatically
-        const tourDataWithTimestamp = tourData;
-        
-        result = await supabase
-          .from('tours')
-          .insert([tourDataWithTimestamp])
-          .select();
-          
-        if (result.error) {
-          console.error('❌ Error creating tour:', result.error);
-          console.error('📋 Error details:', JSON.stringify(result.error, null, 2));
-          
-          // More specific error messages
-          if (result.error.message?.includes('permission denied') || result.error.message?.includes('RLS')) {
-            toast.error('Permission denied: Please ensure you are logged in as an admin');
-          } else if (result.error.message?.includes('duplicate key')) {
-            toast.error('Tour with this slug already exists');
-          } else {
-            toast.error(`Failed to create tour: ${result.error.message}`);
-          }
-          return;
+        // More specific error messages
+        if (result.error.code === '42501' || result.error.message?.includes('RLS')) {
+          toast.error('Permission denied: Please ensure you are logged in as an admin user');
+        } else if (result.error.message?.includes('duplicate key')) {
+          toast.error('Tour with this slug already exists');
+        } else {
+          toast.error(`Failed to save tour: ${result.error.message}`);
         }
-        
-        console.log('✅ Tour created successfully:', result.data);
-        toast.success('Tour created successfully!');
+        return;
       }
+      
+      console.log('✅ Tour operation successful:', result.data);
+      toast.success(isEditMode ? 'Tour updated successfully!' : 'Tour created successfully!');
       
       // Redirect to admin tours dashboard
       navigate('/admin/tours');
       
     } catch (error) {
-      console.error('❌ Error creating tour:', error);
+      console.error('❌ Error with tour operation:', error);
       
-      // Enhanced error handling
+      // Enhanced error handling with authentication-specific messages
       if (error && typeof error === 'object' && 'code' in error) {
         const supabaseError = error as any;
-        if (supabaseError.code === 'PGRST204') {
+        if (supabaseError.code === '42501') {
+          toast.error("Permission denied. Please ensure you're logged in as an admin user.");
+        } else if (supabaseError.code === 'PGRST204') {
           toast.error("Schema cache error. Please refresh the page and try again.");
           console.log('🔄 Running full schema validation...');
           validateSupabaseSchema().then(result => {
@@ -425,7 +450,7 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
           toast.error(`Database error: ${supabaseError.message || 'Unknown error'}`);
         }
       } else {
-        toast.error("Error creating tour. Please try again.");
+        toast.error("Error saving tour. Please check your connection and try again.");
       }
     } finally {
       setIsLoading(false);
@@ -468,6 +493,11 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
             <div>
               <h2 className="text-2xl font-bold mb-2">Images</h2>
               <p className="text-muted-foreground">Hero and gallery images</p>
+            </div>
+
+            {/* Authentication Status */}
+            <div className="mb-6">
+              <AuthenticationStatus />
             </div>
 
             <ImageUploadSection

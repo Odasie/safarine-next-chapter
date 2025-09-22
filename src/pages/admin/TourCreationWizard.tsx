@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { validateSupabaseSchema, testPublishedAtColumn } from "@/utils/supabaseSchemaTest";
 
 // Step components
 import { BasicTourInfoStep } from "@/components/admin/wizard/BasicTourInfoStep";
@@ -13,6 +14,7 @@ import { ItineraryBuilderStep } from "@/components/admin/wizard/ItineraryBuilder
 import { HighlightsStep } from "@/components/admin/wizard/HighlightsStep";
 import { InclusionsStep } from "@/components/admin/wizard/InclusionsStep";
 import { ImageUploadSection } from "@/components/admin/ImageUploadSection";
+import { SchemaTestButton } from "@/components/admin/SchemaTestButton";
 
 export interface TourFormData {
   // Tour ID for updates
@@ -192,8 +194,21 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
   };
 
   const handleSaveDraft = async () => {
+    if (!formData.title_en || !formData.title_fr) {
+      toast.error("Please fill in at least the tour titles before saving draft");
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      setIsLoading(true);
+      // Test schema before attempting save
+      console.log('🔄 Testing schema before save...');
+      const schemaValid = await testPublishedAtColumn();
+      if (!schemaValid) {
+        toast.error("Schema validation failed. Please refresh the page and try again.");
+        setIsLoading(false);
+        return;
+      }
       
       const draftData = {
         title_en: formData.title_en,
@@ -257,8 +272,23 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
       }
       
     } catch (error) {
-      console.error('❌ Error in handleSaveDraft:', error);
-      toast.error('Failed to save draft');
+      console.error('❌ Error saving draft:', error);
+      
+      // Enhanced error handling
+      if (error && typeof error === 'object' && 'code' in error) {
+        const supabaseError = error as any;
+        if (supabaseError.code === 'PGRST204') {
+          toast.error("Schema cache error. Please refresh the page and try again.");
+          console.log('🔄 Running full schema validation...');
+          validateSupabaseSchema().then(result => {
+            console.log('Schema validation result:', result);
+          });
+        } else {
+          toast.error(`Database error: ${supabaseError.message || 'Unknown error'}`);
+        }
+      } else {
+        toast.error("Error saving draft. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -278,8 +308,22 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
   };
 
   const handleSubmit = async () => {
+    const validationErrors = validateTourForPublication();
+    if (validationErrors.length > 0) {
+      toast.error(`Please fix the following errors:\n${validationErrors.join('\n')}`);
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      setIsLoading(true);
+      // Test schema before attempting submission
+      console.log('🔄 Testing schema before submission...');
+      const schemaValid = await testPublishedAtColumn();
+      if (!schemaValid) {
+        toast.error("Schema validation failed. Please refresh the page and try again.");
+        setIsLoading(false);
+        return;
+      }
       
       const tourData = {
         title_en: formData.title_en,
@@ -366,8 +410,23 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
       navigate('/admin/tours');
       
     } catch (error) {
-      console.error('❌ Error in handleSubmit:', error);
-      toast.error(isEditMode ? 'Failed to update tour' : 'Failed to create tour');
+      console.error('❌ Error creating tour:', error);
+      
+      // Enhanced error handling
+      if (error && typeof error === 'object' && 'code' in error) {
+        const supabaseError = error as any;
+        if (supabaseError.code === 'PGRST204') {
+          toast.error("Schema cache error. Please refresh the page and try again.");
+          console.log('🔄 Running full schema validation...');
+          validateSupabaseSchema().then(result => {
+            console.log('Schema validation result:', result);
+          });
+        } else {
+          toast.error(`Database error: ${supabaseError.message || 'Unknown error'}`);
+        }
+      } else {
+        toast.error("Error creating tour. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -525,6 +584,7 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
               </>
             )}
           </Button>
+          <SchemaTestButton />
         </div>
         
         <h1 className="text-3xl font-bold mb-2">

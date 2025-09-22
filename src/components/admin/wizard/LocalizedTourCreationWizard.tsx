@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useAdminTranslations } from "@/hooks/use-translations";
 import { supabase } from "@/integrations/supabase/client";
+import { validateSupabaseSchema, testPublishedAtColumn } from "@/utils/supabaseSchemaTest";
 
 // Step components
 import { BasicTourInfoStep } from "@/components/admin/wizard/BasicTourInfoStep";
@@ -115,6 +116,13 @@ export const LocalizedTourCreationWizard = () => {
 
   const handleSaveDraft = async () => {
     try {
+      // Test schema before attempting save
+      console.log('🔄 Testing schema before save...');
+      const schemaValid = await testPublishedAtColumn();
+      if (!schemaValid) {
+        toast.error("Schema validation failed. Please refresh the page and try again.");
+        return;
+      }
       const draftData = {
         title_en: formData.title_en,
         title_fr: formData.title_fr,
@@ -142,7 +150,16 @@ export const LocalizedTourCreationWizard = () => {
         .insert([draftData]);
 
       if (error) {
-        toast.error(t('admin.messages.draft_save_failed', 'Failed to save draft'));
+        console.error('❌ Error saving draft:', error);
+        if (error.code === 'PGRST204') {
+          toast.error("Schema cache error. Please refresh the page and try again.");
+          console.log('🔄 Running full schema validation...');
+          validateSupabaseSchema().then(result => {
+            console.log('Schema validation result:', result);
+          });
+        } else {
+          toast.error(`Failed to save draft: ${error.message}`);
+        }
         return;
       }
 
@@ -154,6 +171,13 @@ export const LocalizedTourCreationWizard = () => {
 
   const handleSubmit = async () => {
     try {
+      // Test schema before attempting submission
+      console.log('🔄 Testing schema before submission...');
+      const schemaValid = await testPublishedAtColumn();
+      if (!schemaValid) {
+        toast.error("Schema validation failed. Please refresh the page and try again.");
+        return;
+      }
       const tourData = {
         title_en: formData.title_en,
         title_fr: formData.title_fr,
@@ -181,7 +205,16 @@ export const LocalizedTourCreationWizard = () => {
         .insert([tourData]);
 
       if (error) {
-        toast.error(t('admin.messages.validation_failed', 'Failed to create tour'));
+        console.error('❌ Error creating tour:', error);
+        if (error.code === 'PGRST204') {
+          toast.error("Schema cache error. Please refresh the page and try again.");
+          console.log('🔄 Running full schema validation...');
+          validateSupabaseSchema().then(result => {
+            console.log('Schema validation result:', result);
+          });
+        } else {
+          toast.error(`Failed to create tour: ${error.message}`);
+        }
         return;
       }
 

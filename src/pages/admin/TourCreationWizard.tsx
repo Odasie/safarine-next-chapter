@@ -321,7 +321,14 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
           
         if (result.error) {
           console.error('❌ Error updating tour:', result.error);
-          toast.error('Failed to update tour');
+          console.error('📋 Error details:', JSON.stringify(result.error, null, 2));
+          
+          // More specific error messages
+          if (result.error.message?.includes('permission denied') || result.error.message?.includes('RLS')) {
+            toast.error('Permission denied: Please ensure you are logged in as an admin');
+          } else {
+            toast.error(`Failed to update tour: ${result.error.message}`);
+          }
           return;
         }
         
@@ -343,7 +350,16 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
           
         if (result.error) {
           console.error('❌ Error creating tour:', result.error);
-          toast.error('Failed to create tour');
+          console.error('📋 Error details:', JSON.stringify(result.error, null, 2));
+          
+          // More specific error messages
+          if (result.error.message?.includes('permission denied') || result.error.message?.includes('RLS')) {
+            toast.error('Permission denied: Please ensure you are logged in as an admin');
+          } else if (result.error.message?.includes('duplicate key')) {
+            toast.error('Tour with this slug already exists');
+          } else {
+            toast.error(`Failed to create tour: ${result.error.message}`);
+          }
           return;
         }
         

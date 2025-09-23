@@ -6,8 +6,8 @@ import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useLocale } from "@/contexts/LocaleContext";
-import { useUnifiedAuth } from "@/contexts/UnifiedAuthContext";
 import { useTranslations } from "@/hooks/use-translations";
+import { useAuth } from "@clerk/clerk-react";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -17,9 +17,14 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 const SiteHeader = () => {
   const { locale } = useLocale();
   const { t } = useTranslations();
+  const { isSignedIn } = useAuth();
   
   const getLocalizedPath = (path: string) => {
     return `/${locale}${path}`;
+  };
+
+  const getProPath = () => {
+    return isSignedIn ? getLocalizedPath("/pro") : getLocalizedPath("/pro/login");
   };
 
   return (
@@ -36,7 +41,7 @@ const SiteHeader = () => {
         <nav className="hidden md:flex items-center gap-2" aria-label={t('aria.main_navigation', 'Main navigation')}>
           <NavLink to={getLocalizedPath("/tours")} className={navLinkClass}>{t('navigation.tours', 'Tours')}</NavLink>
           <NavLink to={getLocalizedPath("/about")} className={navLinkClass}>{t('navigation.about', 'About')}</NavLink>
-          <NavLink to={getLocalizedPath("/pro")} className={navLinkClass}>{t('navigation.pro', 'Pro')}</NavLink>
+          <Link to={getProPath()} className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-primary-foreground/90 hover:text-primary-foreground">{t('navigation.pro', 'Pro')}</Link>
           <NavLink to={getLocalizedPath("/contact")} className={navLinkClass}>{t('navigation.contact', 'Contact')}</NavLink>
         </nav>
 

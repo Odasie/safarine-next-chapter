@@ -36,7 +36,7 @@ const SiteFooter = () => {
           <Link to={getLocalizedPath("/tours")} className="hover:underline">{t('navigation.tours', 'Tours')}</Link>
           <Link to={getLocalizedPath("/about")} className="hover:underline">{t('navigation.about', 'About')}</Link>
           <Link to={getLocalizedPath("/contact")} className="hover:underline">{t('navigation.contact', 'Contact')}</Link>
-          <a href="#" className="hover:underline">{t('footer.pro_login', 'Pro Login')}</a>
+          <Link to={getLocalizedPath("/pro/login")} className="hover:underline">{t('footer.pro_login', 'Pro Login')}</Link>
         </nav>
 
         <div className="text-sm">

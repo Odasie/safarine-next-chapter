@@ -20,14 +20,30 @@ export class SupabaseAuthService {
    */
   static async getAuthenticatedClient(getTokenFn: any): Promise<SupabaseClient<Database>> {
     try {
-      const token = await getTokenFn({ template: 'supabase' });
+      let token = null;
+      
+      // First, try to get token with 'supabase' template
+      try {
+        token = await getTokenFn({ template: 'supabase' });
+        console.log('🔑 Got Clerk token with supabase template');
+      } catch (templateError: any) {
+        console.warn('⚠️ Supabase template not found, trying default token method');
+        
+        // If template doesn't exist, try to get the raw JWT token
+        try {
+          token = await getTokenFn();
+          console.log('🔑 Got Clerk token without template');
+        } catch (fallbackError) {
+          console.error('❌ Failed to get any Clerk token:', fallbackError);
+          console.warn('⚠️ Falling back to anonymous client');
+          return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        }
+      }
       
       if (!token) {
         console.warn('⚠️ No Clerk token available, falling back to anon client');
         return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
       }
-
-      console.log('🔑 Got Clerk token for Supabase');
 
       // Create authenticated client
       const client = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -44,16 +60,22 @@ export class SupabaseAuthService {
       });
 
       // Set the session with the Clerk token
-      await client.auth.setSession({
-        access_token: token,
-        refresh_token: token,
-      });
+      try {
+        await client.auth.setSession({
+          access_token: token,
+          refresh_token: token,
+        });
+        console.log('✅ Supabase session set with Clerk token');
+      } catch (sessionError) {
+        console.error('⚠️ Failed to set Supabase session, but continuing with headers auth:', sessionError);
+      }
 
       this.authenticatedClient = client;
       return client;
     } catch (error) {
       console.error('❌ Error creating authenticated Supabase client:', error);
-      throw new Error(`Authentication failed: ${error}`);
+      console.warn('⚠️ Falling back to anonymous client due to auth error');
+      return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
     }
   }
 
@@ -62,7 +84,20 @@ export class SupabaseAuthService {
    */
   static async refreshSupabaseAuth(getTokenFn: any): Promise<boolean> {
     try {
-      const token = await getTokenFn({ template: 'supabase' });
+      let token = null;
+      
+      // Try with template first, fallback to default
+      try {
+        token = await getTokenFn({ template: 'supabase' });
+      } catch (templateError) {
+        console.warn('⚠️ Template refresh failed, trying default token');
+        try {
+          token = await getTokenFn();
+        } catch (fallbackError) {
+          console.error('❌ Failed to get token for refresh:', fallbackError);
+          return false;
+        }
+      }
       
       if (!token) {
         console.warn('⚠️ No Clerk token available for refresh');
@@ -72,10 +107,27 @@ export class SupabaseAuthService {
       console.log('🔄 Refreshing Supabase auth with Clerk token');
 
       if (this.authenticatedClient) {
-        await this.authenticatedClient.auth.setSession({
-          access_token: token,
-          refresh_token: token,
-        });
+        try {
+          await this.authenticatedClient.auth.setSession({
+            access_token: token,
+            refresh_token: token,
+          });
+        } catch (sessionError) {
+          console.warn('⚠️ Session refresh failed, updating headers only:', sessionError);
+          // Update headers directly if session refresh fails
+          this.authenticatedClient = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+            auth: {
+              storage: localStorage,
+              persistSession: true,
+              autoRefreshToken: true,
+            },
+            global: {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            },
+          });
+        }
       }
 
       return true;
@@ -99,7 +151,27 @@ export class SupabaseAuthService {
         };
       }
 
-      const token = await getTokenFn({ template: 'supabase' });
+      let token = null;
+      let tokenMethod = 'none';
+      
+      // Try multiple methods to get a token
+      try {
+        token = await getTokenFn({ template: 'supabase' });
+        tokenMethod = 'template';
+      } catch (templateError) {
+        try {
+          token = await getTokenFn();
+          tokenMethod = 'default';
+        } catch (fallbackError) {
+          console.warn('⚠️ All token methods failed:', fallbackError);
+          return {
+            isAuthenticated: true,
+            hasToken: false,
+            tokenValid: false,
+            error: 'No token available from Clerk'
+          };
+        }
+      }
       
       if (!token) {
         return {
@@ -109,6 +181,8 @@ export class SupabaseAuthService {
           error: 'No Supabase token from Clerk'
         };
       }
+
+      console.log(`🔍 Token obtained via ${tokenMethod} method`);
 
       // Test token with a simple query
       const client = await this.getAuthenticatedClient(getTokenFn);

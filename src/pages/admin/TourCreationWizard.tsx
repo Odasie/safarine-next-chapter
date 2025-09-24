@@ -7,7 +7,6 @@ import { ArrowLeft, ArrowRight, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { validateSupabaseSchema, testPublishedAtColumn } from "@/utils/supabaseSchemaTest";
-import { useSupabaseAuth } from "@/services/supabaseAuth";
 import { useAuth } from "@clerk/clerk-react";
 
 // Step components
@@ -73,7 +72,6 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
   
   // Authentication hooks
   const { isSignedIn, isLoaded } = useAuth();
-  const { executeWithAuth, validateAuth } = useSupabaseAuth();
 
   // Add mode detection
   const isEditMode = mode === 'edit' || (tourId && window.location.pathname.includes('/edit/'));
@@ -215,14 +213,6 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
 
     setIsLoading(true);
     try {
-      // Validate authentication
-      console.log('🔐 Validating authentication before saving draft...');
-      const authStatus = await validateAuth();
-      if (!authStatus.isAuthenticated || !authStatus.tokenValid) {
-        toast.error(`Authentication error: ${authStatus.error || 'Invalid session'}`);
-        setIsLoading(false);
-        return;
-      }
       // Test schema before attempting save
       console.log('🔄 Testing schema before save...');
       const schemaValid = await testPublishedAtColumn();
@@ -256,28 +246,25 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
 
       let result;
       
-      // Execute database operation with authentication
-      result = await executeWithAuth(async (authClient) => {
-        if (isEditMode && tourId) {
-          // UPDATE existing tour as draft
-          console.log('💾 Saving draft for existing tour:', tourId);
+      if (isEditMode && tourId) {
+        // UPDATE existing tour as draft
+        console.log('💾 Saving draft for existing tour:', tourId);
+        
+        result = await supabase
+          .from('tours')
+          .update(draftData)
+          .eq('id', tourId)
+          .select();
           
-          return await authClient
-            .from('tours')
-            .update(draftData)
-            .eq('id', tourId)
-            .select();
-            
-        } else {
-          // CREATE new draft tour
-          console.log('💾 Creating new draft tour');
-          
-          return await authClient
-            .from('tours')
-            .insert([draftData])
-            .select();
-        }
-      });
+      } else {
+        // CREATE new draft tour
+        console.log('💾 Creating new draft tour');
+        
+        result = await supabase
+          .from('tours')
+          .insert([draftData])
+          .select();
+      }
 
       if (result.error) {
         console.error('❌ Error saving draft:', result.error);
@@ -347,14 +334,6 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
 
     setIsLoading(true);
     try {
-      // Validate authentication
-      console.log('🔐 Validating authentication before publishing tour...');
-      const authStatus = await validateAuth();
-      if (!authStatus.isAuthenticated || !authStatus.tokenValid) {
-        toast.error(`Authentication error: ${authStatus.error || 'Invalid session'}`);
-        setIsLoading(false);
-        return;
-      }
       // Test schema before attempting submission
       console.log('🔄 Testing schema before submission...');
       const schemaValid = await testPublishedAtColumn();
@@ -388,29 +367,26 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
 
       let result;
       
-      // Execute database operation with authentication
-      result = await executeWithAuth(async (authClient) => {
-        if (isEditMode && tourId) {
-          // UPDATE existing tour
-          console.log('🔄 Updating tour:', tourId);
-          console.log('📝 Update data:', tourData);
+      if (isEditMode && tourId) {
+        // UPDATE existing tour
+        console.log('🔄 Updating tour:', tourId);
+        console.log('📝 Update data:', tourData);
+        
+        result = await supabase
+          .from('tours')
+          .update(tourData)
+          .eq('id', tourId)
+          .select();
           
-          return await authClient
-            .from('tours')
-            .update(tourData)
-            .eq('id', tourId)
-            .select();
-            
-        } else {
-          // CREATE new tour
-          console.log('➕ Creating new tour');
-          
-          return await authClient
-            .from('tours')
-            .insert([tourData])
-            .select();
-        }
-      });
+      } else {
+        // CREATE new tour
+        console.log('➕ Creating new tour');
+        
+        result = await supabase
+          .from('tours')
+          .insert([tourData])
+          .select();
+      }
       
       if (result.error) {
         console.error('❌ Error with tour operation:', result.error);

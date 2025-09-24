@@ -26,26 +26,8 @@ export const B2BProtectedRoute: React.FC<B2BProtectedRouteProps> = ({ children }
     return <Navigate to="/pro/login" state={{ from: location }} replace />;
   }
 
-  // Check if user has B2B role
-  const isB2B = user?.publicMetadata?.role === 'b2b';
-
-  // Show unauthorized message if not B2B user
-  if (!isB2B) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-destructive mb-4">B2B Access Required</h1>
-          <p className="text-muted-foreground mb-4">You need B2B access to view this area.</p>
-          <button 
-            onClick={() => window.history.back()}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Simplified: Any authenticated user can access B2B routes
+  // Future: Add role checking here if needed: user?.publicMetadata?.role === 'b2b'
 
   return <>{children}</>;
 };

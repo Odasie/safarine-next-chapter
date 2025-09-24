@@ -21,60 +21,101 @@ export class SupabaseAuthService {
   static async getAuthenticatedClient(getTokenFn: any): Promise<SupabaseClient<Database>> {
     try {
       let token = null;
+      let tokenType = 'unknown';
       
       // First, try to get token with 'supabase' template
       try {
         token = await getTokenFn({ template: 'supabase' });
+        tokenType = 'template';
         console.log('🔑 Got Clerk token with supabase template');
       } catch (templateError: any) {
-        console.warn('⚠️ Supabase template not found, trying default token method');
+        console.warn('⚠️ Supabase template not found, trying session token approach');
         
-        // If template doesn't exist, try to get the raw JWT token
+        // Instead of generic token, try to get a session token which might be more compatible
         try {
           token = await getTokenFn();
-          console.log('🔑 Got Clerk token without template');
+          tokenType = 'session';
+          console.log('🔑 Got Clerk session token');
         } catch (fallbackError) {
           console.error('❌ Failed to get any Clerk token:', fallbackError);
-          console.warn('⚠️ Falling back to anonymous client');
+          console.warn('⚠️ Using anonymous client - admin features may not work');
           return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
         }
       }
       
       if (!token) {
-        console.warn('⚠️ No Clerk token available, falling back to anon client');
+        console.warn('⚠️ No Clerk token available, using anonymous client');
         return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
       }
 
-      // Create authenticated client
-      const client = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-        auth: {
-          storage: localStorage,
-          persistSession: true,
-          autoRefreshToken: true,
-        },
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`,
+      // For session tokens, we need a different approach since they might not be Supabase-compatible
+      if (tokenType === 'session') {
+        console.log('🔧 Configuring Supabase with Clerk session token (header-based auth)');
+        
+        // Create client with custom Authorization header
+        const client = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+          auth: {
+            storage: localStorage,
+            persistSession: false, // Don't persist incompatible sessions
+            autoRefreshToken: false,
           },
-        },
-      });
-
-      // Set the session with the Clerk token
-      try {
-        await client.auth.setSession({
-          access_token: token,
-          refresh_token: token,
+          global: {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'x-clerk-token': token, // Add custom header for debugging
+            },
+          },
         });
-        console.log('✅ Supabase session set with Clerk token');
-      } catch (sessionError) {
-        console.error('⚠️ Failed to set Supabase session, but continuing with headers auth:', sessionError);
-      }
 
-      this.authenticatedClient = client;
-      return client;
+        // Test if the token works with a simple query
+        try {
+          const { error: testError } = await client.from('tours').select('id').limit(1);
+          if (testError) {
+            console.warn('⚠️ Session token failed Supabase test:', testError.message);
+            console.warn('⚠️ This indicates the JWT template needs to be created in Clerk dashboard');
+            // Still return the client - it might work for some operations
+          } else {
+            console.log('✅ Session token verified with Supabase');
+          }
+        } catch (testError) {
+          console.warn('⚠️ Token test failed, continuing anyway:', testError);
+        }
+
+        this.authenticatedClient = client;
+        return client;
+      } else {
+        // Template token - use standard Supabase auth flow
+        const client = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+          auth: {
+            storage: localStorage,
+            persistSession: true,
+            autoRefreshToken: true,
+          },
+          global: {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        });
+
+        // Set the session with the Clerk token
+        try {
+          await client.auth.setSession({
+            access_token: token,
+            refresh_token: token,
+          });
+          console.log('✅ Supabase session set with template token');
+        } catch (sessionError) {
+          console.error('⚠️ Failed to set Supabase session:', sessionError);
+          // Continue with header-based auth
+        }
+
+        this.authenticatedClient = client;
+        return client;
+      }
     } catch (error) {
       console.error('❌ Error creating authenticated Supabase client:', error);
-      console.warn('⚠️ Falling back to anonymous client due to auth error');
+      console.warn('⚠️ Falling back to anonymous client - check Clerk JWT template configuration');
       return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
     }
   }

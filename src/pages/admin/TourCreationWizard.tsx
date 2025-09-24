@@ -18,6 +18,7 @@ import { InclusionsStep } from "@/components/admin/wizard/InclusionsStep";
 import { ImageUploadSection } from "@/components/admin/ImageUploadSection";
 import { SchemaTestButton } from "@/components/admin/SchemaTestButton";
 import { AuthenticationStatus } from "@/components/admin/AuthenticationStatus";
+import { ClerkJWTTemplateNotice } from "@/components/admin/ClerkJWTTemplateNotice";
 
 export interface TourFormData {
   // Tour ID for updates
@@ -628,6 +629,11 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
         <p className="text-muted-foreground mb-6">
           Follow the steps below to {isEditMode ? 'update your' : 'create a comprehensive'} tour listing
         </p>
+        
+        {/* Show JWT template notice when template is missing */}
+        <div className="mb-6">
+          <ClerkJWTTemplateNotice />
+        </div>
         
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">

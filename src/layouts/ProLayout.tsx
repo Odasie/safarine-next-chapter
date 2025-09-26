@@ -6,32 +6,25 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 interface ProLayoutProps {
   children: ReactNode;
 }
-const ProLayout: React.FC<ProLayoutProps> = ({ children }) => {
-  const { loading } = useUnifiedAuth();
-
+const ProLayout: React.FC<ProLayoutProps> = ({
+  children
+}) => {
+  const {
+    loading
+  } = useUnifiedAuth();
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
+    return <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <ResponsiveLogo className="h-8" />
-          <B2BUserButton />
-        </div>
-      </header>
+      
 
       {/* Main content */}
       <main className="flex-1">
         {children}
       </main>
-    </div>
-  );
+    </div>;
 };
 export default ProLayout;

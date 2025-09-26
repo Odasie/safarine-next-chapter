@@ -16,8 +16,14 @@ export const useAdminStatus = () => {
       }
 
       try {
-        // Get JWT token from Clerk
-        const token = await getToken({ template: 'supabase' });
+        // First try to get JWT token with 'supabase' template
+        let token = await getToken({ template: 'supabase' });
+        
+        // If template token fails, try getting session token as fallback
+        if (!token) {
+          console.warn('Supabase JWT template not configured, using fallback token');
+          token = await getToken();
+        }
         
         if (token) {
           // Set the JWT token for Supabase

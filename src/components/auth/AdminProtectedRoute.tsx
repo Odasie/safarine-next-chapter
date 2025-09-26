@@ -1,7 +1,8 @@
 import React from 'react';
-import { useAuth, useUser } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/clerk-react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useAdminStatus } from '@/hooks/useAdminStatus';
 
 interface AdminProtectedRouteProps {
   children: React.ReactNode;
@@ -9,11 +10,11 @@ interface AdminProtectedRouteProps {
 
 export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) => {
   const { isLoaded, isSignedIn } = useAuth();
-  const { user } = useUser();
+  const { isAdmin, isLoading } = useAdminStatus();
   const location = useLocation();
 
-  // Show loading while Clerk is initializing
-  if (!isLoaded) {
+  // Show loading while Clerk or admin status is initializing
+  if (!isLoaded || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" />
@@ -25,9 +26,6 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ childr
   if (!isSignedIn) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
-  // Check if user has admin role
-  const isAdmin = user?.publicMetadata?.role === 'admin';
 
   // Show unauthorized message if not admin
   if (!isAdmin) {

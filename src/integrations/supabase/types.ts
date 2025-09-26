@@ -797,6 +797,10 @@ export type Database = {
           status: string
         }[]
       }
+      is_admin_user: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       send_b2b_registration_email: {
         Args: {
           company_name: string

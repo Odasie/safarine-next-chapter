@@ -23,6 +23,8 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     'tours.card.book': 'Book Tour',
     'search.destination': 'Destination',
     // Philosophy section fallbacks
+    'about.philosophy.title': 'Our Philosophy',
+    'about.philosophy.subtitle': 'The values that guide our approach to authentic Thai travel experiences.',
     'about.philosophy.authenticity.title': 'Authenticity',
     'about.philosophy.authenticity.description': 'We believe in genuine experiences that connect you with the real Thailand.',
     'about.philosophy.sustainability.title': 'Sustainability',
@@ -40,6 +42,8 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     'tours.card.book': 'Réserver',
     'search.destination': 'Destination',
     // Philosophy section fallbacks
+    'about.philosophy.title': 'Notre Philosophie',
+    'about.philosophy.subtitle': 'Les valeurs qui guident notre approche des expériences de voyage thaïlandaises authentiques.',
     'about.philosophy.authenticity.title': 'Authenticité',
     'about.philosophy.authenticity.description': 'Nous croyons aux expériences authentiques qui vous connectent avec la vraie Thaïlande.',
     'about.philosophy.sustainability.title': 'Durabilité',

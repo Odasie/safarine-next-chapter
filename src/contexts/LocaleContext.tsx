@@ -21,7 +21,14 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     'hero.subtitle': 'Authentic adventures in the heart of Southeast Asia',
     'common.loading': 'Loading...',
     'tours.card.book': 'Book Tour',
-    'search.destination': 'Destination'
+    'search.destination': 'Destination',
+    // Philosophy section fallbacks
+    'about.philosophy.authenticity.title': 'Authenticity',
+    'about.philosophy.authenticity.description': 'We believe in genuine experiences that connect you with the real Thailand.',
+    'about.philosophy.sustainability.title': 'Sustainability',
+    'about.philosophy.sustainability.description': 'Responsible tourism that preserves Thailand\'s natural beauty for future generations.',
+    'about.philosophy.personalization.title': 'Personalization',
+    'about.philosophy.personalization.description': 'Every journey is crafted to match your interests and travel style.'
   },
   fr: {
     'menu.tours': 'Circuits',
@@ -31,7 +38,14 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     'hero.subtitle': 'Des aventures authentiques au cœur de l\'Asie du Sud-Est',
     'common.loading': 'Chargement...',
     'tours.card.book': 'Réserver',
-    'search.destination': 'Destination'
+    'search.destination': 'Destination',
+    // Philosophy section fallbacks
+    'about.philosophy.authenticity.title': 'Authenticité',
+    'about.philosophy.authenticity.description': 'Nous croyons aux expériences authentiques qui vous connectent avec la vraie Thaïlande.',
+    'about.philosophy.sustainability.title': 'Durabilité',
+    'about.philosophy.sustainability.description': 'Tourisme responsable qui préserve la beauté naturelle de la Thaïlande pour les générations futures.',
+    'about.philosophy.personalization.title': 'Personnalisation',
+    'about.philosophy.personalization.description': 'Chaque voyage est conçu pour correspondre à vos intérêts et votre style de voyage.'
   }
 };
 
@@ -160,6 +174,17 @@ export const LocaleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   const t = (key: string, params: Record<string, string> = {}): string => {
+    // Debug logging for philosophy keys
+    if (key.includes('philosophy')) {
+      console.log(`🔍 Philosophy translation lookup: ${key}`, {
+        locale,
+        isLoading,
+        hasTranslations: !!translations[locale],
+        translationFound: !!translations[locale]?.[key],
+        fallbackFound: !!fallbackTranslations[locale]?.[key]
+      });
+    }
+    
     // Get translation from database
     let translation = translations[locale]?.[key];
     

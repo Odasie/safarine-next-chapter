@@ -83,10 +83,10 @@ const About = () => {
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="mb-4 text-3xl md:text-4xl font-bold text-foreground">
-              {t('about.pillar.headline')}
+              {t('about.philosophy.title')}
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              {t('about.pillar.subheadline')}
+              {t('about.philosophy.subtitle')}
             </p>
           </div>
           

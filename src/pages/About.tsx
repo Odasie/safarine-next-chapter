@@ -225,18 +225,17 @@ const About = () => {
           </div>
           
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {/* Team member cards would go here - for now showing placeholder structure */}
             <Card className="text-center">
               <CardHeader>
                 <div className="mx-auto mb-4 h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
                   <Users className="h-12 w-12 text-primary" />
                 </div>
-                <CardTitle className="text-foreground">David Barthez</CardTitle>
-                <p className="text-primary font-medium">{locale === 'fr' ? 'Fondateur & Directeur' : 'Founder & Director'}</p>
+                <CardTitle className="text-foreground">{t('about.team.david.name')}</CardTitle>
+                <p className="text-primary font-medium">{t('about.team.david.role')}</p>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  {locale === 'fr' ? 'En Thaïlande depuis le début des années 2000, David est le leader passionné de Safarine Tours.' : 'In Thailand since the early 2000s, David is the passionate leader of Safarine Tours.'}
+                  {t('about.team.david.description')}
                 </p>
               </CardContent>
             </Card>
@@ -246,12 +245,12 @@ const About = () => {
                 <div className="mx-auto mb-4 h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
                   <Users className="h-12 w-12 text-primary" />
                 </div>
-                <CardTitle className="text-foreground">Earth</CardTitle>
-                <p className="text-primary font-medium">{locale === 'fr' ? 'Guide Experte Locale' : 'Expert Local Guide'}</p>
+                <CardTitle className="text-foreground">{t('about.team.earth.name')}</CardTitle>
+                <p className="text-primary font-medium">{t('about.team.earth.role')}</p>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  {locale === 'fr' ? 'Guide locale expérimentée avec une connaissance approfondie de la culture thaïlandaise.' : 'Experienced local guide with deep knowledge of Thai culture.'}
+                  {t('about.team.earth.description')}
                 </p>
               </CardContent>
             </Card>
@@ -261,12 +260,12 @@ const About = () => {
                 <div className="mx-auto mb-4 h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
                   <Users className="h-12 w-12 text-primary" />
                 </div>
-                <CardTitle className="text-foreground">Note</CardTitle>
-                <p className="text-primary font-medium">{locale === 'fr' ? 'Coordinatrice Voyages' : 'Travel Coordinator'}</p>
+                <CardTitle className="text-foreground">{t('about.team.note.name')}</CardTitle>
+                <p className="text-primary font-medium">{t('about.team.note.role')}</p>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-sm">
-                  {locale === 'fr' ? 'Spécialiste en organisation de voyages personnalisés et expériences authentiques.' : 'Specialist in organizing personalized trips and authentic experiences.'}
+                  {t('about.team.note.description')}
                 </p>
               </CardContent>
             </Card>

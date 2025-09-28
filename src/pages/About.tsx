@@ -97,12 +97,12 @@ const About = () => {
                   <Heart className="h-8 w-8 text-primary" />
                 </div>
                 <CardTitle className="text-primary">
-                  {t('about.pillar.authenticity.title')}
+                  {t('about.philosophy.authenticity.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  {t('about.pillar.authenticity.description')}
+                  {t('about.philosophy.authenticity.description')}
                 </p>
               </CardContent>
             </Card>
@@ -113,12 +113,12 @@ const About = () => {
                   <Globe className="h-8 w-8 text-primary" />
                 </div>
                 <CardTitle className="text-primary">
-                  {t('about.pillar.sustainability.title')}
+                  {t('about.philosophy.sustainability.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  {t('about.pillar.sustainability.description')}
+                  {t('about.philosophy.sustainability.description')}
                 </p>
               </CardContent>
             </Card>
@@ -129,12 +129,12 @@ const About = () => {
                   <Star className="h-8 w-8 text-primary" />
                 </div>
                 <CardTitle className="text-primary">
-                  {t('about.pillar.personalization.title')}
+                  {t('about.philosophy.personalization.title')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  {t('about.pillar.personalization.description')}
+                  {t('about.philosophy.personalization.description')}
                 </p>
               </CardContent>
             </Card>

@@ -4,13 +4,83 @@ import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import { Users, Shield, Heart, Globe, Star, Phone } from "lucide-react";
 const About = () => {
   const {
     t,
-    locale
+    locale,
+    isLoading
   } = useLocale();
+  
+  // Don't render content until translations are loaded
+  if (isLoading) {
+    return (
+      <div>
+        <Helmet>
+          <title>About Us - Safarine Tours Thailand</title>
+          <meta name="description" content="Learn about Safarine Tours Thailand" />
+        </Helmet>
+        
+        {/* Loading skeleton for hero section */}
+        <section className="relative overflow-hidden">
+          <div className="absolute inset-0 -z-20 bg-muted" />
+          <div className="container mx-auto py-24 text-center">
+            <Skeleton className="h-6 w-24 mx-auto mb-4" />
+            <Skeleton className="h-16 w-96 mx-auto mb-4" />
+            <Skeleton className="h-8 w-80 mx-auto mb-6" />
+            <Skeleton className="h-6 w-64 mx-auto" />
+          </div>
+        </section>
+        
+        {/* Loading skeleton for content sections */}
+        <section className="py-16 bg-card">
+          <div className="container mx-auto">
+            <div className="grid gap-8 lg:grid-cols-2 items-center">
+              <div>
+                <Skeleton className="h-12 w-80 mb-6" />
+                <Skeleton className="h-8 w-64 mb-4" />
+                <Skeleton className="h-6 w-full mb-2" />
+                <Skeleton className="h-6 w-full mb-2" />
+                <Skeleton className="h-6 w-3/4 mb-6" />
+                <div className="flex gap-4">
+                  <Skeleton className="h-10 w-32" />
+                  <Skeleton className="h-10 w-32" />
+                </div>
+              </div>
+              <Skeleton className="h-96 w-full rounded-xl" />
+            </div>
+          </div>
+        </section>
+        
+        {/* Philosophy section skeleton */}
+        <section className="py-16">
+          <div className="container mx-auto">
+            <div className="text-center mb-12">
+              <Skeleton className="h-12 w-64 mx-auto mb-4" />
+              <Skeleton className="h-6 w-96 mx-auto" />
+            </div>
+            <div className="grid gap-6 md:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="text-center">
+                  <CardHeader>
+                    <Skeleton className="h-16 w-16 rounded-full mx-auto mb-4" />
+                    <Skeleton className="h-8 w-32 mx-auto" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-6 w-full mb-2" />
+                    <Skeleton className="h-6 w-3/4 mx-auto" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   const canonicalUrl = `${window.location.origin}/${locale}/about`;
   return <div>
       <Helmet>

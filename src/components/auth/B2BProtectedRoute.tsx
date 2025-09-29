@@ -26,9 +26,26 @@ export const B2BProtectedRoute: React.FC<B2BProtectedRouteProps> = ({ children }
     return <Navigate to="/pro/login" state={{ from: location }} replace />;
   }
 
+  // List of admin emails for fallback access
+  const ADMIN_EMAILS = ['charles@odasie.fr', 'vera@odasie.com'];
+
   // Allow admin users and B2B users to access B2B routes
   const userRole = user?.publicMetadata?.role;
-  if (userRole !== 'admin' && userRole !== 'b2b') {
+  const isAdminEmail = user?.emailAddresses?.some(email => 
+    ADMIN_EMAILS.includes(email.emailAddress)
+  );
+  const hasAdminAccess = userRole === 'admin' || isAdminEmail;
+  const hasB2BAccess = userRole === 'b2b';
+
+  console.log('B2B Route Access Check:', {
+    userRole,
+    email: user?.emailAddresses?.[0]?.emailAddress,
+    hasAdminAccess,
+    hasB2BAccess,
+    isAdminEmail
+  });
+
+  if (!hasAdminAccess && !hasB2BAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

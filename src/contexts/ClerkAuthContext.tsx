@@ -25,8 +25,15 @@ export const ClerkAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const { isLoaded, isSignedIn, sessionId, signOut } = useAuth();
   const { user } = useUser();
 
-  // Check if user has admin role
-  const isAdmin = user?.publicMetadata?.role === 'admin';
+  // List of admin emails for fallback access
+  const ADMIN_EMAILS = ['charles@odasie.fr', 'vera@odasie.com'];
+
+  // Check if user has admin role via metadata or email whitelist
+  const hasClerkAdminRole = user?.publicMetadata?.role === 'admin';
+  const isAdminEmail = user?.emailAddresses?.some(email => 
+    ADMIN_EMAILS.includes(email.emailAddress)
+  );
+  const isAdmin = hasClerkAdminRole || isAdminEmail;
 
   const value: ClerkAuthContextType = {
     user: user || null,

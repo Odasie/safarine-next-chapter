@@ -6,6 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { TourFormData } from "@/components/admin/wizard/LocalizedTourCreationWizard";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useRoleBasedAccess } from "@/hooks/useRoleBasedAccess";
+import { AlertCircle, Info } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface LocalizedBasicTourInfoStepProps {
   data: TourFormData;
@@ -39,6 +42,7 @@ const LANGUAGES = [
 
 export const LocalizedBasicTourInfoStep = ({ data, updateData }: LocalizedBasicTourInfoStepProps) => {
   const { t } = useLocale();
+  const { hasB2BAccess, canManageB2BPricing, isLoading: roleLoading } = useRoleBasedAccess();
   
   const handleLanguageChange = (languageId: string, checked: boolean) => {
     const currentLanguages = data.languages || [];
@@ -137,26 +141,19 @@ export const LocalizedBasicTourInfoStep = ({ data, updateData }: LocalizedBasicT
         </CardContent>
       </Card>
 
-      {/* Pricing */}
+      {/* Multi-Tier Pricing */}
       <Card>
         <CardHeader>
           <CardTitle>{t('admin.wizard.basic.pricing', 'Pricing')}</CardTitle>
+          {roleLoading && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>Loading user permissions...</AlertDescription>
+            </Alert>
+          )}
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="price">{t('admin.wizard.basic.price', 'Price')} *</Label>
-              <Input
-                id="price"
-                type="number"
-                min="0"
-                step="0.01"
-                value={data.price}
-                onChange={(e) => updateData({ price: parseFloat(e.target.value) || 0 })}
-                required
-              />
-            </div>
-            
             <div>
               <Label htmlFor="currency">{t('admin.wizard.basic.currency', 'Currency')}</Label>
               <Select 
@@ -174,6 +171,96 @@ export const LocalizedBasicTourInfoStep = ({ data, updateData }: LocalizedBasicT
               </Select>
             </div>
           </div>
+
+          {/* Adult Price - Always visible and required */}
+          <div>
+            <Label htmlFor="adult_price">{t('admin.wizard.basic.adult_price', 'Adult Price')} *</Label>
+            <Input
+              id="adult_price"
+              type="number"
+              min="0"
+              step="0.01"
+              value={data.price}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value) || 0;
+                updateData({ price: value });
+              }}
+              placeholder="0.00"
+              required
+            />
+            <p className="text-sm text-muted-foreground mt-1">
+              Base price for adult participants
+            </p>
+          </div>
+
+          {/* Child Price - Always visible, optional */}
+          <div>
+            <Label htmlFor="child_price">{t('admin.wizard.basic.child_price', 'Child Price (under 12)')}</Label>
+            <Input
+              id="child_price"
+              type="number"
+              min="0"
+              step="0.01"
+              value={data.child_price || ''}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value) || undefined;
+                // Validate child price doesn't exceed adult price
+                if (value !== undefined && data.price && value > data.price) {
+                  updateData({ child_price: data.price });
+                } else {
+                  updateData({ child_price: value });
+                }
+              }}
+              placeholder="Optional"
+            />
+            <p className="text-sm text-muted-foreground mt-1">
+              Optional reduced rate for children under 12
+            </p>
+            {data.child_price && data.price && data.child_price > data.price && (
+              <Alert className="mt-2">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>Child price cannot exceed adult price</AlertDescription>
+              </Alert>
+            )}
+          </div>
+
+          {/* B2B Price - Only visible to authorized users */}
+          {canManageB2BPricing && (
+            <div className="border-t pt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Info className="h-4 w-4 text-blue-500" />
+                <span className="text-sm font-medium text-blue-700">B2B Admin Pricing</span>
+              </div>
+              <div>
+                <Label htmlFor="b2b_price">{t('admin.wizard.basic.b2b_price', 'B2B Group Price (10+ people)')}</Label>
+                <Input
+                  id="b2b_price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={data.b2b_price || ''}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value) || undefined;
+                    updateData({ b2b_price: value });
+                  }}
+                  placeholder="Optional"
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Special pricing for B2B partners and large groups
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Role-based guidance */}
+          {hasB2BAccess && !canManageB2BPricing && (
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                You have B2B access but cannot modify B2B pricing. Contact an admin for B2B pricing management.
+              </AlertDescription>
+            </Alert>
+          )}
         </CardContent>
       </Card>
 

@@ -17,6 +17,9 @@ import { InclusionsStep } from "@/components/admin/wizard/InclusionsStep";
 import { ImageManagementStep } from "@/components/admin/wizard/ImageManagementStep";
 
 export interface TourFormData {
+  // Tour ID for updates
+  id?: string;
+  
   // Basic Info
   title_en: string;
   title_fr: string;
@@ -24,6 +27,8 @@ export interface TourFormData {
   duration_days: number;
   duration_nights: number;
   price: number;
+  child_price?: number;
+  b2b_price?: number;
   currency: string;
   difficulty_level: string;
   group_size_min: number;

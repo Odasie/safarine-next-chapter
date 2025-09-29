@@ -8,9 +8,10 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { validateSupabaseSchema, testPublishedAtColumn } from "@/utils/supabaseSchemaTest";
 import { useAuth } from "@clerk/clerk-react";
+import { useRoleBasedAccess } from "@/hooks/useRoleBasedAccess";
 
 // Step components
-import { BasicTourInfoStep } from "@/components/admin/wizard/BasicTourInfoStep";
+import { LocalizedBasicTourInfoStep } from "@/components/admin/wizard/LocalizedBasicTourInfoStep";
 import { ItineraryBuilderStep } from "@/components/admin/wizard/ItineraryBuilderStep";
 import { HighlightsStep } from "@/components/admin/wizard/HighlightsStep";
 import { InclusionsStep } from "@/components/admin/wizard/InclusionsStep";
@@ -74,6 +75,7 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
   
   // Authentication hooks
   const { isSignedIn, isLoaded } = useAuth();
+  const { canManageB2BPricing } = useRoleBasedAccess();
 
   // Add mode detection
   const isEditMode = mode === 'edit' || (tourId && window.location.pathname.includes('/edit/'));
@@ -167,6 +169,8 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
         duration_days: existingTourData.duration_days || 1,
         duration_nights: existingTourData.duration_nights || 0,
         price: existingTourData.price || 0,
+        child_price: existingTourData.child_price,
+        b2b_price: existingTourData.b2b_price,
         currency: existingTourData.currency || "THB",
         difficulty_level: existingTourData.difficulty_level || "moderate",
         group_size_min: existingTourData.group_size_min || 2,
@@ -231,6 +235,8 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
         duration_days: formData.duration_days,
         duration_nights: formData.duration_nights,
         price: formData.price,
+        child_price: formData.child_price,
+        ...(canManageB2BPricing && { b2b_price: formData.b2b_price }),
         currency: formData.currency,
         difficulty_level: formData.difficulty_level,
         group_size_min: formData.group_size_min,
@@ -352,6 +358,8 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
         duration_days: formData.duration_days,
         duration_nights: formData.duration_nights,
         price: formData.price,
+        child_price: formData.child_price,
+        ...(canManageB2BPricing && { b2b_price: formData.b2b_price }),
         currency: formData.currency,
         difficulty_level: formData.difficulty_level,
         group_size_min: formData.group_size_min,
@@ -440,7 +448,7 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
     switch (currentStep) {
       case 1:
         return (
-          <BasicTourInfoStep
+          <LocalizedBasicTourInfoStep
             data={formData}
             updateData={updateFormData}
           />

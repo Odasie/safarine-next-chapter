@@ -13,9 +13,11 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ tourId }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const { locale } = useLocale();
   
+  // Limit to maximum 5 images total (1 hero + 4 gallery)
+  const limitedGalleryImages = galleryImages.slice(0, 4);
   const allImages = [
     ...(heroImage ? [heroImage] : []),
-    ...galleryImages
+    ...limitedGalleryImages
   ];
 
   const getAltText = (img: any, fallback: string) => {
@@ -75,9 +77,9 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ tourId }) => {
         )}
 
         {/* Gallery Thumbnails */}
-        {galleryImages.length > 0 && (
+        {limitedGalleryImages.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {galleryImages.map((image, index) => (
+            {limitedGalleryImages.map((image, index) => (
               <img
                 key={image.id}
                 src={image.file_path || '/placeholder.svg'}

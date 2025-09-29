@@ -107,6 +107,15 @@ export const ImageManagementStep = ({ data, updateData, isEditMode = false }: Im
     const files = Array.from(event.target.files || []);
     if (files.length === 0) return;
 
+    const currentGalleryCount = isEditMode ? galleryImages.length : galleryImagesData.length;
+    const maxGalleryImages = 4;
+    const availableSlots = maxGalleryImages - currentGalleryCount;
+
+    if (files.length > availableSlots) {
+      toast.error(`Maximum 4 gallery images allowed. You can add ${availableSlots} more image(s).`);
+      return;
+    }
+
     if (isEditMode && tourId) {
       // Upload directly to database
       for (const file of files) {
@@ -245,10 +254,15 @@ export const ImageManagementStep = ({ data, updateData, isEditMode = false }: Im
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Image Management</h3>
+          <h3 className="text-lg font-semibold">Tour Images (Maximum 5 images)</h3>
           <p className="text-muted-foreground">
-            Upload and manage images for your tour. A hero image is required, gallery images are recommended.
+            Upload exactly 1 hero image and up to 4 gallery images for your tour.
           </p>
+          <div className="mt-2">
+            <span className="text-sm font-medium text-primary">
+              {((isEditMode ? (heroImage ? 1 : 0) + galleryImages.length : (heroImageData ? 1 : 0) + galleryImagesData.length))} of 5 images uploaded
+            </span>
+          </div>
         </div>
         
         <Tabs value={activeLanguage} onValueChange={(value) => setActiveLanguage(value as 'en' | 'fr')}>
@@ -264,7 +278,7 @@ export const ImageManagementStep = ({ data, updateData, isEditMode = false }: Im
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="w-5 h-5 text-yellow-500" />
-            Hero Image *
+            Hero Image (1 required)
           </CardTitle>
           <p className="text-sm text-muted-foreground">
             Main image displayed prominently on the tour page. Recommended size: 1920x1080px
@@ -380,13 +394,18 @@ export const ImageManagementStep = ({ data, updateData, isEditMode = false }: Im
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ImageIcon className="w-5 h-5 text-blue-500" />
-            Gallery Images
+            Gallery Images (Maximum 4 additional images)
             <span className="text-sm font-normal text-muted-foreground">
-              ({isEditMode ? galleryImages.length : galleryImagesData.length} images)
+              ({isEditMode ? galleryImages.length : galleryImagesData.length} of 4 images)
             </span>
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Additional images showcasing different aspects of your tour. Recommended: 3-8 images
+            Additional images showcasing different aspects of your tour.
+            {(() => {
+              const currentCount = isEditMode ? galleryImages.length : galleryImagesData.length;
+              const remaining = 4 - currentCount;
+              return remaining > 0 ? ` You can add ${remaining} more image(s).` : ' Maximum reached.';
+            })()}
           </p>
         </CardHeader>
         <CardContent>
@@ -396,11 +415,20 @@ export const ImageManagementStep = ({ data, updateData, isEditMode = false }: Im
               variant="outline"
               onClick={() => galleryFileInputRef.current?.click()}
               className="w-full h-24 border-dashed"
+              disabled={dbUploading || (isEditMode ? galleryImages.length >= 4 : galleryImagesData.length >= 4)}
             >
               <div className="text-center">
                 <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm">Add Gallery Images</p>
-                <p className="text-xs text-muted-foreground">Select multiple files</p>
+                <p className="text-sm">
+                  {(isEditMode ? galleryImages.length >= 4 : galleryImagesData.length >= 4) 
+                    ? 'Maximum Gallery Images Reached' 
+                    : 'Add Gallery Images'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {(isEditMode ? galleryImages.length >= 4 : galleryImagesData.length >= 4) 
+                    ? 'Remove an image to add more' 
+                    : 'Select multiple files'}
+                </p>
               </div>
             </Button>
             

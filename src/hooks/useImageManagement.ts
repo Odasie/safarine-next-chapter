@@ -69,6 +69,18 @@ export const useImageManagement = (tourId: string) => {
         throw new Error(validation.error);
       }
 
+      // Check 5-image limit (1 hero + 4 gallery max)
+      const heroCount = images.filter(img => img.image_type === 'hero').length;
+      const galleryCount = images.filter(img => img.image_type === 'gallery').length;
+      
+      if (imageType === 'hero' && heroCount >= 1) {
+        throw new Error('Maximum 1 hero image allowed');
+      }
+      
+      if (imageType === 'gallery' && galleryCount >= 4) {
+        throw new Error('Maximum 4 gallery images allowed');
+      }
+
       // Get next position for the image type
       const existingImages = images.filter(img => img.image_type === imageType);
       const nextPosition = existingImages.length > 0 

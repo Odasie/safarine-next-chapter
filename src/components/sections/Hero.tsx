@@ -1,4 +1,4 @@
-import SearchBar from "@/components/search/SearchBar";
+import HeroSearchBar from "@/components/search/HeroSearchBar";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useState } from "react";
 
@@ -55,9 +55,7 @@ const Hero = () => {
         <p className="text-lg md:text-xl max-w-2xl drop-shadow-md">
           {t('homepage.hero.subtitle', 'Trek, culture and immersion away from mass tourism')}
         </p>
-        <div className="w-full max-w-3xl rounded-full border border-white/20 bg-white/90 backdrop-blur p-4 shadow-lg">
-          <SearchBar />
-        </div>
+        <HeroSearchBar />
       </div>
     </section>
   );

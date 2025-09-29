@@ -6,7 +6,7 @@ const ProCTA = () => {
   const { locale, t } = useLocale();
   
   const getLocalizedPath = (path: string) => {
-    return `/${locale}${path}`;
+    return path; // Remove locale prefix since routes are already configured
   };
 
   return (

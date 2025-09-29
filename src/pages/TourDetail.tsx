@@ -5,6 +5,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLocale } from '@/contexts/LocaleContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import SearchBar from '@/components/search/SearchBar';
+import EnhancedSearchSection from '@/components/search/EnhancedSearchSection';
+import TourSuggestionsSection from '@/components/tours/TourSuggestionsSection';
+import EnhancedBookingSection from '@/components/tours/EnhancedBookingSection';
 import TourCard from '@/components/tours/TourCard';
 import { ImageGallery } from '@/components/tours/ImageGallery';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -506,11 +509,11 @@ const TourDetail = () => {
                 </Card>
               )}
 
-              {/* Image Gallery */}
-              {imageRecords.length > 1 && (
+              {/* Image Gallery - Always show if tour exists */}
+              {tourData?.id && (
                 <div className="space-y-4">
                   <h2 className="text-2xl font-semibold text-foreground">Gallery</h2>
-                  <ImageGallery tourId={tourData?.id || ''} />
+                  <ImageGallery tourId={tourData.id} />
                 </div>
               )}
             </div>
@@ -603,23 +606,33 @@ const TourDetail = () => {
                 </Card>
               )}
 
-              {/* Contact Buttons */}
-              <div className="space-y-3">
-                <Button className="w-full" size="lg">
-                  <Mail className="h-4 w-4 mr-2" />
-                  Contact for Booking
-                </Button>
-                <Button variant="outline" className="w-full">
-                  <Phone className="h-4 w-4 mr-2" />
-                  Get More Information
-                </Button>
-              </div>
+              {/* Enhanced Booking Section */}
+              <EnhancedBookingSection
+                tourTitle={displayTitle}
+                tourPrice={pricing.adult || undefined}
+                childPrice={pricing.child || undefined}
+                currency={pricing.currency}
+                bookingMethod={tourData?.booking_method}
+                destination={tourData?.destination}
+                duration={duration}
+              />
             </div>
           </div>
         </div>
+        
+        {/* Enhanced Search Section */}
+        <div className="container mx-auto px-4">
+          <EnhancedSearchSection />
+        </div>
+        
+        {/* Tour Suggestions Section */}
+        <div className="container mx-auto px-4">
+          <TourSuggestionsSection 
+            currentTourId={tourData?.id}
+            currentDestination={tourData?.destination}
+          />
+        </div>
       </div>
-
-      <SearchBar />
     </div>
   );
 };

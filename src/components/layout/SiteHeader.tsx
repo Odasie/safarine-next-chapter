@@ -41,7 +41,7 @@ const SiteHeader = () => {
   };
 
   const getProPath = () => {
-    return isSignedIn ? getLocalizedPath("/pro") : getLocalizedPath("/pro/login");
+    return isSignedIn ? "/pro" : "/pro/login";
   };
 
   return (

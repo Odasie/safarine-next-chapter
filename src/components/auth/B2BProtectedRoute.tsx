@@ -26,41 +26,25 @@ export const B2BProtectedRoute: React.FC<B2BProtectedRouteProps> = ({ children }
     return <Navigate to="/pro/login" state={{ from: location }} replace />;
   }
 
-  // List of admin emails for fallback access
+  // List of admin emails for enhanced privileges
   const ADMIN_EMAILS = ['charles@odasie.fr', 'vera@odasie.com'];
 
-  // Allow admin users and B2B users to access B2B routes
+  // Check if user has admin privileges (enhanced access)
   const userRole = user?.publicMetadata?.role;
   const isAdminEmail = user?.emailAddresses?.some(email => 
     ADMIN_EMAILS.includes(email.emailAddress)
   );
-  const hasAdminAccess = userRole === 'admin' || isAdminEmail;
-  const hasB2BAccess = userRole === 'b2b';
+  const isAdmin = userRole === 'admin' || isAdminEmail;
 
   console.log('B2B Route Access Check:', {
     userRole,
     email: user?.emailAddresses?.[0]?.emailAddress,
-    hasAdminAccess,
-    hasB2BAccess,
-    isAdminEmail
+    isAdmin,
+    isAuthenticated: isSignedIn
   });
 
-  if (!hasAdminAccess && !hasB2BAccess) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-destructive mb-4">Access Denied</h1>
-          <p className="text-muted-foreground mb-4">You need admin or B2B access to view this area.</p>
-          <button 
-            onClick={() => window.history.back()}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Allow any authenticated user to access B2B routes
+  // Admins get enhanced privileges, but any signed-in user can access
 
   return <>{children}</>;
 };

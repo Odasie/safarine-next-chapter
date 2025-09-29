@@ -44,6 +44,31 @@ async function sha256Hex(buffer: ArrayBuffer): Promise<string> {
     .join("");
 }
 
+// Price validation helper
+function validatePrice(value: string, fieldName: string): { valid: boolean; price: number | null; error?: string } {
+  if (!value || value.trim() === '') {
+    return { valid: true, price: null }; // Optional field
+  }
+  
+  const cleaned = value.trim().replace(/[^\d.,]/g, ''); // Remove non-numeric except . and ,
+  const normalized = cleaned.replace(',', '.'); // Handle comma as decimal separator
+  const parsed = parseFloat(normalized);
+  
+  if (isNaN(parsed)) {
+    return { valid: false, price: null, error: `${fieldName} must be a valid number` };
+  }
+  
+  if (parsed <= 0) {
+    return { valid: false, price: null, error: `${fieldName} must be greater than 0` };
+  }
+  
+  if (parsed > 1000000) {
+    return { valid: false, price: null, error: `${fieldName} seems unreasonably high (max 1,000,000)` };
+  }
+  
+  return { valid: true, price: Math.round(parsed * 100) / 100 }; // Round to 2 decimal places
+}
+
 function parseTsv(tsv: string): Record<string, string>[] {
   const lines = tsv.split(/\r?\n/).filter((l) => l.trim().length > 0);
   if (lines.length === 0) return [];
@@ -106,15 +131,17 @@ Deno.serve(async (req) => {
       tours_updated: 0,
       images_uploaded: 0,
       categories_linked: 0,
+      validation_errors: 0,
+      price_validations: { valid: 0, invalid: 0 },
       errors: [] as string[],
     };
 
-    for (const row of rows) {
+    for (const [rowIndex, row] of rows.entries()) {
       try {
         // Map inputs with tolerant keys
         const get = (k: string) => row[k] ?? row[k.toLowerCase()] ?? "";
         const slug = toSlug(get("url_slug_fr") || get("url_slug_en") || get("title_fr") || get("title_en"));
-        if (!slug) throw new Error("Missing slug");
+        if (!slug) throw new Error(`Row ${rowIndex + 1}: Missing slug`);
 
         const title = get("title_fr") || get("title_en") || slug;
         const meta_desc = get("description_fr") || get("description_en") || "";
@@ -127,6 +154,31 @@ Deno.serve(async (req) => {
         const what_not_included = splitList(get("what_not_included"));
         const image_url = get("image_url");
         const destination_image_url = get("destination_image_url");
+
+        // Validate pricing fields
+        const priceValidation = validatePrice(get("price"), "Price");
+        const childPriceValidation = validatePrice(get("child_price"), "Child Price");
+        const b2bPriceValidation = validatePrice(get("b2b_price"), "B2B Price");
+
+        // Check for validation errors
+        const validationErrors: string[] = [];
+        if (!priceValidation.valid && priceValidation.error) {
+          validationErrors.push(priceValidation.error);
+        }
+        if (!childPriceValidation.valid && childPriceValidation.error) {
+          validationErrors.push(childPriceValidation.error);
+        }
+        if (!b2bPriceValidation.valid && b2bPriceValidation.error) {
+          validationErrors.push(b2bPriceValidation.error);
+        }
+
+        if (validationErrors.length > 0) {
+          summary.validation_errors++;
+          summary.price_validations.invalid++;
+          throw new Error(`Row ${rowIndex + 1}: ${validationErrors.join(', ')}`);
+        }
+
+        summary.price_validations.valid++;
 
         // Upsert page by slug manually (select -> insert/update)
         const { data: existingPage, error: findPageErr } = await supabase
@@ -266,7 +318,9 @@ Deno.serve(async (req) => {
           const tourPayload: any = {
             page_id: pageId,
             duration_days: duration_days ?? null,
-            price: null,
+            price: priceValidation.price,
+            child_price: childPriceValidation.price,
+            b2b_price: b2bPriceValidation.price,
             currency: "THB",
             hero_image,
             highlights: { included: what_included, excluded: what_not_included },
@@ -289,7 +343,8 @@ Deno.serve(async (req) => {
         summary.processed++;
       } catch (rowErr: any) {
         console.error("Row error", rowErr);
-        summary.errors.push(rowErr?.message || String(rowErr));
+        const errorMessage = rowErr?.message || String(rowErr);
+        summary.errors.push(errorMessage);
       }
     }
 

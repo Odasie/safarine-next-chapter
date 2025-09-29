@@ -23,6 +23,7 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import AdminImport from "./pages/AdminImport";
 import AdminCSVImport from "./pages/AdminCSVImport";
+import TourCSVImport from "./pages/admin/TourCSVImport";
 import { TourDashboard } from "./pages/admin/TourDashboard";
 import { TourCreationWizard } from "./pages/admin/TourCreationWizard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -134,6 +135,11 @@ const App = () => (
                         <TourCreationWizard />
                       </AdminProtectedRoute>
                     } />
+                    <Route path="admin/tour-csv-import" element={
+                      <AdminProtectedRoute>
+                        <TourCSVImport />
+                      </AdminProtectedRoute>
+                    } />
                   <Route path="admin/tours/edit/:id" element={
                     <AdminProtectedRoute>
                       <TourCreationWizard mode="edit" />
@@ -171,6 +177,11 @@ const App = () => (
                     <Route path="/admin/tours/create" element={
                       <AdminProtectedRoute>
                         <TourCreationWizard />
+                      </AdminProtectedRoute>
+                    } />
+                    <Route path="/admin/tour-csv-import" element={
+                      <AdminProtectedRoute>
+                        <TourCSVImport />
                       </AdminProtectedRoute>
                     } />
                     <Route path="/admin/tours/edit/:id" element={

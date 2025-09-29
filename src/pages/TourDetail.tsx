@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocale } from '@/contexts/LocaleContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useTourImages } from '@/hooks/useTourImages';
 import SearchBar from '@/components/search/SearchBar';
 import EnhancedSearchSection from '@/components/search/EnhancedSearchSection';
 import TourSuggestionsSection from '@/components/tours/TourSuggestionsSection';
@@ -289,6 +290,9 @@ const TourDetail = () => {
     return null;
   }, [tourData?.itinerary]);
 
+  // Get hero image using the hook for background
+  const { heroImage } = useTourImages(tourData?.id || '');
+
   const nothingFound = !isLoading && !tourData;
 
   // Loading state with enhanced skeleton
@@ -372,32 +376,30 @@ const TourDetail = () => {
 
       <div className="space-y-0">
         {/* Hero Section with Background Image */}
-        <div className="relative h-96 overflow-hidden">
-          {imageRecords[0]?.url && (
-            <img 
-              src={imageRecords[0].url}
-              alt={imageRecords[0].alt}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-          
+        <div 
+          className="relative w-full h-[300px] md:h-[400px] bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: heroImage?.file_path 
+              ? `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${heroImage.file_path})`
+              : 'linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-foreground)))'
+          }}
+        >
           {/* Hero Content */}
           <div className="absolute inset-0 flex items-end">
             <div className="container mx-auto px-4 py-8">
               <div className="max-w-3xl text-white">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight drop-shadow-lg">
                   {displayTitle}
                 </h1>
                 
                 <div className="flex flex-wrap items-center gap-4 mb-6">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5" />
-                    <span className="text-lg">{tourData?.destination || 'Thailand'}</span>
+                  <div className="flex items-center gap-2 drop-shadow-md">
+                    <MapPin className="h-4 w-4 md:h-5 md:w-5" />
+                    <span className="text-sm md:text-lg">{tourData?.destination || 'Thailand'}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    <span className="text-lg">
+                  <div className="flex items-center gap-2 drop-shadow-md">
+                    <Clock className="h-4 w-4 md:h-5 md:w-5" />
+                    <span className="text-sm md:text-lg">
                       {duration.days} {duration.days === 1 ? 'day' : 'days'}
                       {duration.nights > 0 && `, ${duration.nights} ${duration.nights === 1 ? 'night' : 'nights'}`}
                     </span>
@@ -405,16 +407,26 @@ const TourDetail = () => {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                  <Badge className={difficultyConfig.color}>
+                  <Badge 
+                    variant="secondary" 
+                    className="bg-white/20 text-white border-white/30 hover:bg-white/30 backdrop-blur-sm"
+                  >
                     {difficultyConfig.label}
                   </Badge>
                   {tourData?.is_private && (
-                    <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                    <Badge 
+                      variant="secondary" 
+                      className="bg-purple-500/20 text-white border-purple-300/30 hover:bg-purple-500/30 backdrop-blur-sm"
+                    >
                       Private Tour
                     </Badge>
                   )}
                   {tourData?.languages && tourData.languages.map((lang: string) => (
-                    <Badge key={lang} variant="outline" className="border-white/30 text-white">
+                    <Badge 
+                      key={lang}
+                      variant="outline" 
+                      className="bg-white/20 text-white border-white/30 hover:bg-white/30 backdrop-blur-sm"
+                    >
                       {lang === 'en' ? 'EN' : lang === 'fr' ? 'FR' : lang.toUpperCase()}
                     </Badge>
                   ))}
@@ -425,9 +437,9 @@ const TourDetail = () => {
         </div>
 
         {/* Quick Info Bar */}
-        <div className="bg-card border-b">
+        <div className="bg-background border-b border-border shadow-sm">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
                 <span>{duration.days} days, {duration.nights} nights</span>
@@ -509,10 +521,10 @@ const TourDetail = () => {
                 </Card>
               )}
 
-              {/* Image Gallery - Always show if tour exists */}
+              {/* Image Gallery - Show only additional images */}
               {tourData?.id && (
                 <div className="space-y-4">
-                  <h2 className="text-2xl font-semibold text-foreground">Gallery</h2>
+                  <h2 className="text-2xl font-semibold text-foreground">More Images</h2>
                   <ImageGallery tourId={tourData.id} />
                 </div>
               )}

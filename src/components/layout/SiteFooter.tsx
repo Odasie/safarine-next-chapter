@@ -4,21 +4,20 @@ import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useTranslations } from "@/hooks/use-translations";
 const SiteFooter = () => {
-  const { locale } = useLocale();
-  const { t } = useTranslations();
-  
+  const {
+    locale
+  } = useLocale();
+  const {
+    t
+  } = useTranslations();
   const getLocalizedPath = (path: string) => {
     return `/${locale}${path}`;
   };
-
   return <footer className="bg-accent text-accent-foreground mt-12" role="contentinfo">
       <div className="container mx-auto grid gap-8 py-10 md:grid-cols-4">
         <div>
           <Link to={getLocalizedPath("/")} className="flex items-center gap-3" aria-label="Safarine Tours">
-            <ResponsiveLogo 
-              className="h-6 md:h-8" 
-              theme="light" 
-            />
+            <ResponsiveLogo className="h-6 md:h-8" theme="light" />
             <div className="leading-tight">
               
               <span className="block text-xs opacity-90">Private Tours Thailand</span>
@@ -42,12 +41,14 @@ const SiteFooter = () => {
         <div className="text-sm">
           <h3 className="mb-2 font-semibold">Offices</h3>
           <p>{t('footer.office.kanchanaburi', 'Kanchanaburi Office')}</p>
-          <p>{t('footer.office.chiang_mai', 'Chiang Mai Office')}</p>
+          
         </div>
 
         <div className="text-sm">
           <h3 className="mb-2 font-semibold">Legal</h3>
-          <p>{t('footer.copyright', '© {year} Safarine Tours. All rights reserved.', { year: new Date().getFullYear().toString() })}</p>
+          <p>{t('footer.copyright', '© {year} Safarine Tours. All rights reserved.', {
+            year: new Date().getFullYear().toString()
+          })}</p>
         </div>
       </div>
     </footer>;

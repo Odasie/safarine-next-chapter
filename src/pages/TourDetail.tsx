@@ -185,11 +185,11 @@ const TourDetail = () => {
       return {
         adult: tourData.price,
         child: tourData.child_price,
-        b2b: tourData.b2b_price,
+        // NEVER include B2B pricing on public pages
         currency: tourData.currency || 'THB'
       };
     }
-    return { adult: null, child: null, b2b: null, currency: 'THB' };
+    return { adult: null, child: null, currency: 'THB' };
   }, [tourData]);
 
   const difficultyConfig = useMemo(() => {
@@ -549,24 +549,13 @@ const TourDetail = () => {
                       <p className="text-xs text-muted-foreground">Per child</p>
                     </div>
                   )}
-                  
-                  {pricing.b2b && (
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-muted-foreground">Group (10+ people)</span>
-                        <span className="text-xl font-semibold text-foreground">
-                          {pricing.currency} {Number(pricing.b2b).toLocaleString()}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">Per person</p>
-                    </div>
-                  )}
-                  
-                  {!pricing.child && !pricing.b2b && (
-                    <p className="text-sm text-muted-foreground text-center py-2">
-                      Contact us for group and child pricing
-                    </p>
-                  )}
+                   
+                   {/* Group Rate Message - NEVER show B2B pricing */}
+                   <div className="bg-muted rounded-lg p-3">
+                     <p className="text-sm text-muted-foreground text-center">
+                       🎉 Contact us for group rates and special discounts
+                     </p>
+                   </div>
                 </CardContent>
               </Card>
 

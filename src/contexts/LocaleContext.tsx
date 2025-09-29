@@ -22,6 +22,9 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     'common.loading': 'Loading...',
     'tours.card.book': 'Book Tour',
     'search.destination': 'Destination',
+    'homepage.favorites.title': 'Our Favorite Activities',
+    'homepage.favorites.view_all': 'View all activities',
+    'aria.tour_card': 'View {title}',
     // Philosophy section fallbacks
     'about.philosophy.title': 'Our Philosophy',
     'about.philosophy.subtitle': 'The values that guide our approach to authentic Thai travel experiences.',
@@ -41,6 +44,9 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     'common.loading': 'Chargement...',
     'tours.card.book': 'Réserver',
     'search.destination': 'Destination',
+    'homepage.favorites.title': 'Nos activités préférées',
+    'homepage.favorites.view_all': 'Voir toutes nos activités',
+    'aria.tour_card': 'Voir {title}',
     // Philosophy section fallbacks
     'about.philosophy.title': 'Notre Philosophie',
     'about.philosophy.subtitle': 'Les valeurs qui guident notre approche des expériences de voyage thaïlandaises authentiques.',

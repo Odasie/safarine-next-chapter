@@ -1,6 +1,8 @@
 export type Highlights = { included?: string[]; excluded?: string[] };
 
+// DEPRECATED: Use formatPrice from CurrencyContext for currency-aware formatting
 export function formatPrice(value?: number | string | null, currency: string = "THB"): string {
+  console.warn('DEPRECATED: formatPrice from lib/tours.ts - Use formatPrice from CurrencyContext instead');
   if (value == null) return "";
   if (typeof value === "string") return value;
   try {

@@ -23,11 +23,12 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useTourManagement, getTourStatusSummary } from "@/hooks/use-tour-management";
 import { useRawTours } from "@/hooks/use-tours";
-import { formatPrice } from "@/lib/tours";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { toast } from "sonner";
 
 const TourDashboardComponent = () => {
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDestination, setFilterDestination] = useState<string | undefined>(undefined);
   const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
@@ -320,7 +321,7 @@ const TourDashboardComponent = () => {
                   </TableCell>
                   
                   <TableCell>
-                    {tour.price ? formatPrice(tour.price, tour.currency) : '-'}
+                    {tour.price ? formatPrice(tour.price) : '-'}
                   </TableCell>
                   
                   <TableCell>

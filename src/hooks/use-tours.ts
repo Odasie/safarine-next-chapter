@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { formatPrice, durationToText } from "@/lib/tours";
+import { durationToText } from "@/lib/tours";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 export interface SupabaseTour {
   id: string;
@@ -65,13 +66,13 @@ export interface SupabaseCategory {
   name: string | null;
 }
 
-export function transformTour(tour: any): TransformedTour {
+export function transformTour(tour: any, formatPrice?: (amount: number) => string): TransformedTour {
   // Use new database fields with fallbacks
   const location = tour.destination || "Kanchanaburi";
   const duration = tour.duration_nights > 0 
     ? `${tour.duration_days} jour${tour.duration_days > 1 ? 's' : ''} / ${tour.duration_nights} nuit${tour.duration_nights > 1 ? 's' : ''}`
     : durationToText(tour.duration_days, "1 jour");
-  const price = tour.price ? formatPrice(tour.price, tour.currency) : undefined;
+  const price = tour.price && formatPrice ? formatPrice(tour.price) : (tour.price ? `${tour.price} ${tour.currency || 'THB'}` : undefined);
   
   // Use French title first by default (original behavior for backwards compatibility)
   const title = tour.title_fr || tour.title_en || tour.page?.title || "Tour sans titre";
@@ -124,6 +125,8 @@ export function transformTour(tour: any): TransformedTour {
 }
 
 export function useTours() {
+  const { formatPrice } = useCurrency();
+  
   return useQuery({
     queryKey: ["tours"],
     queryFn: async () => {
@@ -197,7 +200,7 @@ export function useTours() {
 
       console.log(`✅ Found ${data?.length || 0} public tours`);
       console.log('📊 Tours data:', data);
-      return (data as any[]).map(transformTour);
+      return (data as any[]).map(tour => transformTour(tour, formatPrice));
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -224,6 +227,8 @@ export function useCategories() {
 }
 
 export function useFeaturedTours(limit: number = 3) {
+  const { formatPrice } = useCurrency();
+  
   return useQuery({
     queryKey: ["featured-tours", limit],
     queryFn: async () => {
@@ -295,7 +300,7 @@ export function useFeaturedTours(limit: number = 3) {
         throw error;
       }
 
-      return (data as any[]).map(transformTour);
+      return (data as any[]).map(tour => transformTour(tour, formatPrice));
     },
     staleTime: 5 * 60 * 1000,
   });

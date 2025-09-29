@@ -13,7 +13,7 @@ interface CurrencyContextType {
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
 const CURRENCY_STORAGE_KEY = 'safarine-currency';
-const FX_RATE_THB_TO_EUR = 0.0257; // Base rate, could be fetched from API
+const FX_RATE_THB_TO_EUR = 1 / 37.6; // 1 EUR = 37.6 THB (from admin-managed exchange rate)
 
 const currencyDefaults = {
   fr: 'EUR' as Currency,
@@ -44,12 +44,12 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const formatPrice = (amountTHB: number, amountEUR?: number | null): string => {
     if (currency === 'THB') {
-      return `${amountTHB.toLocaleString()} THB`;
+      return `${Math.round(amountTHB)} THB`;
     }
     
-    // Use provided EUR amount or convert from THB
-    const eurAmount = amountEUR ?? Math.round(amountTHB * FX_RATE_THB_TO_EUR / 5) * 5; // Round to nearest 5€
-    return `${eurAmount.toLocaleString()} €`;
+    // Use provided EUR amount or convert from THB (round up, no decimals)
+    const eurAmount = amountEUR ?? Math.ceil(amountTHB * FX_RATE_THB_TO_EUR);
+    return `${eurAmount} €`;
   };
 
   return (

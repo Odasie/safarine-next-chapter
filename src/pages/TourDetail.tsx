@@ -11,8 +11,9 @@ import SimpleImageViewer from "@/components/tours/SimpleImageViewer";
 import TourCard from "@/components/tours/TourCard";
 import { ImageGallery } from "@/components/tours/ImageGallery";
 import { MapPin, Clock, CircleDollarSign } from "lucide-react";
-import { durationToText, formatPrice } from "@/lib/tours";
+import { durationToText } from "@/lib/tours";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 const TourDetail = () => {
   const {
     slug
@@ -21,6 +22,7 @@ const TourDetail = () => {
   const {
     t
   } = useLocale();
+  const { formatPrice } = useCurrency();
 
   // Local fallback data
   const localTour = useMemo(() => tours.find(t => t.slug === slug), [slug]);
@@ -194,7 +196,7 @@ const TourDetail = () => {
   const displayTitle = pageData?.title ?? tour?.title_fr ?? localTour?.title ?? "Tour";
   const metaDesc = pageData?.meta_desc ?? `${displayTitle} – ${tour?.destination ?? localTour?.location ?? ""}.`;
   const durationText = tour?.duration_days != null ? durationToText(tour.duration_days, localTour?.duration) : localTour?.duration;
-  const priceText = tour?.price != null ? formatPrice(tour.price, tour.currency) : localTour?.price;
+  const priceText = tour?.price != null ? formatPrice(tour.price) : localTour?.price;
 
   // Create ImageRecord array with proper image references
   const imageRecords = useMemo(() => {

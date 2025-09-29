@@ -6,16 +6,23 @@ export interface B2BRate {
   commission: number;
   savingsAmount: number;
   savingsPercentage: number;
+  usesStoredPrice: boolean;
 }
 
 /**
- * Calculate B2B rates based on retail price and commission rate
+ * Calculate B2B rates based on retail price and commission rate, with stored B2B price support
  */
-export function calculateB2BRate(retailPrice: number, commissionRate: number): B2BRate {
-  const commission = (retailPrice * commissionRate) / 100;
-  const b2bPrice = retailPrice - commission;
+export function calculateB2BRate(
+  retailPrice: number, 
+  commissionRate: number, 
+  storedB2BPrice?: number | null
+): B2BRate {
+  // Use stored B2B price if available, otherwise calculate from commission
+  const usesStoredPrice = storedB2BPrice !== null && storedB2BPrice !== undefined;
+  const b2bPrice = usesStoredPrice ? storedB2BPrice! : retailPrice - (retailPrice * commissionRate) / 100;
+  const commission = retailPrice - b2bPrice;
   const savingsAmount = commission;
-  const savingsPercentage = commissionRate;
+  const savingsPercentage = (commission / retailPrice) * 100;
   
   return {
     retailPrice,
@@ -23,6 +30,7 @@ export function calculateB2BRate(retailPrice: number, commissionRate: number): B
     commission,
     savingsAmount,
     savingsPercentage,
+    usesStoredPrice,
   };
 }
 
@@ -46,15 +54,17 @@ export function generateToursCSV(tours: any[], commissionRate: number): string {
     'Group Size Min',
     'Group Size Max',
     'Difficulty',
-    'Retail Price',
+    'Adult Price',
+    'Child Price',
     'B2B Price',
+    'B2B Pricing Method',
     'Commission Amount',
     'Savings %',
     'Currency'
   ];
   
   const rows = tours.map(tour => {
-    const b2bRate = calculateB2BRate(tour.price || 0, commissionRate);
+    const b2bRate = calculateB2BRate(tour.price || 0, commissionRate, tour.b2b_price);
     return [
       `"${tour.title_en || ''}"`,
       `"${tour.title_fr || ''}"`,
@@ -65,9 +75,11 @@ export function generateToursCSV(tours: any[], commissionRate: number): string {
       tour.group_size_max || 8,
       `"${tour.difficulty_level || 'moderate'}"`,
       tour.price || 0,
+      tour.child_price || 'N/A',
       Math.round(b2bRate.b2bPrice),
+      b2bRate.usesStoredPrice ? 'Fixed Price' : 'Commission Based',
       Math.round(b2bRate.commission),
-      b2bRate.savingsPercentage,
+      Math.round(b2bRate.savingsPercentage),
       tour.currency || 'THB'
     ];
   });

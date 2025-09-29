@@ -138,6 +138,8 @@ export function useTours() {
           duration_days,
           duration_nights,
           price,
+          child_price,
+          b2b_price,
           currency,
           title_en,
           title_fr,

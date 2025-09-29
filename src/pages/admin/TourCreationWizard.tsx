@@ -30,6 +30,8 @@ export interface TourFormData {
   duration_days: number;
   duration_nights: number;
   price: number;
+  child_price?: number;
+  b2b_price?: number;
   currency: string;
   difficulty_level: string;
   group_size_min: number;

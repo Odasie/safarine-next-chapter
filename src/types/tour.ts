@@ -6,6 +6,10 @@ export interface LocalizedText {
 export interface TourPrice {
   amount_thb: number;
   amount_eur?: number | null;
+  child_price_thb?: number | null;
+  child_price_eur?: number | null;
+  b2b_price_thb?: number | null;
+  b2b_price_eur?: number | null;
   includes_tax: boolean;
   notes: LocalizedText;
 }

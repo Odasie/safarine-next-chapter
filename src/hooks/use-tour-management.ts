@@ -23,6 +23,8 @@ export interface CreateTourParams {
   duration_days?: number;
   duration_nights?: number;
   price?: number;
+  child_price?: number;
+  b2b_price?: number;
   currency?: string;
 }
 
@@ -84,6 +86,8 @@ export const useTourManagement = () => {
           duration_days_param: params.duration_days || 1,
           duration_nights_param: params.duration_nights || 0,
           price_param: params.price || null,
+          child_price_param: params.child_price || null,
+          b2b_price_param: params.b2b_price || null,
           currency_param: params.currency || 'THB',
         });
       });

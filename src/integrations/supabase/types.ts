@@ -521,7 +521,9 @@ export type Database = {
       }
       tours: {
         Row: {
+          b2b_price: number | null
           booking_method: string | null
+          child_price: number | null
           created_at: string | null
           currency: string
           description_en: string | null
@@ -559,7 +561,9 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          b2b_price?: number | null
           booking_method?: string | null
+          child_price?: number | null
           created_at?: string | null
           currency?: string
           description_en?: string | null
@@ -597,7 +601,9 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          b2b_price?: number | null
           booking_method?: string | null
+          child_price?: number | null
           created_at?: string | null
           currency?: string
           description_en?: string | null
@@ -770,15 +776,27 @@ export type Database = {
         Returns: Json
       }
       create_new_tour: {
-        Args: {
-          currency_param?: string
-          destination_param?: string
-          duration_days_param?: number
-          duration_nights_param?: number
-          price_param?: number
-          title_en_param: string
-          title_fr_param: string
-        }
+        Args:
+          | {
+              b2b_price_param?: number
+              child_price_param?: number
+              currency_param?: string
+              destination_param?: string
+              duration_days_param?: number
+              duration_nights_param?: number
+              price_param?: number
+              title_en_param: string
+              title_fr_param: string
+            }
+          | {
+              currency_param?: string
+              destination_param?: string
+              duration_days_param?: number
+              duration_nights_param?: number
+              price_param?: number
+              title_en_param: string
+              title_fr_param: string
+            }
         Returns: string
       }
       generate_secure_session_token: {

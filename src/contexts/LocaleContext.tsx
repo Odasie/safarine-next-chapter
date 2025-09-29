@@ -75,7 +75,26 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     'about.philosophy.sustainability.title': 'Sustainability',
     'about.philosophy.sustainability.description': 'Responsible tourism that preserves Thailand\'s natural beauty for future generations.',
     'about.philosophy.personalization.title': 'Personalization',
-    'about.philosophy.personalization.description': 'Every journey is crafted to match your interests and travel style.'
+    'about.philosophy.personalization.description': 'Every journey is crafted to match your interests and travel style.',
+    
+    // Footer translations
+    'footer.pro_login': 'Pro Login',
+    'footer.tagline': 'Authentic Thai Adventures',
+    'footer.copyright': '© 2024 Safarine. All rights reserved.',
+    'footer.office.kanchanaburi': 'Kanchanaburi Office',
+    
+    // About page missing keys
+    'about.story.title': 'Our Story',
+    'about.story.subtitle': 'Crafting memorable Thai adventures since 1995',
+    'about.story.content': 'Founded in 1995, Safarine Tours has been creating authentic Thai experiences for nearly three decades. We specialize in personalized journeys that connect travelers with the real Thailand.',
+    'about.team.title': 'Meet Our Team',
+    'about.team.subtitle': 'Passionate experts dedicated to your Thai adventure',
+    'about.pillar.authenticity.title': 'Authenticity',
+    'about.pillar.authenticity.description': 'We prioritize genuine local experiences over tourist attractions.',
+    'about.pillar.sustainability.title': 'Sustainability',  
+    'about.pillar.sustainability.description': 'Responsible tourism that benefits local communities.',
+    'about.pillar.personalization.title': 'Personalization',
+    'about.pillar.personalization.description': 'Every journey is tailored to your unique interests.'
   },
   fr: {
     'menu.tours': 'Circuits',
@@ -139,7 +158,26 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     'about.philosophy.sustainability.title': 'Durabilité',
     'about.philosophy.sustainability.description': 'Tourisme responsable qui préserve la beauté naturelle de la Thaïlande pour les générations futures.',
     'about.philosophy.personalization.title': 'Personnalisation',
-    'about.philosophy.personalization.description': 'Chaque voyage est conçu pour correspondre à vos intérêts et votre style de voyage.'
+    'about.philosophy.personalization.description': 'Chaque voyage est conçu pour correspondre à vos intérêts et votre style de voyage.',
+    
+    // Footer translations
+    'footer.pro_login': 'Connexion Pro',
+    'footer.tagline': 'Aventures Thaïlandaises Authentiques',
+    'footer.copyright': '© 2024 Safarine. Tous droits réservés.',
+    'footer.office.kanchanaburi': 'Bureau de Kanchanaburi',
+    
+    // About page missing keys
+    'about.story.title': 'Notre Histoire',
+    'about.story.subtitle': 'Créer des aventures thaïlandaises mémorables depuis 1995',
+    'about.story.content': 'Fondée en 1995, Safarine Tours crée des expériences thaïlandaises authentiques depuis près de trois décennies. Nous nous spécialisons dans les voyages personnalisés qui connectent les voyageurs avec la vraie Thaïlande.',
+    'about.team.title': 'Rencontrez Notre Équipe',
+    'about.team.subtitle': 'Des experts passionnés dédiés à votre aventure thaïlandaise',
+    'about.pillar.authenticity.title': 'Authenticité',
+    'about.pillar.authenticity.description': 'Nous privilégions les expériences locales authentiques aux attractions touristiques.',
+    'about.pillar.sustainability.title': 'Durabilité',
+    'about.pillar.sustainability.description': 'Tourisme responsable qui bénéficie aux communautés locales.',
+    'about.pillar.personalization.title': 'Personnalisation',
+    'about.pillar.personalization.description': 'Chaque voyage est adapté à vos intérêts uniques.'
   }
 };
 

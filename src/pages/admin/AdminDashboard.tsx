@@ -57,7 +57,7 @@ const AdminDashboard: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold">{t('admin.dashboard.title')}</h1>
             <p className="text-muted-foreground mt-2">
-              {t('admin.dashboard.welcome', { name: user?.firstName || 'Admin' })}
+              {t('admin.dashboard.welcome', `Welcome, ${user?.firstName || 'Admin'}!`, { name: user?.firstName || 'Admin' })}
             </p>
           </div>
           <div className="flex items-center gap-4">

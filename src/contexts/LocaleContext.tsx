@@ -7,7 +7,7 @@ export type Locale = 'fr' | 'en';
 interface LocaleContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (key: string, params?: Record<string, string>) => string;
+  t: (key: string, fallback?: string, params?: Record<string, string | number>) => string;
   isLoading: boolean;
 }
 
@@ -25,6 +25,48 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     'homepage.favorites.title': 'Our Favorite Activities',
     'homepage.favorites.view_all': 'View all activities',
     'aria.tour_card': 'View {title}',
+    
+    // Homepage Hero
+    'homepage.hero.title': 'Private Tours Thailand',
+    'homepage.hero.subtitle': 'Trek, culture and immersion away from mass tourism',
+    
+    // Featured Tours Section
+    'homepage.featured.title': 'Our tours and activities',
+    'homepage.featured.view_all': 'View all tours',
+    
+    // Meta Tags
+    'meta.homepage.title': 'Safarine Tours | Private Tours Thailand',
+    'meta.homepage.description': 'Trek, culture and immersion away from mass tourism. Private tours in Thailand with Safarine Tours.',
+    'meta.tours.description': 'Discover our private tours and activities in Thailand. Custom experiences away from mass tourism.',
+    
+    // Navigation
+    'navigation.tours': 'Tours',
+    'navigation.about': 'About',
+    'navigation.pro': 'Pro',
+    'navigation.contact': 'Contact',
+    'navigation.search': 'Search',
+    'aria.main_navigation': 'Main navigation',
+    'aria.search_button': 'Search tours',
+    
+    // Search & Filters
+    'search.placeholder': 'Search tours...',
+    'search.duration': 'All Durations',
+    'search.durations.halfday': 'Half Day',
+    'search.durations.oneday': '1 Day',
+    'search.durations.multiday': '2+ Days',
+    
+    // Tours List Page
+    'tours.list.title': 'Tours & Activities | Safarine Tours Thailand',
+    'tours.list.header.title': 'Tours & Activities',
+    'tours.page.subtitle': 'Discover our private tours in Thailand',
+    'tours.list.error': 'Error loading tours',
+    'tours.list.no.results': 'No tours match your filters',
+    'tours.list.filters.category.all': 'All Categories',
+    'tours.list.filters.duration.all': 'All Durations',
+    
+    // Tour Card
+    'tour.card.bookButton': 'Book Tour',
+    
     // Philosophy section fallbacks
     'about.philosophy.title': 'Our Philosophy',
     'about.philosophy.subtitle': 'The values that guide our approach to authentic Thai travel experiences.',
@@ -47,6 +89,48 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     'homepage.favorites.title': 'Nos activités préférées',
     'homepage.favorites.view_all': 'Voir toutes nos activités',
     'aria.tour_card': 'Voir {title}',
+    
+    // Homepage Hero
+    'homepage.hero.title': 'Circuits Privés Thaïlande',
+    'homepage.hero.subtitle': 'Randonnée, culture et immersion loin du tourisme de masse',
+    
+    // Featured Tours Section
+    'homepage.featured.title': 'Nos circuits et activités',
+    'homepage.featured.view_all': 'Voir tous les circuits',
+    
+    // Meta Tags
+    'meta.homepage.title': 'Safarine Tours | Circuits Privés Thaïlande',
+    'meta.homepage.description': 'Randonnée, culture et immersion loin du tourisme de masse. Circuits privés en Thaïlande avec Safarine Tours.',
+    'meta.tours.description': 'Découvrez nos circuits privés et activités en Thaïlande. Expériences sur mesure loin du tourisme de masse.',
+    
+    // Navigation
+    'navigation.tours': 'Circuits',
+    'navigation.about': 'À propos',
+    'navigation.pro': 'Pro',
+    'navigation.contact': 'Contact',
+    'navigation.search': 'Recherche',
+    'aria.main_navigation': 'Navigation principale',
+    'aria.search_button': 'Rechercher des circuits',
+    
+    // Search & Filters
+    'search.placeholder': 'Rechercher des circuits...',
+    'search.duration': 'Toutes les durées',
+    'search.durations.halfday': 'Demi-journée',
+    'search.durations.oneday': '1 Jour',
+    'search.durations.multiday': '2+ Jours',
+    
+    // Tours List Page
+    'tours.list.title': 'Circuits & Activités | Safarine Tours Thaïlande',
+    'tours.list.header.title': 'Circuits & Activités',
+    'tours.page.subtitle': 'Découvrez nos circuits privés en Thaïlande',
+    'tours.list.error': 'Erreur lors du chargement des circuits',
+    'tours.list.no.results': 'Aucun circuit ne correspond à vos filtres',
+    'tours.list.filters.category.all': 'Toutes les catégories',
+    'tours.list.filters.duration.all': 'Toutes les durées',
+    
+    // Tour Card
+    'tour.card.bookButton': 'Réserver',
+    
     // Philosophy section fallbacks
     'about.philosophy.title': 'Notre Philosophie',
     'about.philosophy.subtitle': 'Les valeurs qui guident notre approche des expériences de voyage thaïlandaises authentiques.',
@@ -183,7 +267,7 @@ export const LocaleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     localStorage.setItem('safarine-locale', newLocale);
   };
 
-  const t = (key: string, params: Record<string, string> = {}): string => {
+  const t = (key: string, fallback?: string, params?: Record<string, string | number>): string => {
     // Debug logging for philosophy keys
     if (key.includes('philosophy')) {
       console.log(`🔍 Philosophy translation lookup: ${key}`, {
@@ -208,18 +292,24 @@ export const LocaleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
     }
     
-    // If still not found, use a human-readable fallback
+    // If still not found, use provided fallback or convert key to human-readable format
     if (!translation) {
       console.warn(`Translation missing for key: ${key} in both locales`);
-      // Convert key to human-readable format (e.g., 'search.destination' -> 'Destination')
-      translation = key.split('.').pop()?.replace(/([A-Z])/g, ' $1').trim() || key;
-      translation = translation.charAt(0).toUpperCase() + translation.slice(1);
+      if (fallback) {
+        translation = fallback;
+      } else {
+        // Convert key to human-readable format (e.g., 'search.destination' -> 'Destination')
+        translation = key.split('.').pop()?.replace(/([A-Z])/g, ' $1').trim() || key;
+        translation = translation.charAt(0).toUpperCase() + translation.slice(1);
+      }
     }
     
     // Handle parameter substitution
-    Object.entries(params).forEach(([param, value]) => {
-      translation = translation.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
-    });
+    if (params) {
+      Object.entries(params).forEach(([param, value]) => {
+        translation = translation.replace(new RegExp(`\\{${param}\\}`, 'g'), String(value));
+      });
+    }
     
     return translation;
   };

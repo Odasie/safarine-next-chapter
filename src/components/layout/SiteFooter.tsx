@@ -2,14 +2,8 @@ import { Link } from "react-router-dom";
 import { Facebook, Instagram, Mail } from "lucide-react";
 import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { useLocale } from "@/contexts/LocaleContext";
-import { useTranslations } from "@/hooks/use-translations";
 const SiteFooter = () => {
-  const {
-    locale
-  } = useLocale();
-  const {
-    t
-  } = useTranslations();
+  const { locale, t } = useLocale();
   const getLocalizedPath = (path: string) => {
     return `/${locale}${path}`;
   };

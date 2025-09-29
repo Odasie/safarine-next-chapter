@@ -8,11 +8,42 @@ import TourCard from "@/components/tours/TourCard";
 import { useFeaturedTours } from "@/hooks/use-tours";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTranslations } from "@/hooks/use-translations";
+import { useLocale } from "@/contexts/LocaleContext";
 
 const Index = () => {
   const { data: featured = [], isLoading: featuredLoading } = useFeaturedTours(4);
-  const { t } = useTranslations();
+  const { t, isLoading: translationsLoading } = useLocale();
+  
+  if (translationsLoading) {
+    return (
+      <div>
+        <div className="relative overflow-hidden min-h-[60vh] bg-gradient-to-br from-green-600 via-emerald-700 to-teal-800">
+          <div className="relative z-10 container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-6 py-16 text-center text-white">
+            <div className="h-12 w-96 bg-white/20 rounded animate-pulse" />
+            <div className="h-6 w-80 bg-white/20 rounded animate-pulse" />
+            <div className="w-full max-w-3xl h-16 bg-white/20 rounded-full animate-pulse" />
+          </div>
+        </div>
+        <div className="container mx-auto py-10">
+          <div className="mb-6 flex items-end justify-between">
+            <div className="h-8 w-64 bg-muted rounded animate-pulse" />
+            <div className="h-6 w-32 bg-muted rounded animate-pulse" />
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="space-y-3">
+                <Skeleton className="h-44 w-full rounded-lg" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div>

@@ -266,9 +266,7 @@ const TourDetail = () => {
         <div className="max-w-md mx-auto">
           <h1 className="text-3xl font-bold text-foreground mb-4">{t('tours.detail.not.found.title')}</h1>
           <p className="text-muted-foreground mb-6">
-            {t('tours.detail.not.found.message', {
-            slug: slug || ''
-          })}
+            {t('tours.detail.not.found.message', `Tour "${slug || ''}" not found`, { slug: slug || '' })}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button asChild>

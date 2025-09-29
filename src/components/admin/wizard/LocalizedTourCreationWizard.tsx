@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, Save } from "lucide-react";
 import { toast } from "sonner";
-import { useAdminTranslations } from "@/hooks/use-translations";
+import { useLocale } from "@/contexts/LocaleContext";
 import { supabase } from "@/integrations/supabase/client";
 import { validateSupabaseSchema, testPublishedAtColumn } from "@/utils/supabaseSchemaTest";
 
@@ -75,7 +75,7 @@ const STEP_KEYS = [
 
 export const LocalizedTourCreationWizard = () => {
   const navigate = useNavigate();
-  const { t } = useAdminTranslations();
+  const { t } = useLocale();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<TourFormData>({
     title_en: "",

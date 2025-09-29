@@ -1,11 +1,23 @@
 import SearchBar from "@/components/search/SearchBar";
 import { useLocale } from "@/contexts/LocaleContext";
-import { useTranslations } from "@/hooks/use-translations";
 import { useState } from "react";
 
 const Hero = () => {
-  const { t } = useTranslations();
+  const { t, isLoading } = useLocale();
   const [imageError, setImageError] = useState(false);
+  
+  if (isLoading) {
+    return (
+      <section className="relative overflow-hidden min-h-[60vh]">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-600 via-emerald-700 to-teal-800" />
+        <div className="relative z-10 container mx-auto flex min-h-[60vh] flex-col items-center justify-center gap-6 py-16 text-center text-white">
+          <div className="h-12 w-96 bg-white/20 rounded animate-pulse" />
+          <div className="h-6 w-80 bg-white/20 rounded animate-pulse" />
+          <div className="w-full max-w-3xl h-16 bg-white/20 rounded-full animate-pulse" />
+        </div>
+      </section>
+    );
+  }
   
   return (
     <section className="relative overflow-hidden min-h-[60vh]">

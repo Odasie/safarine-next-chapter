@@ -114,14 +114,10 @@ const ProDashboard = () => {
             {/* Mobile Welcome Message */}
             <div className="md:hidden text-center mb-4">
               <h1 className="text-xl font-bold text-gray-900">
-                 {t('b2b.dashboard.welcome', {
-                name: userName
-              })}
+                 {t('b2b.dashboard.welcome', `Welcome, ${userName}!`, { name: userName })}
               </h1>
               <p className="text-sm text-gray-600 mt-1">
-                 {t('b2b.dashboard.subtitle', {
-                company: companyName
-              })}
+                 {t('b2b.dashboard.subtitle', `Company: ${companyName}`, { company: companyName })}
               </p>
             </div>
 

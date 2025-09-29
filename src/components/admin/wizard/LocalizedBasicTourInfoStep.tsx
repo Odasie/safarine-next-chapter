@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TourFormData } from "@/components/admin/wizard/LocalizedTourCreationWizard";
-import { useAdminTranslations } from "@/hooks/use-translations";
+import { useLocale } from "@/contexts/LocaleContext";
 
 interface LocalizedBasicTourInfoStepProps {
   data: TourFormData;
@@ -38,7 +38,7 @@ const LANGUAGES = [
 ];
 
 export const LocalizedBasicTourInfoStep = ({ data, updateData }: LocalizedBasicTourInfoStepProps) => {
-  const { t } = useAdminTranslations();
+  const { t } = useLocale();
   
   const handleLanguageChange = (languageId: string, checked: boolean) => {
     const currentLanguages = data.languages || [];

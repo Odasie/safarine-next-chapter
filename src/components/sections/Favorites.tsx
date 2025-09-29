@@ -32,7 +32,7 @@ const Favorites = () => {
             ))
           ) : (
             favs.map((tour) => (
-              <Link key={tour.id} to={`/tours/${tour.slug}`} aria-label={t('aria.tour_card', { title: tour.title }) || `Voir ${tour.title}`}>
+              <Link key={tour.id} to={`/tours/${tour.slug}`} aria-label={t('aria.tour_card', `View ${tour.title}`, { title: tour.title }) || `Voir ${tour.title}`}>
                 <TourCard
                   imageRecord={tour.imageRecords?.[0]}
                   image={tour.images[0]}

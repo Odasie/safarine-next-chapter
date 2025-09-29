@@ -6,10 +6,10 @@ import { useTours, useCategories } from "@/hooks/use-tours";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTranslations } from "@/hooks/use-translations";
+import { useLocale } from "@/contexts/LocaleContext";
 
 const ToursList = () => {
-  const { t } = useTranslations();
+  const { t, isLoading: translationsLoading } = useLocale();
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [durationFilter, setDurationFilter] = useState<string>("all");
   const [q, setQ] = useState<string>("");
@@ -38,6 +38,33 @@ const ToursList = () => {
       return byCategory && bySearch && byDuration;
     });
   }, [tours, categoryFilter, q, durationFilter]);
+
+  if (translationsLoading) {
+    return (
+      <div className="container mx-auto py-10">
+        <div className="mb-8">
+          <div className="h-10 w-64 bg-muted rounded animate-pulse mb-4" />
+          <div className="h-6 w-96 bg-muted rounded animate-pulse" />
+        </div>
+        <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-10 bg-muted rounded animate-pulse" />
+          ))}
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="h-44 w-full rounded-lg" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (toursError) {
     return (

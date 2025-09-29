@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Trash2, GripVertical, Star } from "lucide-react";
 import { TourFormData } from "@/components/admin/wizard/LocalizedTourCreationWizard";
-import { useAdminTranslations } from "@/hooks/use-translations";
+import { useLocale } from "@/contexts/LocaleContext";
 
 interface LocalizedHighlightsStepProps {
   data: TourFormData;
@@ -22,7 +22,7 @@ interface Highlight {
 }
 
 export const LocalizedHighlightsStep = ({ data, updateData }: LocalizedHighlightsStepProps) => {
-  const { t } = useAdminTranslations();
+  const { t } = useLocale();
   const [activeLanguage, setActiveLanguage] = useState<'en' | 'fr'>('en');
   
   const highlights: Highlight[] = data.highlights.main_highlights || [];

@@ -175,7 +175,7 @@ const ProTours = () => {
     
     toast({
       title: t('b2b.tours.exportSuccess'),
-      description: t('b2b.tours.exportDescription', { count: String(selectedTours.size) }),
+      description: t('b2b.tours.exportDescription', `Exported ${selectedTours.size} tours successfully`, { count: String(selectedTours.size) }),
     });
   };
 
@@ -206,7 +206,7 @@ const ProTours = () => {
               {t('b2b.tours.title')}
             </h1>
             <p className="text-muted-foreground mt-1">
-              {t('b2b.tours.description', { count: String(filteredTours.length) })}
+              {t('b2b.tours.description', `${filteredTours.length} tours available`, { count: String(filteredTours.length) })}
             </p>
           </div>
           
@@ -299,7 +299,7 @@ const ProTours = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
-                  {t('b2b.tours.selectedCount', { count: String(selectedTours.size) })}
+                  {t('b2b.tours.selectedCount', `${selectedTours.size} tours selected`, { count: String(selectedTours.size) })}
                 </span>
                 <div className="flex items-center space-x-2">
                   <Button onClick={selectAllTours} variant="outline" size="sm">

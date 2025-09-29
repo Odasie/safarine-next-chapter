@@ -6,7 +6,6 @@ import { ResponsiveLogo } from "@/components/ui/ResponsiveLogo";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useLocale } from "@/contexts/LocaleContext";
-import { useTranslations } from "@/hooks/use-translations";
 import { useAuth } from "@clerk/clerk-react";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -15,9 +14,27 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   }`;
 
 const SiteHeader = () => {
-  const { locale } = useLocale();
-  const { t } = useTranslations();
+  const { locale, t, isLoading } = useLocale();
   const { isSignedIn } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <header className="sticky top-0 z-40 w-full border-b bg-primary text-primary-foreground">
+        <div className="container mx-auto flex h-16 items-center justify-between">
+          <div className="h-8 md:h-10 w-32 bg-primary-foreground/20 rounded animate-pulse" />
+          <div className="hidden md:flex items-center gap-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-8 w-16 bg-primary-foreground/20 rounded animate-pulse" />
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-20 bg-primary-foreground/20 rounded animate-pulse" />
+            <div className="h-8 w-8 bg-primary-foreground/20 rounded animate-pulse" />
+          </div>
+        </div>
+      </header>
+    );
+  }
   
   const getLocalizedPath = (path: string) => {
     return `/${locale}${path}`;

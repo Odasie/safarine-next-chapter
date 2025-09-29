@@ -6,7 +6,6 @@ import { ImageRecord, getLocalizedImageText, getSafeLoadingStrategy, getSafePrio
 import { useLocale } from "@/contexts/LocaleContext";
 import { createTourUrl } from "@/lib/tours";
 import { useNavigate } from "react-router-dom";
-import { useTranslations } from "@/hooks/use-translations";
 import { useTourImages } from "@/hooks/useTourImages";
 
 export interface TourCardProps {
@@ -34,8 +33,7 @@ const TourCard = ({
   slug,
   onBook 
 }: TourCardProps) => {
-  const { locale } = useLocale();
-  const { t } = useTranslations();
+  const { locale, t } = useLocale();
   const currentLocale = locale as 'en' | 'fr';
   const navigate = useNavigate();
 

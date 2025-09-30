@@ -33,7 +33,7 @@ const HeroSearchBar = () => {
               {t('search.destination', 'Destination')}
             </label>
             <Select value={destination} onValueChange={setDestination}>
-              <SelectTrigger className="bg-white border-gray-200">
+              <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                 <SelectValue placeholder={t('search.select_destination', 'Select destination')} />
               </SelectTrigger>
               <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
@@ -53,7 +53,7 @@ const HeroSearchBar = () => {
               {t('search.activity_type', 'Activity')}
             </label>
             <Select value={activity} onValueChange={setActivity}>
-              <SelectTrigger className="bg-white border-gray-200">
+              <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                 <SelectValue placeholder={t('search.select_activity', 'Select activity')} />
               </SelectTrigger>
               <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
@@ -74,7 +74,7 @@ const HeroSearchBar = () => {
               {t('search.duration', 'Duration')}
             </label>
             <Select value={duration} onValueChange={setDuration}>
-              <SelectTrigger className="bg-white border-gray-200">
+              <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                 <SelectValue placeholder={t('search.select_duration', 'Select duration')} />
               </SelectTrigger>
               <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">

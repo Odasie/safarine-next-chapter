@@ -41,6 +41,7 @@ export default function ToursDashboard() {
       const { data, error, count } = await supabase
         .from('tours')
         .select('*', { count: 'exact' })
+        .limit(1000)  // Explicit limit to bypass default pagination
         .order('title_en', { ascending: true });
 
       if (error) {

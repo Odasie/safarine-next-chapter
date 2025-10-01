@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Phone, MessageCircle } from 'lucide-react';
 import { useLocale } from '@/contexts/LocaleContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { BookingRequestModal } from '@/components/booking/BookingRequestModal';
 
 interface EnhancedBookingSectionProps {
@@ -25,6 +26,7 @@ const EnhancedBookingSection = ({
   duration
 }: EnhancedBookingSectionProps) => {
   const { t } = useLocale();
+  const { formatPrice } = useCurrency();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const formatTourDetails = () => {
@@ -33,7 +35,7 @@ const EnhancedBookingSection = ({
       : '';
     
     const priceText = tourPrice 
-      ? `Adult: ${currency} ${tourPrice.toLocaleString()}${childPrice ? `, Child: ${currency} ${childPrice.toLocaleString()}` : ''}`
+      ? `Adult: ${formatPrice(tourPrice)}${childPrice ? `, Child: ${formatPrice(childPrice)}` : ''}`
       : '';
 
     return `Tour: ${tourTitle}

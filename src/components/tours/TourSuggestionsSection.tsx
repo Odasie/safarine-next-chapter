@@ -65,6 +65,7 @@ const TourSuggestionsSection = ({ currentTourId, currentDestination }: TourSugge
             description={tour.location}
             duration={tour.duration}
             price={tour.price}
+            currency={tour.currency}
             slug={tour.slug}
             group={tour.group}
             onBook={() => {

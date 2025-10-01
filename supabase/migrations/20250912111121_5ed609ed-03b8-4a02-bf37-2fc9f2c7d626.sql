@@ -108,7 +108,7 @@ INSERT INTO public.translations (key_name, locale, value, category) VALUES
 ('search.durations.multiDay', 'fr', '2+', 'search'),
 ('search.durations.multiDay', 'en', '2+', 'search'),
 
--- Phase 4: WhySafarine component keys
+-- WhySafarine component keys
 ('whySafarine.title', 'fr', 'Pourquoi choisir Safarine ?', 'sections'),
 ('whySafarine.title', 'en', 'Why choose Safarine?', 'sections'),
 ('whySafarine.features.authentic', 'fr', 'Immersion locale authentique', 'sections'),

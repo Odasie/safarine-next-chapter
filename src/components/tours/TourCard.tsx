@@ -4,6 +4,7 @@ import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { MapPin, Clock, Users, CircleDollarSign } from "lucide-react";
 import { ImageRecord, getLocalizedImageText, getSafeLoadingStrategy, getSafePriority } from "@/hooks/use-images";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { createTourUrl } from "@/lib/tours";
 import { useNavigate } from "react-router-dom";
 import { useTourImages } from "@/hooks/useTourImages";
@@ -16,7 +17,8 @@ export interface TourCardProps {
   description?: string; // typically location
   duration: string;
   group?: string;
-  price?: string;
+  price?: number;
+  currency?: string;
   slug?: string; // Add slug for navigation
   onBook?: () => void;
 }
@@ -29,11 +31,13 @@ const TourCard = ({
   description, 
   duration, 
   group, 
-  price, 
+  price,
+  currency = 'THB',
   slug,
   onBook 
 }: TourCardProps) => {
   const { locale, t } = useLocale();
+  const { formatPrice } = useCurrency();
   const currentLocale = locale as 'en' | 'fr';
   const navigate = useNavigate();
 
@@ -146,7 +150,7 @@ const TourCard = ({
           )}
           {price && (
             <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-2 py-1 text-xs">
-              <CircleDollarSign className="h-3.5 w-3.5" /> {price}
+              <CircleDollarSign className="h-3.5 w-3.5" /> {formatPrice(price)}
             </span>
           )}
         </div>

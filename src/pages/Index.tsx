@@ -89,6 +89,7 @@ const Index = () => {
                   duration={tour.duration}
                   group={tour.group}
                   price={tour.price}
+                  currency={tour.currency}
                 />
               </Link>
             ))

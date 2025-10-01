@@ -321,8 +321,8 @@ export type Database = {
       images: {
         Row: {
           alt: string | null
-          alt_en: string
-          alt_fr: string
+          alt_en: string | null
+          alt_fr: string | null
           category: string | null
           checksum: string | null
           comments: string | null
@@ -358,8 +358,8 @@ export type Database = {
         }
         Insert: {
           alt?: string | null
-          alt_en: string
-          alt_fr: string
+          alt_en?: string | null
+          alt_fr?: string | null
           category?: string | null
           checksum?: string | null
           comments?: string | null
@@ -395,8 +395,8 @@ export type Database = {
         }
         Update: {
           alt?: string | null
-          alt_en?: string
-          alt_fr?: string
+          alt_en?: string | null
+          alt_fr?: string | null
           category?: string | null
           checksum?: string | null
           comments?: string | null

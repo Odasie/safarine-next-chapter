@@ -18,7 +18,7 @@ import { LocalizedBasicTourInfoStep } from "@/components/admin/wizard/LocalizedB
 import { ItineraryBuilderStep } from "@/components/admin/wizard/ItineraryBuilderStep";
 import { HighlightsStep } from "@/components/admin/wizard/HighlightsStep";
 import { InclusionsStep } from "@/components/admin/wizard/InclusionsStep";
-import { ImageUploadSection } from "@/components/admin/ImageUploadSection";
+import { EnhancedImageUploadSection } from "@/components/admin/EnhancedImageUploadSection";
 import { SchemaTestButton } from "@/components/admin/SchemaTestButton";
 import { AuthenticationStatus } from "@/components/admin/AuthenticationStatus";
 
@@ -580,7 +580,7 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
               <AuthenticationStatus />
             </div>
 
-            <ImageUploadSection
+            <EnhancedImageUploadSection
               tourId={tourId || 'new'}
               tourData={{
                 destination: formData.destination,

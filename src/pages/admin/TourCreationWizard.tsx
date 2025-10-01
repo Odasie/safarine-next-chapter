@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { validateSupabaseSchema, testPublishedAtColumn } from "@/utils/supabaseSchemaTest";
 import { useAuth } from "@clerk/clerk-react";
 import { useRoleBasedAccess } from "@/hooks/useRoleBasedAccess";
+import { useSaveStatus } from "@/hooks/useSaveStatus";
+import { SaveStatusNotification } from "@/components/admin/SaveStatusNotification";
+import { parseSupabaseError } from "@/utils/supabaseErrorParser";
 
 // Step components
 import { LocalizedBasicTourInfoStep } from "@/components/admin/wizard/LocalizedBasicTourInfoStep";
@@ -77,6 +80,14 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
   const { isSignedIn, isLoaded } = useAuth();
   const { canManageB2BPricing } = useRoleBasedAccess();
 
+  // Save status management
+  const saveStatus = useSaveStatus();
+
+  // Auto-save state
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSavedData, setLastSavedData] = useState<TourFormData | null>(null);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // Add mode detection
   const isEditMode = mode === 'edit' || (tourId && window.location.pathname.includes('/edit/'));
 
@@ -110,6 +121,35 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
       gallery_images: [],
     };
   });
+
+  // Auto-save effect
+  useEffect(() => {
+    if (hasUnsavedChanges && saveStatus.status !== 'saving' && !isLoading) {
+      console.log('⏰ Setting up auto-save timer (30 seconds)');
+      autoSaveTimerRef.current = setTimeout(handleAutoSave, 30000);
+    }
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        console.log('⏰ Clearing auto-save timer');
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [hasUnsavedChanges, saveStatus.status, isLoading]);
+
+  // beforeunload warning
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        return 'You have unsaved changes. Are you sure you want to leave?';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   // Load tour data in edit mode
   useEffect(() => {
@@ -190,7 +230,11 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
   }, [existingTourData, isEditMode]);
 
   const updateFormData = (updates: Partial<TourFormData>) => {
-    setFormData(prev => ({ ...prev, ...updates }));
+    setFormData(prev => {
+      const newData = { ...prev, ...updates };
+      setHasUnsavedChanges(true);
+      return newData;
+    });
   };
 
   const handleNext = () => {
@@ -205,25 +249,32 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
     }
   };
 
-  const handleSaveDraft = async () => {
+  const handleSaveDraft = async (isAutoSave = false) => {
     if (!formData.title_en || !formData.title_fr) {
-      toast.error("Please fill in at least the tour titles before saving draft");
+      if (!isAutoSave) {
+        toast.error("Please fill in at least the tour titles before saving draft");
+      }
       return;
     }
 
     // Check authentication before proceeding
     if (!isSignedIn) {
-      toast.error("Please sign in to save tour drafts");
+      if (!isAutoSave) {
+        toast.error("Please sign in to save tour drafts");
+      }
       return;
     }
 
     setIsLoading(true);
+    saveStatus.setSaving(isAutoSave ? 'Auto-saving draft...' : 'Saving draft...');
+    
     try {
       // Test schema before attempting save
       console.log('🔄 Testing schema before save...');
       const schemaValid = await testPublishedAtColumn();
       if (!schemaValid) {
-        toast.error("Schema validation failed. Please refresh the page and try again.");
+        const errorMsg = "Schema validation failed. Please refresh the page and try again.";
+        saveStatus.setError(errorMsg);
         setIsLoading(false);
         return;
       }
@@ -252,6 +303,13 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
         status: 'draft',   // Set as draft
       };
 
+      console.log('💾 Saving draft:', {
+        isAutoSave,
+        isEditMode,
+        tourId,
+        operation: isEditMode ? 'UPDATE' : 'CREATE'
+      });
+
       let result;
       
       if (isEditMode && tourId) {
@@ -276,12 +334,20 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
 
       if (result.error) {
         console.error('❌ Error saving draft:', result.error);
-        toast.error('Failed to save draft');
+        console.error('📋 Error details:', JSON.stringify(result.error, null, 2));
+        
+        const parsed = parseSupabaseError(result.error);
+        saveStatus.setError(
+          parsed.userMessage,
+          parsed.shouldRetry ? () => handleSaveDraft(isAutoSave) : undefined
+        );
         return;
       }
 
       console.log('✅ Draft saved successfully:', result.data);
-      toast.success('Draft saved successfully!');
+      setLastSavedData(formData);
+      setHasUnsavedChanges(false);
+      saveStatus.setSuccess(isAutoSave ? 'Auto-saved' : 'Draft saved successfully!');
       
       // If this was a new tour, update the URL to edit mode
       if (!isEditMode && result.data && result.data[0]) {
@@ -291,26 +357,33 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
       
     } catch (error) {
       console.error('❌ Error saving draft:', error);
+      console.error('📋 Error context:', {
+        isAutoSave,
+        isEditMode,
+        tourId,
+        formDataKeys: Object.keys(formData)
+      });
       
-      // Enhanced error handling with authentication-specific messages
-      if (error && typeof error === 'object' && 'code' in error) {
-        const supabaseError = error as any;
-        if (supabaseError.code === '42501') {
-          toast.error("Permission denied. Please ensure you're logged in as an admin user.");
-        } else if (supabaseError.code === 'PGRST204') {
-          toast.error("Schema cache error. Please refresh the page and try again.");
-          console.log('🔄 Running full schema validation...');
-          validateSupabaseSchema().then(result => {
-            console.log('Schema validation result:', result);
-          });
-        } else {
-          toast.error(`Database error: ${supabaseError.message || 'Unknown error'}`);
-        }
-      } else {
-        toast.error("Error saving draft. Please check your connection and try again.");
+      const parsed = parseSupabaseError(error);
+      saveStatus.setError(
+        parsed.userMessage,
+        parsed.shouldRetry ? () => handleSaveDraft(isAutoSave) : undefined
+      );
+      
+      // Check if re-auth is needed
+      if (parsed.requiresAuth) {
+        console.warn('🔐 Re-authentication may be required');
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Auto-save handler
+  const handleAutoSave = () => {
+    console.log('⏰ Auto-save triggered', { hasUnsavedChanges });
+    if (hasUnsavedChanges && saveStatus.status !== 'saving') {
+      handleSaveDraft(true);
     }
   };
 
@@ -351,12 +424,15 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
     }
 
     setIsLoading(true);
+    saveStatus.setSaving(isEditMode ? 'Updating tour...' : 'Creating tour...');
+    
     try {
       // Test schema before attempting submission
       console.log('🔄 Testing schema before submission...');
       const schemaValid = await testPublishedAtColumn();
       if (!schemaValid) {
-        toast.error("Schema validation failed. Please refresh the page and try again.");
+        const errorMsg = "Schema validation failed. Please refresh the page and try again.";
+        saveStatus.setError(errorMsg);
         setIsLoading(false);
         return;
       }
@@ -385,6 +461,12 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
         status: 'published',  // Set as published
       };
 
+      console.log('🚀 Submitting tour:', {
+        operation: isEditMode ? 'UPDATE' : 'CREATE',
+        tourId,
+        dataKeys: Object.keys(tourData)
+      });
+
       let result;
       
       if (isEditMode && tourId) {
@@ -412,42 +494,43 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
         console.error('❌ Error with tour operation:', result.error);
         console.error('📋 Error details:', JSON.stringify(result.error, null, 2));
         
-        // More specific error messages
-        if (result.error.code === '42501' || result.error.message?.includes('RLS')) {
-          toast.error('Permission denied: Please ensure you are logged in as an admin user');
-        } else if (result.error.message?.includes('duplicate key')) {
-          toast.error('Tour with this slug already exists');
-        } else {
-          toast.error(`Failed to save tour: ${result.error.message}`);
-        }
+        const parsed = parseSupabaseError(result.error);
+        saveStatus.setError(
+          parsed.userMessage,
+          parsed.shouldRetry ? () => handleSubmit() : undefined
+        );
         return;
       }
       
       console.log('✅ Tour operation successful:', result.data);
-      toast.success(isEditMode ? 'Tour updated successfully!' : 'Tour created successfully!');
+      setLastSavedData(formData);
+      setHasUnsavedChanges(false);
       
-      // Redirect to admin tours dashboard
-      navigate('/admin/tours');
+      const successMessage = isEditMode ? 'Tour updated successfully!' : 'Tour created successfully!';
+      saveStatus.setSuccess(successMessage);
+      
+      // Redirect to admin tours dashboard after a brief delay
+      setTimeout(() => {
+        navigate('/admin/tours');
+      }, 1500);
       
     } catch (error) {
       console.error('❌ Error with tour operation:', error);
+      console.error('📋 Error context:', {
+        isEditMode,
+        tourId,
+        formDataKeys: Object.keys(formData)
+      });
       
-      // Enhanced error handling with authentication-specific messages
-      if (error && typeof error === 'object' && 'code' in error) {
-        const supabaseError = error as any;
-        if (supabaseError.code === '42501') {
-          toast.error("Permission denied. Please ensure you're logged in as an admin user.");
-        } else if (supabaseError.code === 'PGRST204') {
-          toast.error("Schema cache error. Please refresh the page and try again.");
-          console.log('🔄 Running full schema validation...');
-          validateSupabaseSchema().then(result => {
-            console.log('Schema validation result:', result);
-          });
-        } else {
-          toast.error(`Database error: ${supabaseError.message || 'Unknown error'}`);
-        }
-      } else {
-        toast.error("Error saving tour. Please check your connection and try again.");
+      const parsed = parseSupabaseError(error);
+      saveStatus.setError(
+        parsed.userMessage,
+        parsed.shouldRetry ? () => handleSubmit() : undefined
+      );
+      
+      // Check if re-auth is needed
+      if (parsed.requiresAuth) {
+        console.warn('🔐 Re-authentication may be required');
       }
     } finally {
       setIsLoading(false);
@@ -595,11 +678,11 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
           </Button>
           <Button
             variant="outline"
-            onClick={handleSaveDraft}
-            disabled={isLoading}
+            onClick={() => handleSaveDraft(false)}
+            disabled={saveStatus.status === 'saving' || isLoading}
             className="flex items-center gap-2"
           >
-            {isLoading ? (
+            {saveStatus.status === 'saving' || isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
                 Saving...
@@ -692,10 +775,10 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
               {currentStep === STEPS.length ? (
                 <Button 
                   onClick={handleSubmit} 
-                  disabled={isLoading}
+                  disabled={saveStatus.status === 'saving' || isLoading}
                   className="flex items-center gap-2"
                 >
-                  {isLoading ? (
+                  {saveStatus.status === 'saving' || isLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
                       {isEditMode ? 'Updating...' : 'Creating...'}
@@ -721,6 +804,9 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
           </div>
         </CardContent>
       </Card>
+
+      {/* Save Status Notification */}
+      <SaveStatusNotification {...saveStatus} onDismiss={saveStatus.reset} />
 
       {/* Publish Confirmation Dialog */}
       {showPublishDialog && (

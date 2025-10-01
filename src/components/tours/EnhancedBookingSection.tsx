@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Phone, MessageCircle } from 'lucide-react';
 import { useLocale } from '@/contexts/LocaleContext';
+import { BookingRequestModal } from '@/components/booking/BookingRequestModal';
 
 interface EnhancedBookingSectionProps {
   tourTitle: string;
@@ -23,6 +25,7 @@ const EnhancedBookingSection = ({
   duration
 }: EnhancedBookingSectionProps) => {
   const { t } = useLocale();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const formatTourDetails = () => {
     const durationText = duration 
@@ -55,8 +58,7 @@ Please provide your preferred dates and number of participants.`;
   };
 
   const handleFormBooking = () => {
-    // TODO: Open booking form modal
-    console.log('Opening booking form for:', tourTitle);
+    setIsModalOpen(true);
   };
 
   const renderBookingButtons = () => {
@@ -130,26 +132,39 @@ Please provide your preferred dates and number of participants.`;
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-center">
-          {t('booking.ready_to_book', 'Ready to Book?')}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-center mb-4">
-          <p className="text-sm text-muted-foreground">
-            {t('booking.contact_details', 'Contact us to secure your spot on this amazing adventure!')}
-          </p>
-        </div>
-        {renderBookingButtons()}
-        <div className="mt-4 p-3 bg-muted rounded-lg">
-          <p className="text-xs text-muted-foreground text-center">
-            {t('booking.response_time', '✅ Quick response within 24 hours')}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-center">
+            {t('booking.ready_to_book', 'Ready to Book?')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center mb-4">
+            <p className="text-sm text-muted-foreground">
+              {t('booking.contact_details', 'Contact us to secure your spot on this amazing adventure!')}
+            </p>
+          </div>
+          {renderBookingButtons()}
+          <div className="mt-4 p-3 bg-muted rounded-lg">
+            <p className="text-xs text-muted-foreground text-center">
+              {t('booking.response_time', '✅ Quick response within 24 hours')}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <BookingRequestModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        tourTitle={tourTitle}
+        tourPrice={tourPrice}
+        childPrice={childPrice}
+        currency={currency}
+        destination={destination}
+        duration={duration}
+      />
+    </>
   );
 };
 

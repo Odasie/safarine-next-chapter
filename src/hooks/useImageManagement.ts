@@ -144,7 +144,25 @@ export const useImageManagement = (tourId: string) => {
         .select()
         .single();
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('❌ Database insert error details:', {
+          code: dbError.code,
+          message: dbError.message,
+          details: dbError.details,
+          hint: dbError.hint,
+          insertedData: {
+            tour_id: tourId,
+            category: 'tours',
+            image_type: imageType,
+            alt_en: altTextEn,
+            alt_fr: altTextFr,
+            title_en: titleEn,
+            title_fr: titleFr,
+            position: nextPosition,
+          }
+        });
+        throw dbError;
+      }
 
       // Update local state
       setImages(prev => [...prev, imageData]);

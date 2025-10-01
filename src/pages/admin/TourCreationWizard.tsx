@@ -398,7 +398,8 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
     if (!formData.price || formData.price <= 0) errors.push('Valid price is required');
     
     // Image validation - must have exactly 1 hero + up to 4 gallery images
-    if (!formData.hero_image) errors.push('Hero image is required');
+    // Temporarily disabled for unrestricted content creation:
+    // if (!formData.hero_image) errors.push('Hero image is required');
     if (formData.gallery_images && formData.gallery_images.length > 4) {
       errors.push('Maximum 4 gallery images allowed');
     }

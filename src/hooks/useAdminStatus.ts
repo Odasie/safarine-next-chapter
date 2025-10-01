@@ -28,43 +28,16 @@ export const useAdminStatus = () => {
           ADMIN_EMAILS.includes(email.emailAddress)
         );
 
-        if (hasClerkAdminRole || isAdminEmail) {
-          console.log('Admin access granted via Clerk metadata or email whitelist', {
-            clerkRole: user?.publicMetadata?.role,
-            email: user?.emailAddresses?.[0]?.emailAddress,
-            hasClerkAdminRole,
-            isAdminEmail
-          });
-          setIsAdmin(true);
-          setIsLoading(false);
-          return;
-        }
-
-        // Fallback check: Supabase admin_roles table
-        let token = await getToken({ template: 'supabase' });
+        const adminStatus = hasClerkAdminRole || isAdminEmail;
         
-        if (!token) {
-          console.warn('Supabase JWT template not configured, using fallback token');
-          token = await getToken();
-        }
+        console.log('Admin access granted via Clerk metadata or email whitelist', {
+          clerkRole: user?.publicMetadata?.role,
+          email: user?.emailAddresses?.[0]?.emailAddress,
+          hasClerkAdminRole,
+          isAdminEmail
+        });
         
-        if (token) {
-          await supabase.auth.setSession({
-            access_token: token,
-            refresh_token: '',
-          });
-        }
-
-        const { data, error } = await supabase.rpc('is_admin_user');
-        
-        if (error) {
-          console.error('Error checking Supabase admin status:', error);
-          setIsAdmin(false);
-        } else {
-          const supabaseAdmin = data === true;
-          console.log('Supabase admin check result:', supabaseAdmin);
-          setIsAdmin(supabaseAdmin);
-        }
+        setIsAdmin(adminStatus);
       } catch (error) {
         console.error('Error in admin status check:', error);
         setIsAdmin(false);

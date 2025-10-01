@@ -110,7 +110,7 @@ export const useImageManagement = (tourId: string) => {
         .from('tour-images')
         .upload(filePath, optimizedFile, {
           cacheControl: '3600',
-          upsert: false
+          upsert: true
         });
 
       if (uploadError) throw uploadError;

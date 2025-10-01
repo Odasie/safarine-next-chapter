@@ -54,65 +54,29 @@ export const useRoleBasedAccess = (): RolePermissions => {
         const hasB2BAccess = hasB2BRole || isAdmin;
         const canManageB2BPricing = isAdmin; // Only full admins can manage B2B pricing
 
-        if (isAdmin || hasB2BAccess) {
-          console.log('Role-based access granted:', {
-            userRole,
-            isAdmin,
-            hasB2BAccess,
-            canManageB2BPricing,
-            email: user?.emailAddresses?.[0]?.emailAddress
-          });
-          
-          setPermissions({
-            isAdmin,
-            hasB2BAccess,
-            canManageB2BPricing,
-            isLoading: false,
-          });
-          return;
-        }
-
-        // Fallback check: Supabase admin_roles table for admin status
-        let token = await getToken({ template: 'supabase' });
+        console.log('Role-based access granted:', {
+          userRole,
+          isAdmin,
+          hasB2BAccess,
+          canManageB2BPricing,
+          email: user?.emailAddresses?.[0]?.emailAddress
+        });
         
-        if (!token) {
-          console.warn('Supabase JWT template not configured, using fallback token');
-          token = await getToken();
-        }
-        
-        if (token) {
-          await supabase.auth.setSession({
-            access_token: token,
-            refresh_token: '',
-          });
-        }
-
-        const { data, error } = await supabase.rpc('is_admin_user');
-        
-        if (error) {
-          console.error('Error checking Supabase admin status:', error);
-        } else {
-          const supabaseAdmin = data === true;
-          console.log('Supabase admin check result:', supabaseAdmin);
-          
-          setPermissions({
-            isAdmin: supabaseAdmin,
-            hasB2BAccess: supabaseAdmin,
-            canManageB2BPricing: supabaseAdmin,
-            isLoading: false,
-          });
-          return;
-        }
+        setPermissions({
+          isAdmin,
+          hasB2BAccess,
+          canManageB2BPricing,
+          isLoading: false,
+        });
       } catch (error) {
         console.error('Error in role-based access check:', error);
+        setPermissions({
+          isAdmin: false,
+          hasB2BAccess: false,
+          canManageB2BPricing: false,
+          isLoading: false,
+        });
       }
-      
-      setPermissions({
-        isAdmin: false,
-        hasB2BAccess: false,
-        canManageB2BPricing: false,
-        isLoading: false,
-      });
     };
 
     checkPermissions();

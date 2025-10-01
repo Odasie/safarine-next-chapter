@@ -190,11 +190,11 @@ async function ensureImageRecord(page_id: string, storagePath: string, meta: {
 
     if (existing?.id) {
       // Update page link (keep the most recent page)
-      const { error: updErr } = await supabase
+    const { error: updErr } = await supabase
         .from("images")
         .update({
           page_id,
-          alt: meta.alt ?? null,
+          alt: meta.alt || 'Safarine image',
           src: publicUrl,
           mime_type: meta.mime_type ?? null,
           size_bytes: meta.size_bytes ?? null,
@@ -213,7 +213,7 @@ async function ensureImageRecord(page_id: string, storagePath: string, meta: {
     .from("images")
     .insert({
       page_id,
-      alt: meta.alt ?? null,
+      alt: meta.alt || 'Safarine image',
       src: publicUrl,
       mime_type: meta.mime_type ?? null,
       size_bytes: meta.size_bytes ?? null,
@@ -386,9 +386,10 @@ Deno.serve(async (req) => {
             throw upErr;
           }
 
-          // Save record
+          // Save record with proper alt text
+          const altText = title || slug || 'Safarine image';
           await ensureImageRecord(page.id, storagePath, {
-            alt: null,
+            alt: altText,
             mime_type: contentType ?? null,
             size_bytes: buf.byteLength,
             source_url: imgUrl,

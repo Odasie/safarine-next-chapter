@@ -287,10 +287,12 @@ Deno.serve(async (req) => {
                 .maybeSingle();
               if (imgSelErr) throw imgSelErr;
               if (!imgExisting) {
+                const altText = title || slug || 'Tour image';
                 const { error: imgInsErr } = await supabase.from("images").insert({
                   page_id: pageId,
                   src: publicUrl,
-                  alt: title,
+                  alt_en: altText,
+                  alt_fr: altText,
                   title,
                   checksum,
                   mime_type: contentType,

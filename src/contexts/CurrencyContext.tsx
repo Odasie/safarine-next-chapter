@@ -23,24 +23,24 @@ const currencyDefaults = {
 export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { locale } = useLocale();
   
-  // Initialize currency from localStorage or locale default
+  // Initialize currency from localStorage first, then sync with locale
   const [currency, setCurrencyState] = useState<Currency>(() => {
     const stored = localStorage.getItem(CURRENCY_STORAGE_KEY) as Currency;
-    return stored || currencyDefaults[locale];
+    return stored || 'THB'; // Use THB as initial default
   });
 
-  const setCurrency = (newCurrency: Currency) => {
-    setCurrencyState(newCurrency);
-    localStorage.setItem(CURRENCY_STORAGE_KEY, newCurrency);
-  };
-
-  // Update currency default when locale changes (if not explicitly set)
+  // Set currency based on locale if not explicitly stored
   useEffect(() => {
     const stored = localStorage.getItem(CURRENCY_STORAGE_KEY);
     if (!stored) {
       setCurrencyState(currencyDefaults[locale]);
     }
   }, [locale]);
+
+  const setCurrency = (newCurrency: Currency) => {
+    setCurrencyState(newCurrency);
+    localStorage.setItem(CURRENCY_STORAGE_KEY, newCurrency);
+  };
 
   const formatPrice = (amountTHB: number, amountEUR?: number | null): string => {
     if (currency === 'THB') {

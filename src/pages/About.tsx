@@ -224,7 +224,8 @@ const About = () => {
             </p>
           </div>
           
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
+            {/* David Barthez */}
             <Card className="text-center">
               <CardHeader>
                 <div className="mx-auto mb-4 h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
@@ -240,6 +241,7 @@ const About = () => {
               </CardContent>
             </Card>
 
+            {/* Earth */}
             <Card className="text-center">
               <CardHeader>
                 <div className="mx-auto mb-4 h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
@@ -255,6 +257,7 @@ const About = () => {
               </CardContent>
             </Card>
 
+            {/* Note */}
             <Card className="text-center">
               <CardHeader>
                 <div className="mx-auto mb-4 h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
@@ -266,6 +269,38 @@ const About = () => {
               <CardContent>
                 <p className="text-muted-foreground text-sm">
                   {t('about.team.note.description')}
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Steffen */}
+            <Card className="text-center">
+              <CardHeader>
+                <div className="mx-auto mb-4 h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Users className="h-12 w-12 text-primary" />
+                </div>
+                <CardTitle className="text-foreground">{t('about.team.steffen.name')}</CardTitle>
+                <p className="text-primary font-medium">{t('about.team.steffen.role')}</p>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-sm">
+                  {t('about.team.steffen.description')}
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Thibault */}
+            <Card className="text-center">
+              <CardHeader>
+                <div className="mx-auto mb-4 h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Users className="h-12 w-12 text-primary" />
+                </div>
+                <CardTitle className="text-foreground">{t('about.team.thibault.name')}</CardTitle>
+                <p className="text-primary font-medium">{t('about.team.thibault.role')}</p>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-sm">
+                  {t('about.team.thibault.description')}
                 </p>
               </CardContent>
             </Card>

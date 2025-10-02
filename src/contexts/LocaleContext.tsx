@@ -139,7 +139,12 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     'about.pillar.sustainability.title': 'Sustainability',  
     'about.pillar.sustainability.description': 'Responsible tourism that benefits local communities.',
     'about.pillar.personalization.title': 'Personalization',
-    'about.pillar.personalization.description': 'Every journey is tailored to your unique interests.'
+    'about.pillar.personalization.description': 'Every journey is tailored to your unique interests.',
+    
+    // Pro CTA translations
+    'pro.cta.title': 'Are you a travel professional?',
+    'pro.cta.signup': 'Create Pro Account',
+    'pro.cta.login': 'Pro Login'
   },
   fr: {
     'menu.tours': 'Circuits',
@@ -267,7 +272,12 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     'about.pillar.sustainability.title': 'Durabilité',
     'about.pillar.sustainability.description': 'Tourisme responsable qui bénéficie aux communautés locales.',
     'about.pillar.personalization.title': 'Personnalisation',
-    'about.pillar.personalization.description': 'Chaque voyage est adapté à vos intérêts uniques.'
+    'about.pillar.personalization.description': 'Chaque voyage est adapté à vos intérêts uniques.',
+    
+    // Pro CTA translations
+    'pro.cta.title': 'Vous êtes un professionnel du voyage ?',
+    'pro.cta.signup': 'Créer un compte Pro',
+    'pro.cta.login': 'Connexion Pro'
   }
 };
 

@@ -24,7 +24,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useTourManagement, getTourStatusSummary } from "@/hooks/use-tour-management";
 import { useRawTours } from "@/hooks/use-tours";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { useTourPublish } from "@/hooks/use-tour-publish";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 const TourDashboardComponent = () => {
   const navigate = useNavigate();
@@ -51,6 +53,7 @@ const TourDashboardComponent = () => {
   
   const { statistics, statisticsLoading, validateTour } = useTourManagement();
   const { data: tours, isLoading: toursLoading } = useRawTours();
+  const { publishWithValidation, publishWithOverride, unpublish, checkCompleteness, isPublishing, isUnpublishing } = useTourPublish();
 
   const statusSummary = getTourStatusSummary(statistics);
 
@@ -87,29 +90,47 @@ const TourDashboardComponent = () => {
     }
   };
 
+  const handlePublishWithValidation = async (tourId: string) => {
+    try {
+      await publishWithValidation(tourId);
+    } catch (error) {
+      // Error toast handled in mutation
+    }
+  };
+
+  const handlePublishWithOverride = async (tourId: string) => {
+    try {
+      await publishWithOverride(tourId);
+    } catch (error) {
+      // Error toast handled in mutation
+    }
+  };
+
+  const handleUnpublish = async (tourId: string) => {
+    try {
+      await unpublish(tourId);
+    } catch (error) {
+      // Error toast handled in mutation
+    }
+  };
+
   const getStatusBadge = (tour: any) => {
-    const hasImages = (tour.total_images || 0) > 0;
-    const hasGallery = (tour.total_images || 0) >= 3;
+    const isPublished = (tour as any).status === 'published' && (tour as any).published_at;
     
-    if (hasImages && hasGallery) {
-      return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Complete</Badge>;
-    } else if (hasImages) {
-      return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">Partial</Badge>;
+    if (isPublished) {
+      return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">🌐 Published</Badge>;
     } else {
-      return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">Incomplete</Badge>;
+      return <Badge variant="secondary" className="bg-gray-100 text-gray-800 border-gray-200">📝 Draft</Badge>;
     }
   };
 
   const getCompletionIcon = (tour: any) => {
-    const hasImages = (tour.total_images || 0) > 0;
-    const hasGallery = (tour.total_images || 0) >= 3;
+    const isPublished = (tour as any).status === 'published' && (tour as any).published_at;
     
-    if (hasImages && hasGallery) {
+    if (isPublished) {
       return <CheckCircle className="w-4 h-4 text-green-600" />;
-    } else if (hasImages) {
-      return <Clock className="w-4 h-4 text-yellow-600" />;
     } else {
-      return <AlertCircle className="w-4 h-4 text-red-600" />;
+      return <Clock className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -122,16 +143,13 @@ const TourDashboardComponent = () => {
     const matchesDestination = !filterDestination || tour.destination === filterDestination;
     
     const matchesStatus = !filterStatus || (() => {
-      const hasImages = (tour.total_images || 0) > 0;
-      const hasGallery = (tour.total_images || 0) >= 3;
+      const isPublished = (tour as any).status === 'published' && (tour as any).published_at;
       
       switch (filterStatus) {
-        case 'complete':
-          return hasImages && hasGallery;
-        case 'partial':
-          return hasImages && !hasGallery;
-        case 'incomplete':
-          return !hasImages;
+        case 'published':
+          return isPublished;
+        case 'draft':
+          return !isPublished;
         default:
           return true;
       }
@@ -187,12 +205,27 @@ const TourDashboardComponent = () => {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Complete Tours</CardTitle>
+            <CardTitle className="text-sm font-medium">Published Tours</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{statusSummary.complete}</div>
-            <p className="text-xs text-muted-foreground">Ready for publishing</p>
+            <div className="text-2xl font-bold text-green-600">
+              {tours?.filter(t => (t as any).status === 'published' && (t as any).published_at).length || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">Live on public site</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Draft Tours</CardTitle>
+            <Clock className="h-4 w-4 text-gray-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-600">
+              {tours?.filter(t => (t as any).status !== 'published' || !(t as any).published_at).length || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">Not yet published</p>
           </CardContent>
         </Card>
         
@@ -204,17 +237,6 @@ const TourDashboardComponent = () => {
           <CardContent>
             <div className="text-2xl font-bold">{statusSummary.completionRate}%</div>
             <p className="text-xs text-muted-foreground">Overall completion</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Need Attention</CardTitle>
-            <Clock className="h-4 w-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{statusSummary.needsAttention}</div>
-            <p className="text-xs text-muted-foreground">Incomplete tours</p>
           </CardContent>
         </Card>
       </div>
@@ -265,9 +287,8 @@ const TourDashboardComponent = () => {
               </SelectTrigger>
               <SelectContent className="bg-background border shadow-lg z-50">
                 <SelectItem value="all-statuses">All Status</SelectItem>
-                <SelectItem value="complete">Complete</SelectItem>
-                <SelectItem value="partial">Partial</SelectItem>
-                <SelectItem value="incomplete">Incomplete</SelectItem>
+                <SelectItem value="published">🌐 Published</SelectItem>
+                <SelectItem value="draft">📝 Draft</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -288,6 +309,7 @@ const TourDashboardComponent = () => {
                 <TableHead>Destination</TableHead>
                 <TableHead>Duration</TableHead>
                 <TableHead>Price</TableHead>
+                <TableHead>Published Date</TableHead>
                 <TableHead>Images</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -325,6 +347,16 @@ const TourDashboardComponent = () => {
                   </TableCell>
                   
                   <TableCell>
+                    {(tour as any).published_at ? (
+                      <span className="text-sm text-muted-foreground">
+                        {format(new Date((tour as any).published_at), 'MMM d, yyyy')}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
+                  
+                  <TableCell>
                     <div className="text-sm">
                       <div className="flex items-center gap-1">
                         <span className={(tour.total_images > 0) ? "text-green-600" : "text-red-600"}>
@@ -350,6 +382,35 @@ const TourDashboardComponent = () => {
                           <CheckCircle className="w-4 h-4 mr-2" />
                           Validate
                         </DropdownMenuItem>
+                        
+                        {(tour as any).status === 'published' && (tour as any).published_at ? (
+                          <DropdownMenuItem 
+                            onClick={() => handleUnpublish(tour.id)}
+                            disabled={isUnpublishing}
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            Unpublish
+                          </DropdownMenuItem>
+                        ) : (
+                          <>
+                            <DropdownMenuItem 
+                              onClick={() => handlePublishWithValidation(tour.id)}
+                              disabled={isPublishing}
+                            >
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Publish (Validate)
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handlePublishWithOverride(tour.id)}
+                              disabled={isPublishing}
+                              className="text-orange-600"
+                            >
+                              <AlertCircle className="w-4 h-4 mr-2" />
+                              Publish Anyway (Override)
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        
                         <DropdownMenuItem onClick={() => handleDuplicateTour(tour.id)}>
                           <Copy className="w-4 h-4 mr-2" />
                           Duplicate

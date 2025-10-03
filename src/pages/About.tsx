@@ -315,6 +315,9 @@ const About = () => {
             <h2 className="mb-4 text-3xl md:text-4xl font-bold text-foreground">
               {t('about.features.title')}
             </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              {t('about.features.subtitle')}
+            </p>
           </div>
           
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">

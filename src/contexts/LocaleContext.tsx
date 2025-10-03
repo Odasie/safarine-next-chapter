@@ -157,7 +157,19 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     
     // Contact section
     'contact.title': 'Get in Touch',
-    'contact.home.subtitle': 'Ready to start planning your Thailand adventure? Contact us today!'
+    'contact.home.subtitle': 'Ready to start planning your Thailand adventure? Contact us today!',
+    
+    // About page Features section
+    'about.features.title': 'The Safarine Experience',
+    'about.features.subtitle': 'What defines a trip with us?',
+    'about.features.network.title': 'Expert Local Guidance',
+    'about.features.network.description': 'Our network of passionate and knowledgeable guides spans the country. Whether you\'re exploring the ancient temples of Ayutthaya, the bustling canals of Bangkok, or the pristine beaches of the Andaman Islands, you\'ll be led by local professionals who know and love Thailand.',
+    'about.features.safety.title': 'Immersive and Responsible Itineraries',
+    'about.features.safety.description': 'We carefully design our tours to combine iconic sites with hidden gems. From the iconic Bridge on the River Kwai to remote hill tribes and idyllic islands, each experience is crafted with respect for nature, the locals, and their traditions.',
+    'about.features.authentic.title': 'Unparalleled Service and Safety',
+    'about.features.authentic.description': 'Your comfort and safety are our top priorities. We maintain the highest standards for our vehicles and operations throughout the country. Our dedicated team ensures your experience is seamless, safe, and unforgettable from the moment you book.',
+    'about.features.francophone.title': 'Your Thai Adventure Awaits',
+    'about.features.francophone.description': 'More than a journey, Safarine Tours opens the doors to a unique, authentic, and vibrant Thailand. We invite you to discover the heart of Siam with us: its landscapes, its wilderness, its culture, and the unforgettable smiles of its people.'
   },
   fr: {
     'menu.tours': 'Circuits',
@@ -303,7 +315,19 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     
     // Contact section
     'contact.title': 'Contactez-nous',
-    'contact.home.subtitle': 'Prêt à planifier votre aventure en Thaïlande ? Contactez-nous dès aujourd\'hui !'
+    'contact.home.subtitle': 'Prêt à planifier votre aventure en Thaïlande ? Contactez-nous dès aujourd\'hui !',
+    
+    // About page Features section
+    'about.features.title': 'L\'Expérience Safarine',
+    'about.features.subtitle': 'Qu\'est-ce qui définit un voyage avec nous ?',
+    'about.features.network.title': 'Guidage local expert',
+    'about.features.network.description': 'Notre réseau de guides passionnés et compétents couvre tout le pays. Que vous exploriez les temples antiques d\'Ayutthaya, les canaux animés de Bangkok ou les plages immaculées des îles Andaman, vous êtes encadré par des professionnels locaux qui connaissent et aiment la Thaïlande.',
+    'about.features.safety.title': 'Itinéraires immersifs et responsables',
+    'about.features.safety.description': 'Nous concevons soigneusement nos circuits pour allier sites emblématiques et trésors cachés. Du pont emblématique sur la rivière Kwaï aux tribus montagnardes isolées et aux îles idylliques, chaque expérience est conçue dans le respect de la nature, des habitants et de leurs traditions.',
+    'about.features.authentic.title': 'Service et sécurité inégalés',
+    'about.features.authentic.description': 'Votre confort et votre sécurité sont nos priorités absolues. Nous maintenons les normes les plus élevées pour nos véhicules et nos opérations dans tout le pays. Notre équipe dévouée veille à ce que votre expérience soit fluide, sûre et inoubliable dès la réservation.',
+    'about.features.francophone.title': 'Votre aventure thaïlandaise vous attend',
+    'about.features.francophone.description': 'Plus qu\'un voyage, Safarine Tours vous ouvre les portes d\'une Thaïlande unique, authentique et vibrante. Nous vous invitons à découvrir avec nous le cœur du Siam : ses paysages, sa nature sauvage, sa culture et le sourire inoubliable de ses habitants.'
   }
 };
 

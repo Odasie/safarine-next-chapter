@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useMaintenanceMode } from '@/hooks/useMaintenanceMode';
 import { useLocale } from '@/contexts/LocaleContext';
 import {
@@ -10,9 +11,44 @@ import {
 import { ResponsiveLogo } from '@/components/ui/ResponsiveLogo';
 import { Mail } from 'lucide-react';
 
+const STORAGE_KEY = 'safarine_maintenance_dismissed';
+
 export const MaintenancePopup = () => {
   const { config, isLoading } = useMaintenanceMode();
   const { locale } = useLocale();
+  const [isDismissed, setIsDismissed] = useState(false);
+
+  // Check localStorage on mount
+  useEffect(() => {
+    const dismissed = localStorage.getItem(STORAGE_KEY);
+    if (dismissed) {
+      try {
+        const data = JSON.parse(dismissed);
+        setIsDismissed(data.dismissed === true);
+      } catch (e) {
+        // Invalid JSON, ignore
+      }
+    }
+  }, []);
+
+  // Clear dismissal when maintenance disabled
+  useEffect(() => {
+    if (!config.enabled) {
+      localStorage.removeItem(STORAGE_KEY);
+      setIsDismissed(false);
+    }
+  }, [config.enabled]);
+
+  // Handle user dismissal
+  const handleDismiss = (open: boolean) => {
+    if (!open) {
+      setIsDismissed(true);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        dismissed: true,
+        timestamp: Date.now()
+      }));
+    }
+  };
 
   // Don't render anything while loading
   if (isLoading) return null;
@@ -21,12 +57,8 @@ export const MaintenancePopup = () => {
   const message = locale === 'fr' ? config.message_fr : config.message_en;
 
   return (
-    <Dialog open={config.enabled}>
-      <DialogContent 
-        className="max-w-md [&>button]:hidden"
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
-      >
+    <Dialog open={config.enabled && !isDismissed} onOpenChange={handleDismiss}>
+      <DialogContent className="max-w-md">
         <DialogHeader className="space-y-4">
           {config.show_logo && (
             <div className="flex justify-center mb-2">

@@ -25,6 +25,7 @@ import { useTourManagement, getTourStatusSummary } from "@/hooks/use-tour-manage
 import { useRawTours } from "@/hooks/use-tours";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useTourPublish } from "@/hooks/use-tour-publish";
+import { TourCompletenessDialog } from "@/components/admin/TourCompletenessDialog";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -34,6 +35,11 @@ const TourDashboardComponent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDestination, setFilterDestination] = useState<string | undefined>(undefined);
   const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
+  const [completenessDialog, setCompletenessDialog] = useState<{
+    open: boolean;
+    tourId: string;
+    tourTitle: string;
+  } | null>(null);
 
   const handleDestinationChange = (value: string) => {
     if (value === "all-destinations") {
@@ -90,12 +96,12 @@ const TourDashboardComponent = () => {
     }
   };
 
-  const handlePublishWithValidation = async (tourId: string) => {
-    try {
-      await publishWithValidation(tourId);
-    } catch (error) {
-      // Error toast handled in mutation
-    }
+  const handleOpenCompletenessDialog = (tourId: string, tourTitle: string) => {
+    setCompletenessDialog({ open: true, tourId, tourTitle });
+  };
+
+  const handleCloseCompletenessDialog = () => {
+    setCompletenessDialog(null);
   };
 
   const handlePublishWithOverride = async (tourId: string) => {
@@ -394,7 +400,7 @@ const TourDashboardComponent = () => {
                         ) : (
                           <>
                             <DropdownMenuItem 
-                              onClick={() => handlePublishWithValidation(tour.id)}
+                              onClick={() => handleOpenCompletenessDialog(tour.id, tour.title_en || 'Untitled Tour')}
                               disabled={isPublishing}
                             >
                               <CheckCircle className="w-4 h-4 mr-2" />
@@ -448,6 +454,19 @@ const TourDashboardComponent = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Tour Completeness Dialog */}
+      {completenessDialog && (
+        <TourCompletenessDialog
+          tourId={completenessDialog.tourId}
+          tourTitle={completenessDialog.tourTitle}
+          isOpen={completenessDialog.open}
+          onClose={handleCloseCompletenessDialog}
+          onPublishSuccess={() => {
+            handleCloseCompletenessDialog();
+          }}
+        />
+      )}
     </div>
   );
 };

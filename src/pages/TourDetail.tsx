@@ -71,6 +71,7 @@ const TourDetail = () => {
         `)
         .eq(slugField, slug)
         .eq('status', 'published')
+        .not('published_at', 'is', null)
         .maybeSingle();
       
       if (tourBySlug) return tourBySlug;
@@ -102,6 +103,7 @@ const TourDetail = () => {
         `)
         .eq(otherSlugField, slug)
         .eq('status', 'published')
+        .not('published_at', 'is', null)
         .maybeSingle();
       
       if (tourByOtherSlug) return tourByOtherSlug;
@@ -133,6 +135,7 @@ const TourDetail = () => {
         `)
         .ilike(titleField, `%${slug.replace('-', ' ')}%`)
         .eq('status', 'published')
+        .not('published_at', 'is', null)
         .limit(1)
         .maybeSingle();
       

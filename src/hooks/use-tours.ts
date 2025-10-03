@@ -192,7 +192,8 @@ export function useTours() {
             alt_fr
           )
         `)
-        .eq('is_private', false)
+        .eq('status', 'published')
+        .not('published_at', 'is', null)
         .order('duration_days', { ascending: true });
 
       if (error) {
@@ -293,7 +294,8 @@ export function useFeaturedTours(limit: number = 3) {
             alt_fr
           )
         `)
-        .eq('is_private', false)
+        .eq('status', 'published')
+        .not('published_at', 'is', null)
         .order('duration_days', { ascending: true })
         .limit(limit);
 

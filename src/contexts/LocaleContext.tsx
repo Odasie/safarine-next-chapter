@@ -144,7 +144,20 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     // Pro CTA translations
     'pro.cta.title': 'Are you a travel professional?',
     'pro.cta.signup': 'Create Pro Account',
-    'pro.cta.login': 'Pro Login'
+    'pro.cta.login': 'Pro Login',
+    
+    // WhySafarine section
+    'whySafarine.title': 'Why Choose Safarine?',
+    'whySafarine.features.authentic': 'Authentic local experiences',
+    'whySafarine.features.respect': 'Respectful and sustainable tourism',
+    'whySafarine.features.offBeaten': 'Off the beaten path adventures',
+    'whySafarine.features.guides': 'Expert local guides',
+    'whySafarine.description': 'We believe in authentic travel experiences that respect local communities and preserve the natural beauty of Thailand.',
+    'whySafarine.image.alt': 'Authentic Thai experiences with Safarine',
+    
+    // Contact section
+    'contact.title': 'Get in Touch',
+    'contact.home.subtitle': 'Ready to start planning your Thailand adventure? Contact us today!'
   },
   fr: {
     'menu.tours': 'Circuits',
@@ -277,7 +290,20 @@ const fallbackTranslations: Record<Locale, Record<string, string>> = {
     // Pro CTA translations
     'pro.cta.title': 'Vous êtes un professionnel du voyage ?',
     'pro.cta.signup': 'Créer un compte Pro',
-    'pro.cta.login': 'Connexion Pro'
+    'pro.cta.login': 'Connexion Pro',
+    
+    // WhySafarine section
+    'whySafarine.title': 'Pourquoi choisir Safarine ?',
+    'whySafarine.features.authentic': 'Expériences locales authentiques',
+    'whySafarine.features.respect': 'Tourisme respectueux et durable',
+    'whySafarine.features.offBeaten': 'Aventures hors des sentiers battus',
+    'whySafarine.features.guides': 'Guides locaux experts',
+    'whySafarine.description': 'Nous croyons en des expériences de voyage authentiques qui respectent les communautés locales et préservent la beauté naturelle de la Thaïlande.',
+    'whySafarine.image.alt': 'Expériences thaïlandaises authentiques avec Safarine',
+    
+    // Contact section
+    'contact.title': 'Contactez-nous',
+    'contact.home.subtitle': 'Prêt à planifier votre aventure en Thaïlande ? Contactez-nous dès aujourd\'hui !'
   }
 };
 

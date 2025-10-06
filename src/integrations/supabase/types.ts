@@ -519,6 +519,33 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       tours: {
         Row: {
           b2b_price: number | null
@@ -815,6 +842,22 @@ export type Database = {
           status: string
         }[]
       }
+      is_tour_complete: {
+        Args: { tour_id: string }
+        Returns: Json
+      }
+      null_if_blank: {
+        Args: { txt: string }
+        Returns: string
+      }
+      publish_tour: {
+        Args: { p_tour_id: string; p_validate?: boolean }
+        Returns: {
+          id: string
+          published_at: string
+          status: string
+        }[]
+      }
       send_b2b_registration_email: {
         Args: {
           company_name: string
@@ -827,6 +870,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      tour_is_complete: {
+        Args: { t: Database["public"]["Tables"]["tours"]["Row"] }
+        Returns: boolean
+      }
+      unpublish_tour: {
+        Args: { p_tour_id: string }
+        Returns: undefined
+      }
       validate_117_image_system: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -835,6 +886,10 @@ export type Database = {
           expected: number
           status: string
         }[]
+      }
+      validate_tour_complete: {
+        Args: { p_tour_id: string }
+        Returns: boolean
       }
       validate_tour_completeness: {
         Args: { tour_uuid: string }

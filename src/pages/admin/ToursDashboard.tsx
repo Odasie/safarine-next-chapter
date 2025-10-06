@@ -19,6 +19,7 @@ interface Tour {
   duration_nights: number;
   price: number;
   currency: string;
+  status?: string;
   is_private?: boolean;
 }
 
@@ -130,12 +131,14 @@ export default function ToursDashboard() {
   };
 
   const getStatusBadge = (tour: Tour) => {
-    if (tour.is_private === false) {
+    const tourStatus = tour.status || (tour.is_private ? 'draft' : 'published');
+    
+    if (tourStatus === 'published') {
       return <Badge variant="default" className="bg-green-600">Published</Badge>;
-    } else if (tour.is_private === true) {
+    } else if (tourStatus === 'draft') {
       return <Badge variant="secondary">Draft</Badge>;
     } else {
-      return <Badge variant="destructive">Unknown</Badge>;
+      return <Badge variant="outline">{tourStatus}</Badge>;
     }
   };
 
@@ -192,7 +195,7 @@ export default function ToursDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {tours.filter(t => !t.is_private).length}
+              {tours.filter(t => (t.status === 'published' || (!t.status && !t.is_private))).length}
             </div>
           </CardContent>
         </Card>
@@ -202,7 +205,7 @@ export default function ToursDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {tours.filter(t => t.is_private).length}
+              {tours.filter(t => (t.status === 'draft' || (!t.status && t.is_private))).length}
             </div>
           </CardContent>
         </Card>
@@ -272,7 +275,7 @@ export default function ToursDashboard() {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          {tour.is_private ? (
+                          {(tour.status === 'draft' || (!tour.status && tour.is_private)) ? (
                             <Button
                               size="sm"
                               onClick={() => updateTourVisibility(tour.id, true)}
@@ -327,9 +330,10 @@ export default function ToursDashboard() {
             <div className="mt-4">
               <p><strong>Field Analysis:</strong></p>
               <ul className="list-disc list-inside space-y-1 text-xs">
+                <li>Tours with status='published': {tours.filter(t => t.status === 'published').length}</li>
+                <li>Tours with status='draft': {tours.filter(t => t.status === 'draft').length}</li>
                 <li>Tours with is_private=false: {tours.filter(t => t.is_private === false).length}</li>
                 <li>Tours with is_private=true: {tours.filter(t => t.is_private === true).length}</li>
-                <li>Tours with is_private=null: {tours.filter(t => t.is_private === null).length}</li>
               </ul>
             </div>
           </div>

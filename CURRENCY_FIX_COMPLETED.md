@@ -252,3 +252,4 @@ Updated all components that use `TourCard` to pass currency prop:
 **Implementation Date:** January 3, 2025  
 **Status:** ✅ Complete and Ready for Testing  
 **Estimated Testing Time:** 15 minutes
+

@@ -45,6 +45,9 @@ export default function ToursDashboard() {
         .limit(1000)  // Explicit limit to bypass default pagination
         .order('title_en', { ascending: true });
 
+      // Log raw response sample for debugging
+      console.log('🔍 Raw Supabase response sample:', data?.[0]);
+
       if (error) {
         console.error('❌ Supabase error:', error);
         throw error;
@@ -52,15 +55,17 @@ export default function ToursDashboard() {
 
       console.log(`✅ Found ${count} total tours in database:`, data);
       
-      // Log each tour for debugging
-      data?.forEach((tour, index) => {
-        console.log(`Tour ${index + 1}:`, {
-          id: tour.id,
-          title_en: tour.title_en,
-          title_fr: tour.title_fr,
-          is_private: tour.is_private
-        });
+    // Log each tour for debugging
+    data?.forEach((tour, index) => {
+      console.log(`Tour ${index + 1}:`, {
+        id: tour.id,
+        title_en: tour.title_en,
+        title_fr: tour.title_fr,
+        status: tour.status,
+        is_private: tour.is_private,
+        computed_status: tour.status || (tour.is_private ? 'draft' : 'published')
       });
+    });
 
       setTours(data || []);
       
@@ -245,10 +250,11 @@ export default function ToursDashboard() {
                     <TableHead>Image</TableHead>
                     <TableHead>Title</TableHead>
                     <TableHead>Destination</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
+                  <TableHead>Duration</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Debug Data</TableHead>
+                  <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -272,6 +278,13 @@ export default function ToursDashboard() {
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(tour)}
+                      </TableCell>
+                      <TableCell className="text-xs font-mono">
+                        <div className="space-y-1">
+                          <div>status: <span className="font-semibold">{tour.status || 'null'}</span></div>
+                          <div>is_private: <span className="font-semibold">{String(tour.is_private)}</span></div>
+                          <div>computed: <span className="font-semibold">{tour.status || (tour.is_private ? 'draft' : 'published')}</span></div>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">

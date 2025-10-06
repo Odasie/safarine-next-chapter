@@ -157,7 +157,9 @@ export default function ToursDashboard() {
     console.log(`🎨 Badge render for ${tour.title_en}:`, { 
       raw_status: tour.status, 
       is_private: tour.is_private, 
-      computed: tourStatus,
+      computed_status: tourStatus,
+      published_at: tour.published_at,
+      tour_id: tour.id,
       updated_at: tour.updated_at
     });
     

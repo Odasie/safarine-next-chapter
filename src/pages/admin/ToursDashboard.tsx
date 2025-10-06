@@ -284,7 +284,7 @@ export default function ToursDashboard() {
                 </TableHeader>
                 <TableBody>
                   {tours.map((tour) => (
-                    <TableRow key={`${tour.id}-${tour.status}-${tour.is_private}-${tour.updated_at}`}>
+                    <TableRow key={tour.id}>
                       <TableCell>
                         <TourImagePreview tourId={tour.id} />
                       </TableCell>

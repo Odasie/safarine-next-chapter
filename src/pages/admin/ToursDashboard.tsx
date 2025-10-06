@@ -21,6 +21,8 @@ interface Tour {
   currency: string;
   status?: string;
   is_private?: boolean;
+  published_at?: string;
+  updated_at?: string;
 }
 
 export default function ToursDashboard() {
@@ -136,7 +138,15 @@ export default function ToursDashboard() {
   };
 
   const getStatusBadge = (tour: Tour) => {
-    const tourStatus = tour.status || (tour.is_private ? 'draft' : 'published');
+    // Use ?? instead of || to only fallback on null/undefined
+    const tourStatus = tour.status ?? (tour.is_private ? 'draft' : 'published');
+    
+    console.log(`🎨 Badge render for ${tour.title_en}:`, { 
+      raw_status: tour.status, 
+      is_private: tour.is_private, 
+      computed: tourStatus,
+      updated_at: tour.updated_at
+    });
     
     if (tourStatus === 'published') {
       return <Badge variant="default" className="bg-green-600">Published</Badge>;
@@ -259,7 +269,7 @@ export default function ToursDashboard() {
                 </TableHeader>
                 <TableBody>
                   {tours.map((tour) => (
-                    <TableRow key={tour.id}>
+                    <TableRow key={`${tour.id}-${tour.status}-${tour.is_private}-${tour.updated_at}`}>
                       <TableCell>
                         <TourImagePreview tourId={tour.id} />
                       </TableCell>

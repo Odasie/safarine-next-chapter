@@ -223,7 +223,7 @@ export default function ToursDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {tours.filter(t => (t.status === 'published' || (!t.status && !t.is_private))).length}
+              {tours.filter(t => ((t.status ?? (t.is_private ? 'draft' : 'published')) === 'published')).length}
             </div>
           </CardContent>
         </Card>
@@ -233,7 +233,7 @@ export default function ToursDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {tours.filter(t => (t.status === 'draft' || (!t.status && t.is_private))).length}
+              {tours.filter(t => ((t.status ?? (t.is_private ? 'draft' : 'published')) === 'draft')).length}
             </div>
           </CardContent>
         </Card>
@@ -311,7 +311,7 @@ export default function ToursDashboard() {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          {(tour.status === 'draft' || (!tour.status && tour.is_private)) ? (
+                          {((tour.status ?? (tour.is_private ? 'draft' : 'published')) === 'draft') ? (
                             <Button
                               size="sm"
                               onClick={() => updateTourVisibility(tour.id, true)}

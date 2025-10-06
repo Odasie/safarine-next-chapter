@@ -43,7 +43,7 @@ export default function ToursDashboard() {
       // Fetch ALL tours without any filtering to see what's actually in the database
       const { data, error, count } = await supabase
         .from('tours')
-        .select('*', { count: 'exact' })
+        .select('*, status, is_private, published_at, updated_at', { count: 'exact' })
         .limit(1000)  // Explicit limit to bypass default pagination
         .order('title_en', { ascending: true });
 
@@ -65,7 +65,7 @@ export default function ToursDashboard() {
         title_fr: tour.title_fr,
         status: tour.status,
         is_private: tour.is_private,
-        computed_status: tour.status || (tour.is_private ? 'draft' : 'published')
+        computed_status: tour.status ?? (tour.is_private ? 'draft' : 'published')
       });
     });
 
@@ -92,19 +92,32 @@ export default function ToursDashboard() {
       console.log(`🔄 Updating tour ${tourId} visibility to: ${makePublic ? 'public' : 'private'}`);
       
       const updateData: any = { 
-        is_private: !makePublic
+        is_private: !makePublic,
+        status: makePublic ? 'published' : 'draft',
+        updated_at: new Date().toISOString()
       };
+      
+      // If publishing, set published_at timestamp (only set once)
+      if (makePublic) {
+        updateData.published_at = new Date().toISOString();
+      } else {
+        // If unpublishing, clear published_at
+        updateData.published_at = null;
+      }
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('tours')
         .update(updateData)
-        .eq('id', tourId);
+        .eq('id', tourId)
+        .select(); // Return updated row to verify changes
 
       if (error) throw error;
       
-      console.log(`✅ Tour ${tourId} visibility updated`);
+      console.log(`✅ Tour ${tourId} updated:`, data?.[0]);
       toast.success(`Tour ${makePublic ? 'published' : 'unpublished'} successfully`);
-      await fetchAllTours(); // Refresh the list
+      
+      // Force immediate refresh
+      await fetchAllTours();
       
     } catch (error: any) {
       console.error('❌ Error updating tour visibility:', error);

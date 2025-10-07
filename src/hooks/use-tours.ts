@@ -14,6 +14,9 @@ export interface SupabaseTour {
   duration_nights: number | null;
   price: number | null;
   currency: string;
+  status: string;
+  published_at: string | null;
+  is_private: boolean | null;
   total_images: number | null;
   gallery_images: number | null;
   page?: {
@@ -46,6 +49,9 @@ export interface TransformedTour {
   group?: string;
   price?: number;
   currency?: string;
+  status?: string;
+  published_at?: string;
+  is_private?: boolean;
   images: string[];
   imageRecords?: Array<{
     src: string;
@@ -112,6 +118,9 @@ export function transformTour(tour: any): TransformedTour {
     group: groupSize,
     price,
     currency,
+    status: tour.status,
+    published_at: tour.published_at,
+    is_private: tour.is_private,
     images: [heroImage, thumbnailImage, ...galleryImages].filter(Boolean),
     imageRecords: Array.isArray(tour.images) ? tour.images.map((img: any) => ({
       src: img.file_path || "/placeholder.svg",
@@ -144,6 +153,8 @@ export function useTours() {
           child_price,
           b2b_price,
           currency,
+          status,
+          published_at,
           title_en,
           title_fr,
           slug_en,
@@ -244,6 +255,8 @@ export function useFeaturedTours(limit: number = 3) {
           duration_nights,
           price,
           currency,
+          status,
+          published_at,
           title_en,
           title_fr,
           slug_en,
@@ -326,6 +339,9 @@ export function useRawTours() {
           duration_nights,
           price,
           currency,
+          status,
+          published_at,
+          is_private,
           title_en,
           title_fr,
           slug_en,

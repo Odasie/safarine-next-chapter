@@ -85,6 +85,72 @@ function parseTsv(tsv: string): Record<string, string>[] {
   return rows;
 }
 
+// Normalization utilities for Step 2
+function normalizeList(cell: string | null | undefined, fieldName: string): string[] {
+  if (!cell) return [];
+  const trimmed = cell.trim();
+  if (!trimmed) return [];
+  
+  // Try parsing as JSON first
+  if (trimmed.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) return parsed.filter(x => x && typeof x === 'string');
+    } catch (e) {
+      console.warn(`${fieldName}: JSON parse failed, using delimiter split`);
+    }
+  }
+  
+  // Fallback to delimiter split
+  return splitList(trimmed);
+}
+
+function normalizeJsonArray(cell: string | null | undefined, fieldName: string): string | null {
+  if (!cell) return null;
+  const trimmed = cell.trim();
+  if (!trimmed) return null;
+  
+  // If already valid JSON array, return as-is
+  if (trimmed.startsWith('[')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) return trimmed;
+    } catch (e) {
+      console.warn(`${fieldName}: Invalid JSON array, converting from delimited list`);
+    }
+  }
+  
+  // Convert semicolon/comma list to JSON array
+  const list = splitList(trimmed);
+  return JSON.stringify(list);
+}
+
+function normalizeStatus(cell: string | null | undefined): string {
+  if (!cell) return 'draft';
+  const lower = cell.toLowerCase().trim();
+  if (['published', 'draft', 'archived'].includes(lower)) return lower;
+  return 'draft';
+}
+
+function normalizeTimestamp(cell: string | null | undefined): string | null {
+  if (!cell) return null;
+  const trimmed = cell.trim();
+  if (!trimmed) return null;
+  try {
+    const date = new Date(trimmed);
+    if (isNaN(date.getTime())) return null;
+    return date.toISOString();
+  } catch {
+    return null;
+  }
+}
+
+function normalizeNumber(cell: string | null | undefined): number | null {
+  if (!cell) return null;
+  const num = parseInt(cell, 10);
+  return isNaN(num) ? null : num;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -123,232 +189,403 @@ Deno.serve(async (req) => {
 
     const bucket = "site-images";
 
-    const summary: any = {
-      processed: 0,
-      pages_created: 0,
-      pages_updated: 0,
-      tours_created: 0,
-      tours_updated: 0,
-      images_uploaded: 0,
-      categories_linked: 0,
-      validation_errors: 0,
-      price_validations: { valid: 0, invalid: 0 },
-      errors: [] as string[],
-    };
+    let processed = 0;
+    let pagesCreated = 0;
+    let pagesUpdated = 0;
+    let toursCreated = 0;
+    let toursUpdated = 0;
+    let imagesUploaded = 0;
+    let categoriesLinked = 0;
+    const validationErrors: string[] = [];
+    const errors: string[] = [];
+    const priceValidations = { valid: 0, invalid: 0 };
 
-    for (const [rowIndex, row] of rows.entries()) {
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const rowNum = i + 1;
+      processed++;
+      const rowErrors: string[] = [];
+
+      // Tolerant key matching
+      const getField = (key: string): string | undefined => {
+        const lowerKey = key.toLowerCase().replace(/[_\s]/g, '');
+        const entry = Object.entries(row).find(([k]) => 
+          k.toLowerCase().replace(/[_\s]/g, '') === lowerKey
+        );
+        return entry ? entry[1] : undefined;
+      };
+
+      // Extract fields with preference for new names, fallback to legacy
+      const url = getField('url')?.trim();
+      
+      // Slugs: prefer slug_en/slug_fr, fallback to url_slug_*, fallback to titles
+      let slug_en = getField('slug_en') || getField('urlslugen');
+      let slug_fr = getField('slug_fr') || getField('urlslugfr');
+      const title_en = getField('title_en') || getField('titleen');
+      const title_fr = getField('title_fr') || getField('titlefr');
+      
+      if (!slug_en && title_en) {
+        slug_en = toSlug(title_en);
+        console.warn(`Row ${rowNum}: Generated slug_en from title_en`);
+      }
+      if (!slug_fr && title_fr) {
+        slug_fr = toSlug(title_fr);
+        console.warn(`Row ${rowNum}: Generated slug_fr from title_fr`);
+      }
+      
+      if (!slug_en || !slug_fr) {
+        rowErrors.push(`Missing slugs (slug_en=${!!slug_en}, slug_fr=${!!slug_fr})`);
+      }
+
+      const description_en = getField('description_en') || getField('descriptionen');
+      const description_fr = getField('description_fr') || getField('descriptionfr');
+      const destination = getField('destination')?.trim() || 'Kanchanaburi';
+      const duration_days = normalizeNumber(getField('duration_days') || getField('durationdays'));
+      const duration_nights = normalizeNumber(getField('duration_nights') || getField('durationnights'));
+
+      // Prices
+      const priceStr = getField('price')?.trim();
+      const childPriceStr = getField('child_price') || getField('childprice');
+      const b2bPriceStr = getField('b2b_price') || getField('b2bprice');
+
+      const validatedPrice = validatePrice(priceStr || '', 'price');
+      const validatedChildPrice = childPriceStr ? validatePrice(childPriceStr, 'child_price') : { valid: true, price: null };
+      const validatedB2bPrice = b2bPriceStr ? validatePrice(b2bPriceStr, 'b2b_price') : { valid: true, price: null };
+
+      if (validatedPrice.valid) priceValidations.valid++;
+      else priceValidations.invalid++;
+      if (validatedChildPrice.valid) priceValidations.valid++;
+      else priceValidations.invalid++;
+      if (validatedB2bPrice.valid) priceValidations.valid++;
+      else priceValidations.invalid++;
+
+      if (!validatedPrice.valid) rowErrors.push(validatedPrice.error || 'Invalid price');
+      if (!validatedChildPrice.valid) rowErrors.push(validatedChildPrice.error || 'Invalid child_price');
+      if (!validatedB2bPrice.valid) rowErrors.push(validatedB2bPrice.error || 'Invalid b2b_price');
+
+      // Lists: prefer included_items/excluded_items, fallback to what_included/what_not_included
+      let included_items = normalizeList(getField('included_items') || getField('includeditems'), 'included_items');
+      let excluded_items = normalizeList(getField('excluded_items') || getField('excludeditems'), 'excluded_items');
+      
+      if (included_items.length === 0) {
+        const legacy_included = normalizeList(getField('whatincluded'), 'what_included (legacy)');
+        if (legacy_included.length > 0) {
+          included_items = legacy_included;
+          console.warn(`Row ${rowNum}: Using legacy what_included`);
+        }
+      }
+      if (excluded_items.length === 0) {
+        const legacy_excluded = normalizeList(getField('whatnotincluded'), 'what_not_included (legacy)');
+        if (legacy_excluded.length > 0) {
+          excluded_items = legacy_excluded;
+          console.warn(`Row ${rowNum}: Using legacy what_not_included`);
+        }
+      }
+
+      // JSONB arrays
+      const highlightsRaw = normalizeJsonArray(getField('highlights'), 'highlights');
+      const activitiesRaw = normalizeJsonArray(getField('activities'), 'activities');
+      const galleryImagesUrlsRaw = normalizeJsonArray(getField('gallery_images_urls') || getField('galleryimagesurls'), 'gallery_images_urls');
+
+      let highlights_array = null;
+      let activities_array = null;
+      let gallery_images_urls_array = null;
+
       try {
-        // Map inputs with tolerant keys
-        const get = (k: string) => row[k] ?? row[k.toLowerCase()] ?? "";
-        const slug = toSlug(get("url_slug_fr") || get("url_slug_en") || get("title_fr") || get("title_en"));
-        if (!slug) throw new Error(`Row ${rowIndex + 1}: Missing slug`);
+        highlights_array = highlightsRaw ? JSON.parse(highlightsRaw) : [];
+      } catch (e) {
+        rowErrors.push('Invalid highlights JSON');
+      }
+      try {
+        activities_array = activitiesRaw ? JSON.parse(activitiesRaw) : [];
+      } catch (e) {
+        rowErrors.push('Invalid activities JSON');
+      }
+      try {
+        gallery_images_urls_array = galleryImagesUrlsRaw ? JSON.parse(galleryImagesUrlsRaw) : [];
+      } catch (e) {
+        rowErrors.push('Invalid gallery_images_urls JSON');
+      }
 
-        const title = get("title_fr") || get("title_en") || slug;
-        const meta_desc = get("description_fr") || get("description_en") || "";
-        const content_md = meta_desc;
-        const destination = get("destination");
-        const categoryName = get("category_fr") || get("category_en");
-        const durationDaysRaw = get("duration_days");
-        const duration_days = durationDaysRaw ? Number(durationDaysRaw) : null;
-        const what_included = splitList(get("what_included"));
-        const what_not_included = splitList(get("what_not_included"));
-        const image_url = get("image_url");
-        const destination_image_url = get("destination_image_url");
+      // Status and published_at
+      let status = normalizeStatus(getField('status'));
+      let published_at = normalizeTimestamp(getField('published_at') || getField('publishedat'));
+      
+      if (status === 'published' && !published_at) {
+        published_at = new Date().toISOString();
+        console.log(`Row ${rowNum}: Auto-set published_at for published tour`);
+      }
 
-        // Validate pricing fields
-        const priceValidation = validatePrice(get("price"), "Price");
-        const childPriceValidation = validatePrice(get("child_price"), "Child Price");
-        const b2bPriceValidation = validatePrice(get("b2b_price"), "B2B Price");
+      const primaryImageUrl = getField('primaryimage')?.trim();
+      const destinationImageUrl = getField('destinationimage')?.trim();
 
-        // Check for validation errors
-        const validationErrors: string[] = [];
-        if (!priceValidation.valid && priceValidation.error) {
-          validationErrors.push(priceValidation.error);
+      // If errors, skip processing
+      if (rowErrors.length > 0) {
+        errors.push(`Row ${rowNum}: ${rowErrors.join('; ')}`);
+        validationErrors.push(...rowErrors.map(e => `Row ${rowNum}: ${e}`));
+        continue;
+      }
+
+      // Upsert page
+      const pageSlug = slug_en || slug_fr || toSlug(title_en || title_fr || url || '');
+      if (!pageSlug) {
+        errors.push(`Row ${rowNum}: Cannot generate page slug`);
+        continue;
+      }
+
+      const pageUrl = `/tours/${pageSlug}`;
+      const { data: existingPage } = await supabase
+        .from('pages')
+        .select('id')
+        .eq('slug', pageSlug)
+        .maybeSingle();
+
+      let pageId: string;
+      if (existingPage) {
+        const { data: updatedPage, error: pageUpdateError } = await supabase
+          .from('pages')
+          .update({
+            url: pageUrl,
+            title: title_en || title_fr || null,
+            meta_title: title_en || title_fr || null,
+            meta_desc: description_en || description_fr || null,
+            lang: 'en',
+          })
+          .eq('id', existingPage.id)
+          .select('id')
+          .single();
+
+        if (pageUpdateError || !updatedPage) {
+          errors.push(`Row ${rowNum}: Page update failed: ${pageUpdateError?.message}`);
+          continue;
         }
-        if (!childPriceValidation.valid && childPriceValidation.error) {
-          validationErrors.push(childPriceValidation.error);
-        }
-        if (!b2bPriceValidation.valid && b2bPriceValidation.error) {
-          validationErrors.push(b2bPriceValidation.error);
-        }
+        pageId = updatedPage.id;
+        pagesUpdated++;
+      } else {
+        const { data: newPage, error: pageInsertError } = await supabase
+          .from('pages')
+          .insert({
+            url: pageUrl,
+            slug: pageSlug,
+            title: title_en || title_fr || null,
+            meta_title: title_en || title_fr || null,
+            meta_desc: description_en || description_fr || null,
+            lang: 'en',
+          })
+          .select('id')
+          .single();
 
-        if (validationErrors.length > 0) {
-          summary.validation_errors++;
-          summary.price_validations.invalid++;
-          throw new Error(`Row ${rowIndex + 1}: ${validationErrors.join(', ')}`);
+        if (pageInsertError || !newPage) {
+          errors.push(`Row ${rowNum}: Page insert failed: ${pageInsertError?.message}`);
+          continue;
         }
+        pageId = newPage.id;
+        pagesCreated++;
+      }
 
-        summary.price_validations.valid++;
+      // Link category
+      const categoryName = destination;
+      const { data: category } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('name', categoryName)
+        .maybeSingle();
 
-        // Upsert page by slug manually (select -> insert/update)
-        const { data: existingPage, error: findPageErr } = await supabase
-          .from("pages")
-          .select("id, slug")
-          .eq("slug", slug)
+      let categoryId: string | null = null;
+      if (category) {
+        categoryId = category.id;
+      } else {
+        const { data: newCat, error: catError } = await supabase
+          .from('categories')
+          .insert({ name: categoryName })
+          .select('id')
+          .single();
+        if (!catError && newCat) {
+          categoryId = newCat.id;
+        }
+      }
+
+      if (categoryId) {
+        const { data: existingLink } = await supabase
+          .from('page_categories')
+          .select('*')
+          .eq('page_id', pageId)
+          .eq('category_id', categoryId)
           .maybeSingle();
-        if (findPageErr) throw findPageErr;
 
-        let pageId: string | null = existingPage?.id ?? null;
-        if (!pageId) {
-          const { data: inserted, error: insErr } = await supabase
-            .from("pages")
-            .insert({
-              url: `https://www.safarine.com/${slug}`,
-              slug,
-              title,
-              meta_title: title,
-              meta_desc,
-              content_md,
-              lang: "fr",
-            })
-            .select("id")
-            .single();
-          if (insErr) throw insErr;
-          pageId = inserted.id;
-          summary.pages_created++;
-        } else {
-          const { error: updErr } = await supabase
-            .from("pages")
-            .update({ title, meta_title: title, meta_desc, content_md, lang: "fr" })
-            .eq("id", pageId);
-          if (updErr) throw updErr;
-          summary.pages_updated++;
+        if (!existingLink) {
+          await supabase.from('page_categories').insert({ page_id: pageId, category_id: categoryId });
+          categoriesLinked++;
         }
+      }
 
-        // Category handling
-        if (categoryName && pageId) {
-          const { data: cat, error: catSelErr } = await supabase
-            .from("categories")
-            .select("id, name")
-            .eq("name", categoryName)
+      // Upload images
+      let primaryImgRecord = null;
+      let destImgRecord = null;
+
+      if (primaryImageUrl) {
+        try {
+          const fileName = fileNameFromUrl(primaryImageUrl);
+          const imgResp = await fetch(primaryImageUrl);
+          if (!imgResp.ok) throw new Error(`HTTP ${imgResp.status}`);
+          const imgBuffer = await imgResp.arrayBuffer();
+          const checksum = await sha256Hex(imgBuffer);
+
+          const { data: existingImg } = await supabase
+            .from('images')
+            .select('*')
+            .eq('checksum', checksum)
             .maybeSingle();
-          if (catSelErr) throw catSelErr;
 
-          let categoryId = cat?.id ?? null;
-          if (!categoryId) {
-            const { data: newCat, error: insCatErr } = await supabase
-              .from("categories")
-              .insert({ name: categoryName })
-              .select("id")
-              .single();
-            if (insCatErr) throw insCatErr;
-            categoryId = newCat.id;
-          }
+          if (existingImg) {
+            primaryImgRecord = existingImg;
+          } else {
+            const storagePath = `tours/${destination}/${fileName}`;
+            const { error: uploadError } = await supabase.storage
+              .from('tour-images')
+              .upload(storagePath, imgBuffer, { contentType: 'image/webp', upsert: true });
 
-          // Link page to category if not already
-          const { data: link, error: linkSelErr } = await supabase
-            .from("page_categories")
-            .select("page_id, category_id")
-            .eq("page_id", pageId)
-            .eq("category_id", categoryId)
-            .maybeSingle();
-          if (linkSelErr && linkSelErr.code !== "PGRST116") throw linkSelErr; // ignore no rows error shape
-
-          if (!link) {
-            const { error: linkInsErr } = await supabase
-              .from("page_categories")
-              .insert({ page_id: pageId, category_id: categoryId });
-            if (linkInsErr) throw linkInsErr;
-            summary.categories_linked++;
-          }
-        }
-
-        // Upload images (primary + destination)
-        const uploadedPublicUrls: string[] = [];
-        for (const srcUrl of [image_url, destination_image_url].filter(Boolean)) {
-          try {
-            const res = await fetch(srcUrl!);
-            if (!res.ok) throw new Error(`Fetch failed ${res.status}`);
-            const arrayBuf = await res.arrayBuffer();
-            const checksum = await sha256Hex(arrayBuf);
-            const contentType = res.headers.get("content-type") || "image/jpeg";
-            const baseName = fileNameFromUrl(srcUrl!);
-            const path = `tours/${slug}/${baseName}`;
-
-            // Upload with upsert to avoid duplicates in storage
-            const { error: upErr } = await supabase.storage
-              .from(bucket)
-              .upload(path, new Uint8Array(arrayBuf), {
-                contentType,
-                upsert: true,
-              } as any);
-            if (upErr && !String(upErr.message || "").includes("exists")) throw upErr;
-
-            const { data: pub } = supabase.storage.from(bucket).getPublicUrl(path);
-            const publicUrl = pub.publicUrl;
-            uploadedPublicUrls.push(publicUrl);
-
-            // Ensure image record (dedupe by checksum)
-            if (pageId) {
-              const { data: imgExisting, error: imgSelErr } = await supabase
-                .from("images")
-                .select("id, checksum")
-                .eq("checksum", checksum)
-                .maybeSingle();
-              if (imgSelErr) throw imgSelErr;
-              if (!imgExisting) {
-                const altText = title || slug || 'Tour image';
-                const { error: imgInsErr } = await supabase.from("images").insert({
-                  page_id: pageId,
-                  src: publicUrl,
-                  alt_en: altText,
-                  alt_fr: altText,
-                  title,
+            if (!uploadError) {
+              const publicUrl = supabase.storage.from('tour-images').getPublicUrl(storagePath).data.publicUrl;
+              const { data: newImg } = await supabase
+                .from('images')
+                .insert({
+                  file_path: storagePath,
+                  source_url: primaryImageUrl,
                   checksum,
-                  mime_type: contentType,
-                });
-                if (imgInsErr) throw imgInsErr;
-                summary.images_uploaded++;
+                  category: 'tours',
+                  image_type: 'hero',
+                  published: true,
+                })
+                .select('*')
+                .single();
+              if (newImg) {
+                primaryImgRecord = newImg;
+                imagesUploaded++;
               }
             }
-          } catch (imgErr) {
-            console.error("Image upload error", imgErr);
-            summary.errors.push(`Image error for slug ${slug}: ${imgErr?.message || imgErr}`);
           }
+        } catch (e: any) {
+          console.error(`Row ${rowNum}: Primary image upload failed:`, e.message);
         }
+      }
 
-        // Upsert tour by page_id
-        if (pageId) {
-          const { data: existingTour, error: tourSelErr } = await supabase
-            .from("tours")
-            .select("id")
-            .eq("page_id", pageId)
+      if (destinationImageUrl) {
+        try {
+          const fileName = fileNameFromUrl(destinationImageUrl);
+          const imgResp = await fetch(destinationImageUrl);
+          if (!imgResp.ok) throw new Error(`HTTP ${imgResp.status}`);
+          const imgBuffer = await imgResp.arrayBuffer();
+          const checksum = await sha256Hex(imgBuffer);
+
+          const { data: existingImg } = await supabase
+            .from('images')
+            .select('*')
+            .eq('checksum', checksum)
             .maybeSingle();
-          if (tourSelErr) throw tourSelErr;
 
-          const hero_image = uploadedPublicUrls[0] || null;
-          const tourPayload: any = {
-            page_id: pageId,
-            duration_days: duration_days ?? null,
-            price: priceValidation.price,
-            child_price: childPriceValidation.price,
-            b2b_price: b2bPriceValidation.price,
-            currency: "THB",
-            hero_image,
-            highlights: { included: what_included, excluded: what_not_included },
-          };
-
-          if (!existingTour) {
-            const { error: insTourErr } = await supabase.from("tours").insert(tourPayload);
-            if (insTourErr) throw insTourErr;
-            summary.tours_created++;
+          if (existingImg) {
+            destImgRecord = existingImg;
           } else {
-            const { error: updTourErr } = await supabase
-              .from("tours")
-              .update(tourPayload)
-              .eq("page_id", pageId);
-            if (updTourErr) throw updTourErr;
-            summary.tours_updated++;
-          }
-        }
+            const storagePath = `destinations/${destination}/${fileName}`;
+            const { error: uploadError } = await supabase.storage
+              .from('tour-images')
+              .upload(storagePath, imgBuffer, { contentType: 'image/webp', upsert: true });
 
-        summary.processed++;
-      } catch (rowErr: any) {
-        console.error("Row error", rowErr);
-        const errorMessage = rowErr?.message || String(rowErr);
-        summary.errors.push(errorMessage);
+            if (!uploadError) {
+              const publicUrl = supabase.storage.from('tour-images').getPublicUrl(storagePath).data.publicUrl;
+              const { data: newImg } = await supabase
+                .from('images')
+                .insert({
+                  file_path: storagePath,
+                  source_url: destinationImageUrl,
+                  checksum,
+                  category: 'destinations',
+                  image_type: 'thumbnail',
+                  published: true,
+                })
+                .select('*')
+                .single();
+              if (newImg) {
+                destImgRecord = newImg;
+                imagesUploaded++;
+              }
+            }
+          }
+        } catch (e: any) {
+          console.error(`Row ${rowNum}: Destination image upload failed:`, e.message);
+        }
+      }
+
+      // Upsert tour
+      const tourPayload = {
+        page_id: pageId,
+        title_en: title_en || null,
+        title_fr: title_fr || null,
+        slug_en: slug_en || null,
+        slug_fr: slug_fr || null,
+        description_en: description_en || null,
+        description_fr: description_fr || null,
+        destination,
+        duration_days: duration_days,
+        duration_nights: duration_nights,
+        price: validatedPrice.price,
+        child_price: validatedChildPrice.price,
+        b2b_price: validatedB2bPrice.price,
+        currency: 'THB',
+        status,
+        published_at,
+        included_items,
+        excluded_items,
+        highlights: highlights_array,
+        activities: activities_array,
+        gallery_images_urls: gallery_images_urls_array,
+        hero_image_url: primaryImgRecord?.file_path || primaryImageUrl || null,
+        thumbnail_image_url: destImgRecord?.file_path || destinationImageUrl || null,
+      };
+
+      const { data: existingTour } = await supabase
+        .from('tours')
+        .select('id')
+        .eq('page_id', pageId)
+        .maybeSingle();
+
+      if (existingTour) {
+        const { error: tourUpdateError } = await supabase
+          .from('tours')
+          .update(tourPayload)
+          .eq('id', existingTour.id);
+        
+        if (tourUpdateError) {
+          errors.push(`Row ${rowNum}: Tour update failed: ${tourUpdateError.message.substring(0, 100)}`);
+        } else {
+          toursUpdated++;
+        }
+      } else {
+        const { error: tourInsertError } = await supabase
+          .from('tours')
+          .insert(tourPayload);
+        
+        if (tourInsertError) {
+          errors.push(`Row ${rowNum}: Tour insert failed: ${tourInsertError.message.substring(0, 100)}`);
+        } else {
+          toursCreated++;
+        }
       }
     }
+
+    const summary = {
+      processed,
+      pages_created: pagesCreated,
+      pages_updated: pagesUpdated,
+      tours_created: toursCreated,
+      tours_updated: toursUpdated,
+      categories_linked: categoriesLinked,
+      images_uploaded: imagesUploaded,
+      price_validations: priceValidations,
+      validation_errors: validationErrors,
+      errors,
+    };
 
     return new Response(JSON.stringify(summary, null, 2), {
       status: 200,

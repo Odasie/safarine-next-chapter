@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { tours } from '@/data/tours';
 import { useMemo } from 'react';
+import { normalizeTour } from '@/utils/tourNormalization';
 
 const TourDetail = () => {
   const { slug } = useParams();
@@ -83,7 +84,7 @@ const TourDetail = () => {
         .eq(slugField, slug)
         .eq('status', 'published')
         .not('published_at', 'is', null)
-        .maybeSingle();
+        .maybeSingle() as any;
       
       if (tourBySlug) return tourBySlug;
       
@@ -124,7 +125,7 @@ const TourDetail = () => {
         .eq(otherSlugField, slug)
         .eq('status', 'published')
         .not('published_at', 'is', null)
-        .maybeSingle();
+        .maybeSingle() as any;
       
       if (tourByOtherSlug) return tourByOtherSlug;
       
@@ -166,7 +167,7 @@ const TourDetail = () => {
         .eq('status', 'published')
         .not('published_at', 'is', null)
         .limit(1)
-        .maybeSingle();
+        .maybeSingle() as any;
       
       if (tourByTitle) return tourByTitle;
       
@@ -176,7 +177,13 @@ const TourDetail = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  // Process comprehensive tour data
+  // Normalize tour data for safe consumption
+  const tour = useMemo(() => {
+    if (!tourData) return null;
+    return normalizeTour(tourData, locale);
+  }, [tourData, locale]);
+
+  // Legacy computed values for backward compatibility
   const displayTitle = useMemo(() => {
     if (tourData) {
       return locale === 'fr' ? tourData.title_fr || tourData.title_en : tourData.title_en || tourData.title_fr;

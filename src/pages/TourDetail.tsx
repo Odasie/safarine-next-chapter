@@ -27,7 +27,9 @@ import {
   Calendar, 
   DollarSign,
   Mail,
-  Phone
+  Phone,
+  Sparkles,
+  Tag
 } from 'lucide-react';
 import { tours } from '@/data/tours';
 import { useMemo } from 'react';
@@ -53,9 +55,13 @@ const TourDetail = () => {
           description_en,
           description_fr,
           highlights,
+          activities,
           itinerary,
           included_items,
           excluded_items,
+          gallery_images_urls,
+          hero_image_url,
+          thumbnail_image_url,
           group_size_min,
           group_size_max,
           difficulty_level,
@@ -64,10 +70,15 @@ const TourDetail = () => {
           is_private,
           price,
           child_price,
-          b2b_price,
           currency,
+          status,
+          published_at,
           duration_days,
-          duration_nights
+          duration_nights,
+          page:pages!tours_page_id_fkey(id, url, slug, title),
+          page_categories!tours_page_id_fkey(
+            categories(name)
+          )
         `)
         .eq(slugField, slug)
         .eq('status', 'published')
@@ -85,9 +96,13 @@ const TourDetail = () => {
           description_en,
           description_fr,
           highlights,
+          activities,
           itinerary,
           included_items,
           excluded_items,
+          gallery_images_urls,
+          hero_image_url,
+          thumbnail_image_url,
           group_size_min,
           group_size_max,
           difficulty_level,
@@ -96,10 +111,15 @@ const TourDetail = () => {
           is_private,
           price,
           child_price,
-          b2b_price,
           currency,
+          status,
+          published_at,
           duration_days,
-          duration_nights
+          duration_nights,
+          page:pages!tours_page_id_fkey(id, url, slug, title),
+          page_categories!tours_page_id_fkey(
+            categories(name)
+          )
         `)
         .eq(otherSlugField, slug)
         .eq('status', 'published')
@@ -117,9 +137,13 @@ const TourDetail = () => {
           description_en,
           description_fr,
           highlights,
+          activities,
           itinerary,
           included_items,
           excluded_items,
+          gallery_images_urls,
+          hero_image_url,
+          thumbnail_image_url,
           group_size_min,
           group_size_max,
           difficulty_level,
@@ -128,10 +152,15 @@ const TourDetail = () => {
           is_private,
           price,
           child_price,
-          b2b_price,
           currency,
+          status,
+          published_at,
           duration_days,
-          duration_nights
+          duration_nights,
+          page:pages!tours_page_id_fkey(id, url, slug, title),
+          page_categories!tours_page_id_fkey(
+            categories(name)
+          )
         `)
         .ilike(titleField, `%${slug.replace('-', ' ')}%`)
         .eq('status', 'published')
@@ -293,6 +322,43 @@ const TourDetail = () => {
     return null;
   }, [tourData?.itinerary]);
 
+  // New processors for schema fields
+  const activities = useMemo(() => {
+    const acts = tourData?.activities;
+    if (Array.isArray(acts)) return acts as string[];
+    if (typeof acts === 'string') {
+      try {
+        const parsed = JSON.parse(acts);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch { return []; }
+    }
+    return [];
+  }, [tourData?.activities]);
+
+  const galleryUrls = useMemo(() => {
+    const urls = tourData?.gallery_images_urls;
+    if (Array.isArray(urls)) return urls as string[];
+    if (typeof urls === 'string') {
+      try {
+        const parsed = JSON.parse(urls);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch { return []; }
+    }
+    return [];
+  }, [tourData?.gallery_images_urls]);
+
+  const categoryName = useMemo(() => {
+    if (!tourData?.page_categories || !Array.isArray(tourData.page_categories)) return null;
+    const firstCategory = tourData.page_categories[0];
+    return firstCategory?.categories?.name || null;
+  }, [tourData?.page_categories]);
+
+  const isFallbackTitle = useMemo(() => {
+    if (!tourData) return false;
+    const primary = locale === 'fr' ? tourData.title_fr : tourData.title_en;
+    return !primary;
+  }, [tourData, locale]);
+
   // Get hero image using the hook for background
   const { heroImage } = useTourImages(tourData?.id || '');
 
@@ -369,10 +435,11 @@ const TourDetail = () => {
       <Helmet>
         <title>{displayTitle} - Safarine</title>
         <meta name="description" content={metaDescription} />
+        {tourData?.status === 'draft' && <meta name="robots" content="noindex, nofollow" />}
         <meta property="og:title" content={`${displayTitle} - Safarine`} />
         <meta property="og:description" content={metaDescription} />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content={imageRecords[0]?.url || '/placeholder.svg'} />
+        <meta property="og:image" content={tourData?.hero_image_url || imageRecords[0]?.url || '/placeholder.svg'} />
       </Helmet>
 
       <SearchBar />
@@ -393,6 +460,11 @@ const TourDetail = () => {
               <div className="max-w-3xl text-white">
                 <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight drop-shadow-lg">
                   {displayTitle}
+                  {isFallbackTitle && (
+                    <span className="text-xs text-white/60 ml-2 font-normal">
+                      ({t('Translated from')} {locale === 'fr' ? 'English' : 'Français'})
+                    </span>
+                  )}
                 </h1>
                 
                 <div className="flex flex-wrap items-center gap-4 mb-6">
@@ -410,6 +482,17 @@ const TourDetail = () => {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
+                  {tourData?.status === 'draft' && (
+                    <Badge variant="secondary" className="bg-yellow-500/20 text-white border-yellow-300/30 backdrop-blur-sm">
+                      🚧 Draft
+                    </Badge>
+                  )}
+                  {categoryName && (
+                    <Badge variant="outline" className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
+                      <Tag className="h-3 w-3 mr-1" />
+                      {categoryName}
+                    </Badge>
+                  )}
                   <Badge 
                     variant="secondary" 
                     className="bg-white/20 text-white border-white/30 hover:bg-white/30 backdrop-blur-sm"
@@ -484,7 +567,7 @@ const TourDetail = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Star className="h-5 w-5 text-primary" />
-                      Tour Highlights
+                      {t('Tour Highlights') || 'Tour Highlights'}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>

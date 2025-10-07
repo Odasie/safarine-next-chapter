@@ -14,7 +14,7 @@ export interface SupabaseTour {
   duration_nights: number | null;
   price: number | null;
   currency: string;
-  status: string;
+  status: string | null;
   published_at: string | null;
   is_private: boolean | null;
   total_images: number | null;

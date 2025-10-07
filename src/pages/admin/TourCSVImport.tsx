@@ -27,9 +27,9 @@ const TourCSVImport: React.FC = () => {
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const { toast } = useToast();
 
-  const sampleCSV = `title_en	title_fr	url_slug_en	url_slug_fr	destination	category_en	category_fr	duration_days	price	child_price	b2b_price	what_included	what_not_included	image_url	destination_image_url	description_en	description_fr
-Kayaking Adventure	Aventure Kayak	kayaking-adventure	aventure-kayak	Kanchanaburi	Adventure	Aventure	1	2500	1250	2000	Guide,Equipment,Lunch	Transportation,Insurance	https://example.com/kayak.jpg	https://example.com/kancha.jpg	Amazing kayaking experience	Expérience de kayak incroyable
-Temple Discovery	Découverte Temple	temple-discovery	decouverte-temple	Chiang Mai	Cultural	Culturel	2	1800		1440	Guide,Entrance fees	Transportation,Meals	https://example.com/temple.jpg	https://example.com/chiangmai.jpg	Cultural temple tour	Visite culturelle des temples`;
+  const sampleCSV = `title_en	title_fr	slug_en	slug_fr	destination	category_en	category_fr	duration_days	duration_nights	price	child_price	b2b_price	included_items	excluded_items	highlights	activities	status	published_at	hero_image_url	thumbnail_image_url	gallery_images_urls	description_en	description_fr
+Kayaking Adventure	Aventure Kayak	kayaking-adventure	aventure-kayak	Kanchanaburi	Adventure	Aventure	1	0	2500	1250	2000	Guide;Equipment;Lunch	Transportation;Insurance	["Scenic river views","Professional guide"]	["Kayaking","Nature exploration"]	published	2024-01-15T10:00:00Z	https://example.com/kayak.jpg	https://example.com/kayak-thumb.jpg	["https://example.com/g1.jpg","https://example.com/g2.jpg"]	Amazing kayaking experience	Expérience de kayak incroyable
+Temple Discovery	Découverte Temple	temple-discovery	decouverte-temple	Chiang Mai	Cultural	Culturel	2	1	1800		1440	Guide;Entrance fees	Transportation;Meals	["Ancient temples","Local culture"]	["Temple visits","Photography"]	draft		https://example.com/temple.jpg	https://example.com/temple-thumb.jpg	[]	Cultural temple tour	Visite culturelle des temples`;
 
   const downloadSampleCSV = () => {
     const blob = new Blob([sampleCSV], { type: 'text/tab-separated-values' });
@@ -128,24 +128,36 @@ Temple Discovery	Découverte Temple	temple-discovery	decouverte-temple	Chiang Ma
           </div>
 
           {!isDryRun && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div className="bg-secondary p-3 rounded">
-                <div className="font-medium">Tours Created</div>
-                <div className="text-2xl font-bold text-green-600">{validationResult.tours_created}</div>
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="bg-secondary p-3 rounded">
+                  <div className="font-medium">Tours Created</div>
+                  <div className="text-2xl font-bold text-green-600">{validationResult.tours_created}</div>
+                </div>
+                <div className="bg-secondary p-3 rounded">
+                  <div className="font-medium">Tours Updated</div>
+                  <div className="text-2xl font-bold text-blue-600">{validationResult.tours_updated}</div>
+                </div>
+                <div className="bg-secondary p-3 rounded">
+                  <div className="font-medium">Pages Created</div>
+                  <div className="text-2xl font-bold text-green-600">{validationResult.pages_created}</div>
+                </div>
+                <div className="bg-secondary p-3 rounded">
+                  <div className="font-medium">Pages Updated</div>
+                  <div className="text-2xl font-bold text-blue-600">{validationResult.pages_updated}</div>
+                </div>
               </div>
-              <div className="bg-secondary p-3 rounded">
-                <div className="font-medium">Tours Updated</div>
-                <div className="text-2xl font-bold text-blue-600">{validationResult.tours_updated}</div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                <div className="bg-secondary p-3 rounded">
+                  <div className="font-medium">Images Uploaded</div>
+                  <div className="text-2xl font-bold">{validationResult.images_uploaded}</div>
+                </div>
+                <div className="bg-secondary p-3 rounded">
+                  <div className="font-medium">Categories Linked</div>
+                  <div className="text-2xl font-bold">{validationResult.categories_linked}</div>
+                </div>
               </div>
-              <div className="bg-secondary p-3 rounded">
-                <div className="font-medium">Images Uploaded</div>
-                <div className="text-2xl font-bold">{validationResult.images_uploaded}</div>
-              </div>
-              <div className="bg-secondary p-3 rounded">
-                <div className="font-medium">Pages Created</div>
-                <div className="text-2xl font-bold">{validationResult.pages_created}</div>
-              </div>
-            </div>
+            </>
           )}
 
           {validationResult.errors.length > 0 && (
@@ -215,17 +227,32 @@ Temple Discovery	Découverte Temple	temple-discovery	decouverte-temple	Chiang Ma
 
           <div className="space-y-2">
             <h4 className="font-medium">Supported Columns:</h4>
-            <div className="text-sm text-muted-foreground grid grid-cols-2 gap-2">
-              <div>• title_en, title_fr</div>
-              <div>• url_slug_en, url_slug_fr</div>
-              <div>• destination, category_en, category_fr</div>
-              <div>• duration_days</div>
-              <div>• <strong>price</strong> (main price in THB)</div>
-              <div>• <strong>child_price</strong> (optional, child rate)</div>
-              <div>• <strong>b2b_price</strong> (optional, B2B rate)</div>
-              <div>• what_included, what_not_included</div>
-              <div>• image_url, destination_image_url</div>
-              <div>• description_en, description_fr</div>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <div className="grid grid-cols-2 gap-2">
+                <div>• <strong>title_en, title_fr</strong></div>
+                <div>• <strong>slug_en, slug_fr</strong> (or url_slug_en/fr)</div>
+                <div>• <strong>description_en, description_fr</strong></div>
+                <div>• destination, category_en, category_fr</div>
+                <div>• duration_days, duration_nights</div>
+                <div>• <strong>price</strong> (THB), child_price, b2b_price</div>
+              </div>
+              <div className="pt-2 border-t">
+                <div className="font-medium mb-1">Arrays (semicolon-separated or JSON):</div>
+                <div>• <strong>included_items, excluded_items</strong> (or legacy: what_included, what_not_included)</div>
+                <div>• <strong>highlights</strong> - JSON array ["item1", "item2"]</div>
+                <div>• <strong>activities</strong> - JSON array ["activity1", "activity2"]</div>
+                <div>• <strong>gallery_images_urls</strong> - JSON array of image URLs</div>
+              </div>
+              <div className="pt-2 border-t">
+                <div className="font-medium mb-1">Status & Publishing:</div>
+                <div>• <strong>status</strong> - draft/published/archived</div>
+                <div>• <strong>published_at</strong> - ISO timestamp (auto-set if published)</div>
+              </div>
+              <div className="pt-2 border-t">
+                <div className="font-medium mb-1">Images:</div>
+                <div>• hero_image_url, thumbnail_image_url</div>
+                <div>• image_url, destination_image_url (legacy)</div>
+              </div>
             </div>
           </div>
 

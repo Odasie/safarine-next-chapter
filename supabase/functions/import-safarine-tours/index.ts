@@ -151,6 +151,16 @@ function normalizeNumber(cell: string | null | undefined): number | null {
   return isNaN(num) ? null : num;
 }
 
+// Normalize empty strings to NULL
+function normalizeToNull(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  return trimmed === '' ? null : trimmed;
+}
+
+// Slug columns to ignore - slugs are auto-generated server-side
+const IGNORED_SLUG_COLUMNS = ['slug_en', 'slug_fr', 'url_slug_en', 'url_slug_fr', 'urlslugen', 'urlslugfr'];
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -218,23 +228,16 @@ Deno.serve(async (req) => {
       // Extract fields with preference for new names, fallback to legacy
       const url = getField('url')?.trim();
       
-      // Slugs: prefer slug_en/slug_fr, fallback to url_slug_*, fallback to titles
-      let slug_en = getField('slug_en') || getField('urlslugen');
-      let slug_fr = getField('slug_fr') || getField('urlslugfr');
+      // Titles - required for URL generation
       const title_en = getField('title_en') || getField('titleen');
       const title_fr = getField('title_fr') || getField('titlefr');
       
-      if (!slug_en && title_en) {
-        slug_en = toSlug(title_en);
-        console.warn(`Row ${rowNum}: Generated slug_en from title_en`);
-      }
-      if (!slug_fr && title_fr) {
-        slug_fr = toSlug(title_fr);
-        console.warn(`Row ${rowNum}: Generated slug_fr from title_fr`);
-      }
-      
-      if (!slug_en || !slug_fr) {
-        rowErrors.push(`Missing slugs (slug_en=${!!slug_en}, slug_fr=${!!slug_fr})`);
+      // Log warning if legacy slug columns are detected (once per file at first occurrence)
+      if (i === 0) {
+        const detectedSlugColumns = IGNORED_SLUG_COLUMNS.filter(col => getField(col));
+        if (detectedSlugColumns.length > 0) {
+          console.warn(`Import file contains legacy slug columns (${detectedSlugColumns.join(', ')}) - ignoring; slugs are auto-generated server-side`);
+        }
       }
 
       const description_en = getField('description_en') || getField('descriptionen');
@@ -326,18 +329,15 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Upsert page
-      const pageSlug = slug_en || slug_fr || toSlug(title_en || title_fr || url || '');
-      if (!pageSlug) {
-        errors.push(`Row ${rowNum}: Cannot generate page slug`);
-        continue;
-      }
-
-      const pageUrl = `/tours/${pageSlug}`;
+      // Upsert page - generate URL from title, let DB generate slug from url
+      const urlSlug = toSlug(title_en || title_fr || '') || 'tour';
+      const pageUrl = `/tours/${urlSlug}`;
+      
+      // Query by URL (canonical source) instead of slug
       const { data: existingPage } = await supabase
         .from('pages')
         .select('id')
-        .eq('slug', pageSlug)
+        .eq('url', pageUrl)
         .maybeSingle();
 
       let pageId: string;
@@ -346,9 +346,9 @@ Deno.serve(async (req) => {
           .from('pages')
           .update({
             url: pageUrl,
-            title: title_en || title_fr || null,
-            meta_title: title_en || title_fr || null,
-            meta_desc: description_en || description_fr || null,
+            title: normalizeToNull(title_en || title_fr),
+            meta_title: normalizeToNull(title_en || title_fr),
+            meta_desc: normalizeToNull(description_en || description_fr),
             lang: 'en',
           })
           .eq('id', existingPage.id)
@@ -362,15 +362,18 @@ Deno.serve(async (req) => {
         pageId = updatedPage.id;
         pagesUpdated++;
       } else {
+        // Omit slug field - let DB generate it from url via default expression
         const { data: newPage, error: pageInsertError } = await supabase
           .from('pages')
           .insert({
             url: pageUrl,
-            slug: pageSlug,
-            title: title_en || title_fr || null,
-            meta_title: title_en || title_fr || null,
-            meta_desc: description_en || description_fr || null,
+            title: normalizeToNull(title_en || title_fr),
+            meta_title: normalizeToNull(title_en || title_fr),
+            meta_desc: normalizeToNull(description_en || description_fr),
             lang: 'en',
+            parent_url: null,
+            level: 1,
+            content_md: null,
           })
           .select('id')
           .single();
@@ -517,16 +520,14 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Upsert tour
+      // Upsert tour - omit slug_en/slug_fr (generated server-side)
       const tourPayload = {
         page_id: pageId,
-        title_en: title_en || null,
-        title_fr: title_fr || null,
-        slug_en: slug_en || null,
-        slug_fr: slug_fr || null,
-        description_en: description_en || null,
-        description_fr: description_fr || null,
-        destination,
+        title_en: normalizeToNull(title_en),
+        title_fr: normalizeToNull(title_fr),
+        description_en: normalizeToNull(description_en),
+        description_fr: normalizeToNull(description_fr),
+        destination: normalizeToNull(destination) || 'Kanchanaburi',
         duration_days: duration_days,
         duration_nights: duration_nights,
         price: validatedPrice.price,
@@ -540,8 +541,8 @@ Deno.serve(async (req) => {
         highlights: highlights_array,
         activities: activities_array,
         gallery_images_urls: gallery_images_urls_array,
-        hero_image_url: primaryImgRecord?.file_path || primaryImageUrl || null,
-        thumbnail_image_url: destImgRecord?.file_path || destinationImageUrl || null,
+        hero_image_url: normalizeToNull(primaryImgRecord?.file_path || primaryImageUrl),
+        thumbnail_image_url: normalizeToNull(destImgRecord?.file_path || destinationImageUrl),
       };
 
       const { data: existingTour } = await supabase

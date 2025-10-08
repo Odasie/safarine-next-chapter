@@ -27,9 +27,9 @@ const TourCSVImport: React.FC = () => {
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const { toast } = useToast();
 
-  const sampleCSV = `title_en	title_fr	slug_en	slug_fr	destination	category_en	category_fr	duration_days	duration_nights	price	child_price	b2b_price	included_items	excluded_items	highlights	activities	status	published_at	hero_image_url	thumbnail_image_url	gallery_images_urls	description_en	description_fr
-Kayaking Adventure	Aventure Kayak	kayaking-adventure	aventure-kayak	Kanchanaburi	Adventure	Aventure	1	0	2500	1250	2000	Guide;Equipment;Lunch	Transportation;Insurance	["Scenic river views","Professional guide"]	["Kayaking","Nature exploration"]	published	2024-01-15T10:00:00Z	https://example.com/kayak.jpg	https://example.com/kayak-thumb.jpg	["https://example.com/g1.jpg","https://example.com/g2.jpg"]	Amazing kayaking experience	Expérience de kayak incroyable
-Temple Discovery	Découverte Temple	temple-discovery	decouverte-temple	Chiang Mai	Cultural	Culturel	2	1	1800		1440	Guide;Entrance fees	Transportation;Meals	["Ancient temples","Local culture"]	["Temple visits","Photography"]	draft		https://example.com/temple.jpg	https://example.com/temple-thumb.jpg	[]	Cultural temple tour	Visite culturelle des temples`;
+  const sampleCSV = `title_en	title_fr	destination	category_en	category_fr	duration_days	duration_nights	price	child_price	b2b_price	included_items	excluded_items	highlights	activities	status	published_at	hero_image_url	thumbnail_image_url	gallery_images_urls	description_en	description_fr
+Kayaking Adventure	Aventure Kayak	Kanchanaburi	Adventure	Aventure	1	0	2500	1250	2000	Guide;Equipment;Lunch	Transportation;Insurance	["Scenic river views","Professional guide"]	["Kayaking","Nature exploration"]	published	2024-01-15T10:00:00Z	https://example.com/kayak.jpg	https://example.com/kayak-thumb.jpg	["https://example.com/g1.jpg","https://example.com/g2.jpg"]	Amazing kayaking experience	Expérience de kayak incroyable
+Temple Discovery	Découverte Temple	Chiang Mai	Cultural	Culturel	2	1	1800		1440	Guide;Entrance fees	Transportation;Meals	["Ancient temples","Local culture"]	["Temple visits","Photography"]	draft		https://example.com/temple.jpg	https://example.com/temple-thumb.jpg	[]	Cultural temple tour	Visite culturelle des temples`;
 
   const downloadSampleCSV = () => {
     const blob = new Blob([sampleCSV], { type: 'text/tab-separated-values' });
@@ -228,9 +228,11 @@ Temple Discovery	Découverte Temple	temple-discovery	decouverte-temple	Chiang Ma
           <div className="space-y-2">
             <h4 className="font-medium">Supported Columns:</h4>
             <div className="text-sm text-muted-foreground space-y-1">
+              <div className="bg-primary/10 border border-primary/20 p-2 rounded mb-2">
+                <strong className="text-primary">⚠️ Note:</strong> Slugs are auto-generated from titles - do not include slug columns (slug_en, slug_fr, url_slug_en, url_slug_fr)
+              </div>
               <div className="grid grid-cols-2 gap-2">
-                <div>• <strong>title_en, title_fr</strong></div>
-                <div>• <strong>slug_en, slug_fr</strong> (or url_slug_en/fr)</div>
+                <div>• <strong>title_en, title_fr</strong> (required)</div>
                 <div>• <strong>description_en, description_fr</strong></div>
                 <div>• destination, category_en, category_fr</div>
                 <div>• duration_days, duration_nights</div>

@@ -203,7 +203,7 @@ Deno.serve(async (req) => {
     let pagesCreated = 0;
     let pagesUpdated = 0;
     let toursCreated = 0;
-    let toursUpdated = 0;
+    let toursSkipped = 0;
     let imagesUploaded = 0;
     let categoriesLinked = 0;
     const validationErrors: string[] = [];
@@ -327,6 +327,32 @@ Deno.serve(async (req) => {
         errors.push(`Row ${rowNum}: ${rowErrors.join('; ')}`);
         validationErrors.push(...rowErrors.map(e => `Row ${rowNum}: ${e}`));
         continue;
+      }
+
+      // Check if tour already exists by title (skip duplicates)
+      const titleFilters: string[] = [];
+      const normalizedTitleEn = normalizeToNull(title_en);
+      const normalizedTitleFr = normalizeToNull(title_fr);
+      
+      if (normalizedTitleEn) {
+        titleFilters.push(`title_en.eq.${normalizedTitleEn}`);
+      }
+      if (normalizedTitleFr) {
+        titleFilters.push(`title_fr.eq.${normalizedTitleFr}`);
+      }
+      
+      if (titleFilters.length > 0) {
+        const { data: existingTourByTitle } = await supabase
+          .from('tours')
+          .select('id, title_en, title_fr')
+          .or(titleFilters.join(','))
+          .maybeSingle();
+        
+        if (existingTourByTitle) {
+          console.log(`Row ${rowNum}: Tour already exists (title_en: "${existingTourByTitle.title_en}", title_fr: "${existingTourByTitle.title_fr}") - skipping`);
+          toursSkipped++;
+          continue;
+        }
       }
 
       // Upsert page - generate URL from title, let DB generate slug from url
@@ -545,33 +571,15 @@ Deno.serve(async (req) => {
         thumbnail_image_url: normalizeToNull(destImgRecord?.file_path || destinationImageUrl),
       };
 
-      const { data: existingTour } = await supabase
+      // Insert new tour only (duplicates are skipped earlier)
+      const { error: tourInsertError } = await supabase
         .from('tours')
-        .select('id')
-        .eq('page_id', pageId)
-        .maybeSingle();
-
-      if (existingTour) {
-        const { error: tourUpdateError } = await supabase
-          .from('tours')
-          .update(tourPayload)
-          .eq('id', existingTour.id);
-        
-        if (tourUpdateError) {
-          errors.push(`Row ${rowNum}: Tour update failed: ${tourUpdateError.message.substring(0, 100)}`);
-        } else {
-          toursUpdated++;
-        }
+        .insert(tourPayload);
+      
+      if (tourInsertError) {
+        errors.push(`Row ${rowNum}: Tour insert failed: ${tourInsertError.message.substring(0, 100)}`);
       } else {
-        const { error: tourInsertError } = await supabase
-          .from('tours')
-          .insert(tourPayload);
-        
-        if (tourInsertError) {
-          errors.push(`Row ${rowNum}: Tour insert failed: ${tourInsertError.message.substring(0, 100)}`);
-        } else {
-          toursCreated++;
-        }
+        toursCreated++;
       }
     }
 
@@ -580,7 +588,7 @@ Deno.serve(async (req) => {
       pages_created: pagesCreated,
       pages_updated: pagesUpdated,
       tours_created: toursCreated,
-      tours_updated: toursUpdated,
+      tours_skipped: toursSkipped,
       categories_linked: categoriesLinked,
       images_uploaded: imagesUploaded,
       price_validations: priceValidations,

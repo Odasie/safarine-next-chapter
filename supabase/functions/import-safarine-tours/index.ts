@@ -151,16 +151,6 @@ function normalizeNumber(cell: string | null | undefined): number | null {
   return isNaN(num) ? null : num;
 }
 
-// Normalize empty strings to NULL
-function normalizeToNull(value: string | null | undefined): string | null {
-  if (!value) return null;
-  const trimmed = value.trim();
-  return trimmed === '' ? null : trimmed;
-}
-
-// Slug columns to ignore - slugs are auto-generated server-side
-const IGNORED_SLUG_COLUMNS = ['slug_en', 'slug_fr', 'url_slug_en', 'url_slug_fr', 'urlslugen', 'urlslugfr'];
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -203,7 +193,7 @@ Deno.serve(async (req) => {
     let pagesCreated = 0;
     let pagesUpdated = 0;
     let toursCreated = 0;
-    let toursSkipped = 0;
+    let toursUpdated = 0;
     let imagesUploaded = 0;
     let categoriesLinked = 0;
     const validationErrors: string[] = [];
@@ -228,16 +218,23 @@ Deno.serve(async (req) => {
       // Extract fields with preference for new names, fallback to legacy
       const url = getField('url')?.trim();
       
-      // Titles - required for URL generation
+      // Slugs: prefer slug_en/slug_fr, fallback to url_slug_*, fallback to titles
+      let slug_en = getField('slug_en') || getField('urlslugen');
+      let slug_fr = getField('slug_fr') || getField('urlslugfr');
       const title_en = getField('title_en') || getField('titleen');
       const title_fr = getField('title_fr') || getField('titlefr');
       
-      // Log warning if legacy slug columns are detected (once per file at first occurrence)
-      if (i === 0) {
-        const detectedSlugColumns = IGNORED_SLUG_COLUMNS.filter(col => getField(col));
-        if (detectedSlugColumns.length > 0) {
-          console.warn(`Import file contains legacy slug columns (${detectedSlugColumns.join(', ')}) - ignoring; slugs are auto-generated server-side`);
-        }
+      if (!slug_en && title_en) {
+        slug_en = toSlug(title_en);
+        console.warn(`Row ${rowNum}: Generated slug_en from title_en`);
+      }
+      if (!slug_fr && title_fr) {
+        slug_fr = toSlug(title_fr);
+        console.warn(`Row ${rowNum}: Generated slug_fr from title_fr`);
+      }
+      
+      if (!slug_en || !slug_fr) {
+        rowErrors.push(`Missing slugs (slug_en=${!!slug_en}, slug_fr=${!!slug_fr})`);
       }
 
       const description_en = getField('description_en') || getField('descriptionen');
@@ -329,41 +326,18 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Check if tour already exists by title (skip duplicates)
-      const titleFilters: string[] = [];
-      const normalizedTitleEn = normalizeToNull(title_en);
-      const normalizedTitleFr = normalizeToNull(title_fr);
-      
-      if (normalizedTitleEn) {
-        titleFilters.push(`title_en.eq.${normalizedTitleEn}`);
-      }
-      if (normalizedTitleFr) {
-        titleFilters.push(`title_fr.eq.${normalizedTitleFr}`);
-      }
-      
-      if (titleFilters.length > 0) {
-        const { data: existingTourByTitle } = await supabase
-          .from('tours')
-          .select('id, title_en, title_fr')
-          .or(titleFilters.join(','))
-          .maybeSingle();
-        
-        if (existingTourByTitle) {
-          console.log(`Row ${rowNum}: Tour already exists (title_en: "${existingTourByTitle.title_en}", title_fr: "${existingTourByTitle.title_fr}") - skipping`);
-          toursSkipped++;
-          continue;
-        }
+      // Upsert page
+      const pageSlug = slug_en || slug_fr || toSlug(title_en || title_fr || url || '');
+      if (!pageSlug) {
+        errors.push(`Row ${rowNum}: Cannot generate page slug`);
+        continue;
       }
 
-      // Upsert page - generate URL from title, let DB generate slug from url
-      const urlSlug = toSlug(title_en || title_fr || '') || 'tour';
-      const pageUrl = `/tours/${urlSlug}`;
-      
-      // Query by URL (canonical source) instead of slug
+      const pageUrl = `/tours/${pageSlug}`;
       const { data: existingPage } = await supabase
         .from('pages')
         .select('id')
-        .eq('url', pageUrl)
+        .eq('slug', pageSlug)
         .maybeSingle();
 
       let pageId: string;
@@ -372,9 +346,9 @@ Deno.serve(async (req) => {
           .from('pages')
           .update({
             url: pageUrl,
-            title: normalizeToNull(title_en || title_fr),
-            meta_title: normalizeToNull(title_en || title_fr),
-            meta_desc: normalizeToNull(description_en || description_fr),
+            title: title_en || title_fr || null,
+            meta_title: title_en || title_fr || null,
+            meta_desc: description_en || description_fr || null,
             lang: 'en',
           })
           .eq('id', existingPage.id)
@@ -388,18 +362,15 @@ Deno.serve(async (req) => {
         pageId = updatedPage.id;
         pagesUpdated++;
       } else {
-        // Omit slug field - let DB generate it from url via default expression
         const { data: newPage, error: pageInsertError } = await supabase
           .from('pages')
           .insert({
             url: pageUrl,
-            title: normalizeToNull(title_en || title_fr),
-            meta_title: normalizeToNull(title_en || title_fr),
-            meta_desc: normalizeToNull(description_en || description_fr),
+            slug: pageSlug,
+            title: title_en || title_fr || null,
+            meta_title: title_en || title_fr || null,
+            meta_desc: description_en || description_fr || null,
             lang: 'en',
-            parent_url: null,
-            level: 1,
-            content_md: null,
           })
           .select('id')
           .single();
@@ -546,14 +517,16 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Upsert tour - omit slug_en/slug_fr (generated server-side)
+      // Upsert tour
       const tourPayload = {
         page_id: pageId,
-        title_en: normalizeToNull(title_en),
-        title_fr: normalizeToNull(title_fr),
-        description_en: normalizeToNull(description_en),
-        description_fr: normalizeToNull(description_fr),
-        destination: normalizeToNull(destination) || 'Kanchanaburi',
+        title_en: title_en || null,
+        title_fr: title_fr || null,
+        slug_en: slug_en || null,
+        slug_fr: slug_fr || null,
+        description_en: description_en || null,
+        description_fr: description_fr || null,
+        destination,
         duration_days: duration_days,
         duration_nights: duration_nights,
         price: validatedPrice.price,
@@ -567,19 +540,37 @@ Deno.serve(async (req) => {
         highlights: highlights_array,
         activities: activities_array,
         gallery_images_urls: gallery_images_urls_array,
-        hero_image_url: normalizeToNull(primaryImgRecord?.file_path || primaryImageUrl),
-        thumbnail_image_url: normalizeToNull(destImgRecord?.file_path || destinationImageUrl),
+        hero_image_url: primaryImgRecord?.file_path || primaryImageUrl || null,
+        thumbnail_image_url: destImgRecord?.file_path || destinationImageUrl || null,
       };
 
-      // Insert new tour only (duplicates are skipped earlier)
-      const { error: tourInsertError } = await supabase
+      const { data: existingTour } = await supabase
         .from('tours')
-        .insert(tourPayload);
-      
-      if (tourInsertError) {
-        errors.push(`Row ${rowNum}: Tour insert failed: ${tourInsertError.message.substring(0, 100)}`);
+        .select('id')
+        .eq('page_id', pageId)
+        .maybeSingle();
+
+      if (existingTour) {
+        const { error: tourUpdateError } = await supabase
+          .from('tours')
+          .update(tourPayload)
+          .eq('id', existingTour.id);
+        
+        if (tourUpdateError) {
+          errors.push(`Row ${rowNum}: Tour update failed: ${tourUpdateError.message.substring(0, 100)}`);
+        } else {
+          toursUpdated++;
+        }
       } else {
-        toursCreated++;
+        const { error: tourInsertError } = await supabase
+          .from('tours')
+          .insert(tourPayload);
+        
+        if (tourInsertError) {
+          errors.push(`Row ${rowNum}: Tour insert failed: ${tourInsertError.message.substring(0, 100)}`);
+        } else {
+          toursCreated++;
+        }
       }
     }
 
@@ -588,7 +579,7 @@ Deno.serve(async (req) => {
       pages_created: pagesCreated,
       pages_updated: pagesUpdated,
       tours_created: toursCreated,
-      tours_skipped: toursSkipped,
+      tours_updated: toursUpdated,
       categories_linked: categoriesLinked,
       images_uploaded: imagesUploaded,
       price_validations: priceValidations,

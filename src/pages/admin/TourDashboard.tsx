@@ -28,7 +28,6 @@ import { useTourPublish } from "@/hooks/use-tour-publish";
 import { TourCompletenessDialog } from "@/components/admin/TourCompletenessDialog";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { supabase } from "@/integrations/supabase/client";
 
 const TourDashboardComponent = () => {
   const navigate = useNavigate();
@@ -77,40 +76,9 @@ const TourDashboardComponent = () => {
     toast.success("Tour duplication feature coming soon!");
   };
 
-  const handleDeleteTour = async (tourId: string) => {
-    // Find the tour to get its title for confirmation
-    const tour = tours?.find(t => t.id === tourId);
-    const tourTitle = tour?.title_en || tour?.title_fr || 'this tour';
-    
-    // Show browser confirmation dialog
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${tourTitle}"?\n\nThis action cannot be undone.`
-    );
-    
-    if (!confirmed) {
-      return;
-    }
-    
-    try {
-      console.log(`🗑️ Deleting tour ${tourId}: ${tourTitle}`);
-      
-      const { error } = await supabase
-        .from('tours')
-        .delete()
-        .eq('id', tourId);
-
-      if (error) throw error;
-      
-      console.log(`✅ Tour ${tourId} deleted successfully`);
-      toast.success(`Tour "${tourTitle}" deleted successfully`);
-      
-      // Trigger refetch of tours list
-      window.location.reload();
-      
-    } catch (error: any) {
-      console.error('❌ Error deleting tour:', error);
-      toast.error(`Failed to delete tour: ${error.message}`);
-    }
+  const handleDeleteTour = (tourId: string) => {
+    // TODO: Implement tour deletion with confirmation
+    toast.error("Tour deletion requires confirmation - feature coming soon!");
   };
 
   const handleValidateTour = async (tourId: string) => {

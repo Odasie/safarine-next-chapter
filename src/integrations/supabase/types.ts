@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      _staging_tours: {
+        Row: {
+          activities: string | null
+          b2b_price: number | null
+          category_en: string | null
+          category_fr: string | null
+          child_price: number | null
+          description_en: string | null
+          description_fr: string | null
+          destination: string | null
+          duration_days: number | null
+          duration_nights: number | null
+          excluded_items: string | null
+          gallery_images_urls: string | null
+          hero_image_url: string | null
+          highlights: string | null
+          included_items: string | null
+          price: number | null
+          published_at: string | null
+          row_id: number
+          status: string | null
+          thumbnail_image_url: string | null
+          title_en: string | null
+          title_fr: string | null
+        }
+        Insert: {
+          activities?: string | null
+          b2b_price?: number | null
+          category_en?: string | null
+          category_fr?: string | null
+          child_price?: number | null
+          description_en?: string | null
+          description_fr?: string | null
+          destination?: string | null
+          duration_days?: number | null
+          duration_nights?: number | null
+          excluded_items?: string | null
+          gallery_images_urls?: string | null
+          hero_image_url?: string | null
+          highlights?: string | null
+          included_items?: string | null
+          price?: number | null
+          published_at?: string | null
+          row_id?: number
+          status?: string | null
+          thumbnail_image_url?: string | null
+          title_en?: string | null
+          title_fr?: string | null
+        }
+        Update: {
+          activities?: string | null
+          b2b_price?: number | null
+          category_en?: string | null
+          category_fr?: string | null
+          child_price?: number | null
+          description_en?: string | null
+          description_fr?: string | null
+          destination?: string | null
+          duration_days?: number | null
+          duration_nights?: number | null
+          excluded_items?: string | null
+          gallery_images_urls?: string | null
+          hero_image_url?: string | null
+          highlights?: string | null
+          included_items?: string | null
+          price?: number | null
+          published_at?: string | null
+          row_id?: number
+          status?: string | null
+          thumbnail_image_url?: string | null
+          title_en?: string | null
+          title_fr?: string | null
+        }
+        Relationships: []
+      }
       admin_roles: {
         Row: {
           clerk_user_id: string
@@ -548,6 +623,7 @@ export type Database = {
       }
       tours: {
         Row: {
+          activities: Json | null
           b2b_price: number | null
           booking_method: string | null
           child_price: number | null
@@ -588,6 +664,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          activities?: Json | null
           b2b_price?: number | null
           booking_method?: string | null
           child_price?: number | null
@@ -628,6 +705,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          activities?: Json | null
           b2b_price?: number | null
           booking_method?: string | null
           child_price?: number | null

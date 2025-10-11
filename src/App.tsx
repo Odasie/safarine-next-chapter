@@ -24,7 +24,7 @@ import NotFound from "./pages/NotFound";
 import AdminImport from "./pages/AdminImport";
 import AdminCSVImport from "./pages/AdminCSVImport";
 import TourCSVImport from "./pages/admin/TourCSVImport";
-import { TourDashboard } from "./pages/admin/TourDashboard";
+import ToursDashboard from "./pages/admin/ToursDashboard";
 import { TourCreationWizard } from "./pages/admin/TourCreationWizard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import { ImageMigrationManager } from "./components/admin/ImageMigrationManager";
@@ -127,7 +127,7 @@ const App = () => (
                     } />
                     <Route path="admin/tours" element={
                       <AdminProtectedRoute>
-                        <TourDashboard />
+                        <ToursDashboard />
                       </AdminProtectedRoute>
                     } />
                     <Route path="admin/tours/create" element={
@@ -171,7 +171,7 @@ const App = () => (
                     } />
                     <Route path="/admin/tours" element={
                       <AdminProtectedRoute>
-                        <TourDashboard />
+                        <ToursDashboard />
                       </AdminProtectedRoute>
                     } />
                     <Route path="/admin/tours/create" element={

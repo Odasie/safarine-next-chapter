@@ -414,7 +414,6 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
       .from('pages')
       .insert({
         url: `/en/tours/${slugEn}`,
-        slug: slugEn,
         lang: 'en',
         title: tourData.title_en,
         meta_title: tourData.title_en,
@@ -431,7 +430,6 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
       .from('pages')
       .insert({
         url: `/fr/tours/${slugFr}`,
-        slug: slugFr,
         lang: 'fr',
         title: tourData.title_fr,
         meta_title: tourData.title_fr,

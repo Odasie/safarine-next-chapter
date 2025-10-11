@@ -88,6 +88,10 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
   const [lastSavedData, setLastSavedData] = useState<TourFormData | null>(null);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Image upload progress state
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
+
   // Add mode detection
   const isEditMode = mode === 'edit' || (tourId && window.location.pathname.includes('/edit/'));
 
@@ -387,6 +391,192 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
     }
   };
 
+  // Helper: Create page record for tour
+  const createTourPage = async (newTourId: string, tourData: { 
+    title_en: string; 
+    title_fr: string;
+    slug_en?: string;
+    slug_fr?: string;
+  }) => {
+    // Generate slugs if not provided
+    const slugEn = tourData.slug_en || tourData.title_en
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    
+    const slugFr = tourData.slug_fr || tourData.title_fr
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    // Create English page
+    const { data: pageEn, error: errorEn } = await supabase
+      .from('pages')
+      .insert({
+        url: `/en/tours/${slugEn}`,
+        slug: slugEn,
+        lang: 'en',
+        title: tourData.title_en,
+        meta_title: tourData.title_en,
+        parent_url: '/en/tours',
+        level: 2
+      })
+      .select()
+      .single();
+
+    if (errorEn) throw errorEn;
+
+    // Create French page
+    await supabase
+      .from('pages')
+      .insert({
+        url: `/fr/tours/${slugFr}`,
+        slug: slugFr,
+        lang: 'fr',
+        title: tourData.title_fr,
+        meta_title: tourData.title_fr,
+        parent_url: '/fr/tours',
+        level: 2
+      });
+
+    // Update tour with page_id and slugs
+    const { error: updateError } = await supabase
+      .from('tours')
+      .update({ 
+        page_id: pageEn.id,
+        slug_en: slugEn,
+        slug_fr: slugFr
+      })
+      .eq('id', newTourId);
+
+    if (updateError) throw updateError;
+
+    return pageEn.id;
+  };
+
+  // Helper: Upload hero image directly to Supabase
+  const uploadHeroImage = async (newTourId: string, file: File) => {
+    try {
+      // Generate filename and path
+      const timestamp = Date.now();
+      const filename = `hero-${timestamp}.webp`;
+      const folderPath = `tours/${formData.destination.toLowerCase()}/${newTourId}`;
+      const filePath = `${folderPath}/${filename}`;
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('tour-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('tour-images')
+        .getPublicUrl(uploadData.path);
+
+      // Save to database
+      const { data: imageData, error: dbError } = await supabase
+        .from('images')
+        .insert({
+          tour_id: newTourId,
+          category: 'tours',
+          image_type: 'hero',
+          file_path: publicUrl,
+          alt_en: `${formData.title_en} - Hero Image`,
+          alt_fr: `${formData.title_fr} - Image principale`,
+          title_en: formData.title_en,
+          title_fr: formData.title_fr,
+          position: 1,
+          published: true,
+          loading_strategy: 'eager',
+          priority: 'high'
+        })
+        .select()
+        .single();
+
+      if (dbError) throw dbError;
+
+      // Update tour with hero_image_id and use same for thumbnail
+      await supabase
+        .from('tours')
+        .update({ 
+          hero_image_id: imageData.id,
+          thumbnail_image_id: imageData.id,
+          hero_image_url: publicUrl
+        })
+        .eq('id', newTourId);
+
+      return imageData;
+    } catch (error) {
+      console.error('❌ Error uploading hero image:', error);
+      throw error;
+    }
+  };
+
+  // Helper: Upload gallery images directly to Supabase
+  const uploadGalleryImages = async (newTourId: string, files: File[]) => {
+    const uploadedImages = [];
+
+    for (let i = 0; i < files.length; i++) {
+      setUploadProgress({ current: i + 1, total: files.length });
+      
+      try {
+        const timestamp = Date.now();
+        const filename = `gallery-${i + 1}-${timestamp}.webp`;
+        const folderPath = `tours/${formData.destination.toLowerCase()}/${newTourId}`;
+        const filePath = `${folderPath}/${filename}`;
+
+        // Upload to Supabase Storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('tour-images')
+          .upload(filePath, files[i], {
+            cacheControl: '3600',
+            upsert: true
+          });
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('tour-images')
+          .getPublicUrl(uploadData.path);
+
+        // Save to database
+        const { data: imageData, error: dbError } = await supabase
+          .from('images')
+          .insert({
+            tour_id: newTourId,
+            category: 'tours',
+            image_type: 'gallery',
+            file_path: publicUrl,
+            alt_en: `${formData.title_en} - Gallery Image ${i + 1}`,
+            alt_fr: `${formData.title_fr} - Image de galerie ${i + 1}`,
+            title_en: `${formData.title_en} Gallery`,
+            title_fr: `${formData.title_fr} Galerie`,
+            position: i + 1,
+            published: true,
+            loading_strategy: 'lazy',
+            priority: 'medium'
+          })
+          .select()
+          .single();
+
+        if (dbError) throw dbError;
+        
+        uploadedImages.push(imageData);
+      } catch (error) {
+        console.error(`❌ Error uploading gallery image ${i + 1}:`, error);
+        throw error;
+      }
+    }
+
+    return uploadedImages;
+  };
+
   const validateTourForPublication = (): string[] => {
     const errors: string[] = [];
     
@@ -425,6 +615,7 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
     }
 
     setIsLoading(true);
+    setIsUploadingImages(true);
     saveStatus.setSaving(isEditMode ? 'Updating tour...' : 'Creating tour...');
     
     try {
@@ -435,9 +626,11 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
         const errorMsg = "Schema validation failed. Please refresh the page and try again.";
         saveStatus.setError(errorMsg);
         setIsLoading(false);
+        setIsUploadingImages(false);
         return;
       }
       
+      // STEP 1: Create tour as DRAFT first
       const tourData = {
         title_en: formData.title_en,
         title_fr: formData.title_fr,
@@ -459,56 +652,82 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
         included_items: formData.included_items,
         excluded_items: formData.excluded_items,
         is_private: false,
-        status: 'published',  // Set as published
+        status: 'draft',  // Start as draft
       };
 
-      console.log('🚀 Submitting tour:', {
+      console.log('🚀 Creating/updating tour as draft first:', {
         operation: isEditMode ? 'UPDATE' : 'CREATE',
-        tourId,
-        dataKeys: Object.keys(tourData)
+        tourId
       });
 
-      let result;
-      
+      let newTourId: string;
+
       if (isEditMode && tourId) {
-        // UPDATE existing tour
-        console.log('🔄 Updating tour:', tourId);
-        console.log('📝 Update data:', tourData);
-        
-        result = await supabase
+        newTourId = tourId;
+        const { error } = await supabase
           .from('tours')
           .update(tourData)
-          .eq('id', tourId)
-          .select();
-          
-      } else {
-        // CREATE new tour
-        console.log('➕ Creating new tour');
+          .eq('id', tourId);
         
-        result = await supabase
+        if (error) throw error;
+        console.log('✅ Tour updated as draft');
+      } else {
+        const { data, error } = await supabase
           .from('tours')
           .insert([tourData])
-          .select();
-      }
-      
-      if (result.error) {
-        console.error('❌ Error with tour operation:', result.error);
-        console.error('📋 Error details:', JSON.stringify(result.error, null, 2));
+          .select()
+          .single();
         
-        const parsed = parseSupabaseError(result.error);
-        saveStatus.setError(
-          parsed.userMessage,
-          parsed.shouldRetry ? () => handleSubmit() : undefined
-        );
-        return;
+        if (error) throw error;
+        newTourId = data.id;
+        console.log('✅ Tour created as draft:', newTourId);
       }
+
+      // STEP 2: Upload images (now we have a tourId)
+      saveStatus.setSaving('Uploading images...');
       
-      console.log('✅ Tour operation successful:', result.data);
+      if (formData.hero_image) {
+        console.log('📸 Uploading hero image...');
+        await uploadHeroImage(newTourId, formData.hero_image);
+        toast.success('Hero image uploaded');
+      }
+
+      if (formData.gallery_images && formData.gallery_images.length > 0) {
+        console.log(`📸 Uploading ${formData.gallery_images.length} gallery images...`);
+        await uploadGalleryImages(newTourId, formData.gallery_images);
+        toast.success(`${formData.gallery_images.length} gallery images uploaded`);
+      }
+
+      // STEP 3: Create page record
+      saveStatus.setSaving('Creating page record...');
+      console.log('📄 Creating page record...');
+      await createTourPage(newTourId, {
+        title_en: formData.title_en,
+        title_fr: formData.title_fr,
+      });
+      console.log('✅ Page record created');
+
+      // STEP 4: Update tour status to published
+      saveStatus.setSaving('Publishing tour...');
+      console.log('🚀 Publishing tour...');
+      const { error: publishError } = await supabase
+        .from('tours')
+        .update({ status: 'published', published_at: new Date().toISOString() })
+        .eq('id', newTourId);
+
+      if (publishError) {
+        // Handle specific constraint errors
+        if (publishError.message?.includes('tours_published_must_have_page')) {
+          throw new Error('❌ Page record creation failed. This is required for publishing. Please try again.');
+        }
+        throw publishError;
+      }
+
+      console.log('✅ Tour published successfully');
       setLastSavedData(formData);
       setHasUnsavedChanges(false);
       
-      const successMessage = isEditMode ? 'Tour updated successfully!' : 'Tour created successfully!';
-      saveStatus.setSuccess(successMessage);
+      saveStatus.setSuccess(isEditMode ? 'Tour updated and published successfully!' : 'Tour created and published!');
       
       // Redirect to admin tours dashboard after a brief delay
       setTimeout(() => {
@@ -517,24 +736,27 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
       
     } catch (error) {
       console.error('❌ Error with tour operation:', error);
-      console.error('📋 Error context:', {
-        isEditMode,
-        tourId,
-        formDataKeys: Object.keys(formData)
-      });
       
-      const parsed = parseSupabaseError(error);
-      saveStatus.setError(
-        parsed.userMessage,
-        parsed.shouldRetry ? () => handleSubmit() : undefined
-      );
+      let errorMessage = 'Failed to create tour';
       
-      // Check if re-auth is needed
-      if (parsed.requiresAuth) {
-        console.warn('🔐 Re-authentication may be required');
+      if (error instanceof Error) {
+        // Specific error handling
+        if (error.message?.includes('tours_published_must_have_page')) {
+          errorMessage = '❌ Page record creation failed. This is required for publishing. Please try again.';
+        } else if (error.message?.includes('hero_image')) {
+          errorMessage = '❌ Hero image upload failed. Please try uploading a different image.';
+        } else if (error.message?.includes('gallery')) {
+          errorMessage = '❌ Gallery image upload failed. Some images may not have been uploaded.';
+        } else {
+          errorMessage = error.message;
+        }
       }
+      
+      saveStatus.setError(errorMessage, () => handleSubmit());
     } finally {
       setIsLoading(false);
+      setIsUploadingImages(false);
+      setUploadProgress({ current: 0, total: 0 });
     }
   };
 
@@ -808,6 +1030,27 @@ export const TourCreationWizard = ({ mode = 'create' }: TourCreationWizardProps)
 
       {/* Save Status Notification */}
       <SaveStatusNotification {...saveStatus} onDismiss={saveStatus.reset} />
+
+      {/* Image Upload Progress Overlay */}
+      {isUploadingImages && uploadProgress.total > 0 && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-96">
+            <CardHeader>
+              <CardTitle>Uploading Images</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Progress 
+                  value={(uploadProgress.current / uploadProgress.total) * 100} 
+                />
+                <p className="text-sm text-center text-muted-foreground">
+                  Uploading image {uploadProgress.current} of {uploadProgress.total}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Publish Confirmation Dialog */}
       {showPublishDialog && (

@@ -920,6 +920,10 @@ export type Database = {
           status: string
         }[]
       }
+      is_admin_by_email_or_role: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       is_tour_complete: {
         Args: { tour_id: string }
         Returns: Json

@@ -1,3 +1,4 @@
+import React from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
@@ -13,13 +14,17 @@ export interface TourCardProps {
   tourId?: string; // New: tour ID for image loading
   image?: string;
   imageRecord?: ImageRecord;
-  title: string;
+  title?: string; // Deprecated - for backward compatibility
+  title_en?: string | null;
+  title_fr?: string | null;
   description?: string; // typically location
   duration: string;
   group?: string;
   price?: number;
   currency?: string;
   slug?: string; // Add slug for navigation
+  slug_en?: string | null;
+  slug_fr?: string | null;
   onBook?: () => void;
 }
 
@@ -27,19 +32,43 @@ const TourCard = ({
   tourId,
   image, 
   imageRecord, 
-  title, 
+  title,
+  title_en,
+  title_fr,
   description, 
   duration, 
   group, 
   price,
   currency = 'THB',
   slug,
+  slug_en,
+  slug_fr,
   onBook 
 }: TourCardProps) => {
   const { locale, t } = useLocale();
   const { formatPrice } = useCurrency();
   const currentLocale = locale as 'en' | 'fr';
   const navigate = useNavigate();
+
+  // Compute localized title based on locale
+  const displayTitle = React.useMemo(() => {
+    if (title_en || title_fr) {
+      // Use new localized fields
+      return currentLocale === 'en' 
+        ? (title_en || title_fr || 'Untitled Tour')
+        : (title_fr || title_en || 'Circuit sans titre');
+    }
+    // Fallback to legacy title prop
+    return title || 'Untitled Tour';
+  }, [title_en, title_fr, title, currentLocale]);
+
+  // Compute localized slug for navigation
+  const displaySlug = React.useMemo(() => {
+    if (slug_en || slug_fr) {
+      return currentLocale === 'en' ? (slug_en || slug_fr) : (slug_fr || slug_en);
+    }
+    return slug || '';
+  }, [slug_en, slug_fr, slug, currentLocale]);
 
   // Use new image management system if tourId is provided
   const { heroImage, loading: imageLoading } = useTourImages(tourId || '');
@@ -69,8 +98,8 @@ const TourCard = ({
     : `${title}${description ? ` - ${description}` : ''}`;
 
   const handleCardClick = () => {
-    if (slug) {
-      const tourUrl = createTourUrl(slug);
+    if (displaySlug) {
+      const tourUrl = createTourUrl(displaySlug);
       navigate(tourUrl);
     }
   };
@@ -132,7 +161,7 @@ const TourCard = ({
         />
       )}
       <CardHeader>
-        <CardTitle className="text-lg leading-snug">{title}</CardTitle>
+        <CardTitle className="text-lg leading-snug">{displayTitle}</CardTitle>
       </CardHeader>
       <CardContent className="text-sm text-muted-foreground">
         {description && <p className="mb-3">{description}</p>}

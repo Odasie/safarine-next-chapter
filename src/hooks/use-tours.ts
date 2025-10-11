@@ -43,7 +43,11 @@ export interface SupabaseTour {
 export interface TransformedTour {
   id: string;
   slug: string;
-  title: string;
+  title: string; // Deprecated - for backward compatibility
+  title_en?: string | null;
+  title_fr?: string | null;
+  slug_en?: string | null;
+  slug_fr?: string | null;
   location: string;
   duration: string;
   group?: string;
@@ -112,7 +116,11 @@ export function transformTour(tour: any): TransformedTour {
   return {
     id: tour.id,
     slug: normalizedSlug,
-    title,
+    title, // Backward compatibility - defaults to French
+    title_en: tour.title_en || null,
+    title_fr: tour.title_fr || null,
+    slug_en: tour.slug_en || null,
+    slug_fr: tour.slug_fr || null,
     location,
     duration,
     group: groupSize,

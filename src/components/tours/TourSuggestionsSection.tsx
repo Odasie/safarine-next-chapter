@@ -61,16 +61,19 @@ const TourSuggestionsSection = ({ currentTourId, currentDestination }: TourSugge
           <TourCard
             key={tour.id}
             tourId={tour.id}
-            title={tour.title}
+            title_en={tour.title_en}
+            title_fr={tour.title_fr}
+            slug_en={tour.slug_en}
+            slug_fr={tour.slug_fr}
             description={tour.location}
             duration={tour.duration}
             price={tour.price}
             currency={tour.currency}
-            slug={tour.slug}
             group={tour.group}
             onBook={() => {
               // Navigate to tour detail page for booking
-              window.location.href = `/${tour.slug}`;
+              const slug = tour.slug_en || tour.slug_fr || tour.slug;
+              window.location.href = `/tours/${slug}`;
             }}
           />
         ))}

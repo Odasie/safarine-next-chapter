@@ -37,3 +37,23 @@ export function createTourUrl(slug: string): string {
   const normalizedSlug = normalizeSlug(slug);
   return `/tours/${normalizedSlug}`;
 }
+
+export function getLocalizedTourTitle(
+  tour: { title_en?: string | null; title_fr?: string | null },
+  locale: 'en' | 'fr'
+): string {
+  if (locale === 'en') {
+    return tour.title_en || tour.title_fr || 'Untitled Tour';
+  }
+  return tour.title_fr || tour.title_en || 'Circuit sans titre';
+}
+
+export function getLocalizedTourSlug(
+  tour: { slug_en?: string | null; slug_fr?: string | null },
+  locale: 'en' | 'fr'
+): string {
+  const slug = locale === 'en' 
+    ? (tour.slug_en || tour.slug_fr)
+    : (tour.slug_fr || tour.slug_en);
+  return slug || '';
+}

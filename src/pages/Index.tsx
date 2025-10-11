@@ -80,11 +80,14 @@ const Index = () => {
             ))
           ) : (
             featured.map((tour) => (
-              <Link key={tour.id} to={`/tours/${tour.slug}`} aria-label={t('aria.tour_card', 'View {title}', { title: tour.title })}>
+              <Link key={tour.id} to={`/tours/${tour.slug}`} aria-label={t('aria.tour_card', 'View tour')}>
                 <TourCard
                   imageRecord={tour.imageRecords?.[0]}
                   image={tour.images[0]}
-                  title={tour.title}
+                  title_en={tour.title_en}
+                  title_fr={tour.title_fr}
+                  slug_en={tour.slug_en}
+                  slug_fr={tour.slug_fr}
                   description={tour.location}
                   duration={tour.duration}
                   group={tour.group}

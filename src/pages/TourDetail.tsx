@@ -403,8 +403,8 @@ const TourDetail = () => {
                   <div className="flex items-center gap-2 drop-shadow-md">
                     <Clock className="h-4 w-4 md:h-5 md:w-5" />
                     <span className="text-sm md:text-lg">
-                      {duration.days} {duration.days === 1 ? 'day' : 'days'}
-                      {duration.nights > 0 && `, ${duration.nights} ${duration.nights === 1 ? 'night' : 'nights'}`}
+                      {duration.days} {locale === 'fr' ? (duration.days === 1 ? 'jour' : 'jours') : (duration.days === 1 ? 'day' : 'days')}
+                      {duration.nights > 0 && `, ${duration.nights} ${locale === 'fr' ? (duration.nights === 1 ? 'nuit' : 'nuits') : (duration.nights === 1 ? 'night' : 'nights')}`}
                     </span>
                   </div>
                 </div>
@@ -445,7 +445,9 @@ const TourDetail = () => {
             <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                <span>{duration.days} days, {duration.nights} nights</span>
+                <span>
+                  {duration.days} {locale === 'fr' ? (duration.days === 1 ? 'jour' : 'jours') : (duration.days === 1 ? 'day' : 'days')}, {duration.nights} {locale === 'fr' ? (duration.nights === 1 ? 'nuit' : 'nuits') : (duration.nights === 1 ? 'night' : 'nights')}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4" />

@@ -29,10 +29,23 @@ const ToursList = () => {
       const bySearch = !q || text.includes(q.toLowerCase());
       const byDuration = (() => {
         if (durationFilter === "all") return true;
-        const d = t.duration.toLowerCase();
-        if (durationFilter === "half-day") return d.includes("heure") || d.includes("demi");
-        if (durationFilter === "one-day") return d.includes("1 jour");
-        if (durationFilter === "multi-day") return d.includes("2") || d.includes("3") || d.includes("nuit");
+        
+        // Handle new duration object format
+        if (typeof t.duration === 'object') {
+          const days = t.duration.days;
+          const nights = t.duration.nights;
+          
+          if (durationFilter === "half-day") return days < 1;
+          if (durationFilter === "one-day") return days === 1 && nights === 0;
+          if (durationFilter === "multi-day") return days > 1 || nights > 0;
+          return true;
+        }
+        
+        // Fallback for legacy string format
+        const d = String(t.duration).toLowerCase();
+        if (durationFilter === "half-day") return d.includes("heure") || d.includes("demi") || d.includes("hour");
+        if (durationFilter === "one-day") return d.includes("1 jour") || d.includes("1 day");
+        if (durationFilter === "multi-day") return d.includes("2") || d.includes("3") || d.includes("nuit") || d.includes("night");
         return true;
       })();
       return byCategory && bySearch && byDuration;

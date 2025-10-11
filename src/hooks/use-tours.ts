@@ -49,7 +49,7 @@ export interface TransformedTour {
   slug_en?: string | null;
   slug_fr?: string | null;
   location: string;
-  duration: string;
+  duration: { days: number; nights: number };
   group?: string;
   price?: number;
   currency?: string;
@@ -80,16 +80,17 @@ export interface SupabaseCategory {
 export function transformTour(tour: any): TransformedTour {
   // Use new database fields with fallbacks
   const location = tour.destination || "Kanchanaburi";
-  const duration = tour.duration_nights > 0 
-    ? `${tour.duration_days} jour${tour.duration_days > 1 ? 's' : ''} / ${tour.duration_nights} nuit${tour.duration_nights > 1 ? 's' : ''}`
-    : durationToText(tour.duration_days, "1 jour");
+  const duration = {
+    days: tour.duration_days || 1,
+    nights: tour.duration_nights || 0
+  };
   
   // Keep price as number and currency separate for dynamic formatting
   const price = tour.price || undefined;
   const currency = tour.currency || 'THB';
   
-  // Use French title first by default (original behavior for backwards compatibility)
-  const title = tour.title_fr || tour.title_en || tour.page?.title || "Tour sans titre";
+  // Use English title first for consistency, with fallback to French
+  const title = tour.title_en || tour.title_fr || tour.page?.title || "Untitled Tour";
   const groupSize = `${tour.group_size_min || 2}-${tour.group_size_max || 8}`;
   
   // Get images with proper fallbacks using file_path only
@@ -109,14 +110,14 @@ export function transformTour(tour: any): TransformedTour {
     img.image_type === 'gallery' && img.published !== false
   ).map((img: any) => img.file_path).filter(Boolean) || [];
   
-  // Create normalized slug for consistent routing - use French slug first
-  const rawSlug = tour.slug_fr || tour.slug_en || tour.page?.slug || tour.page?.url || tour.id;
+  // Create normalized slug for consistent routing - use English slug first
+  const rawSlug = tour.slug_en || tour.slug_fr || tour.page?.slug || tour.page?.url || tour.id;
   const normalizedSlug = rawSlug?.replace(/^\/?(tours\/)?/, '') || tour.id;
   
   return {
     id: tour.id,
     slug: normalizedSlug,
-    title, // Backward compatibility - defaults to French
+    title, // Backward compatibility - defaults to English
     title_en: tour.title_en || null,
     title_fr: tour.title_fr || null,
     slug_en: tour.slug_en || null,

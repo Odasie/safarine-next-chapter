@@ -18,7 +18,7 @@ export interface TourCardProps {
   title_en?: string | null;
   title_fr?: string | null;
   description?: string; // typically location
-  duration: string;
+  duration: string | { days: number; nights: number }; // Support both legacy string and new object format
   group?: string;
   price?: number;
   currency?: string;
@@ -69,6 +69,21 @@ const TourCard = ({
     }
     return slug || '';
   }, [slug_en, slug_fr, slug, currentLocale]);
+
+  // Format duration based on locale
+  const formattedDuration = React.useMemo((): string => {
+    if (typeof duration === 'object' && duration.days) {
+      if (duration.nights > 0) {
+        return currentLocale === 'fr'
+          ? `${duration.days} jour${duration.days > 1 ? 's' : ''} / ${duration.nights} nuit${duration.nights > 1 ? 's' : ''}`
+          : `${duration.days} day${duration.days > 1 ? 's' : ''} / ${duration.nights} night${duration.nights > 1 ? 's' : ''}`;
+      }
+      return currentLocale === 'fr'
+        ? `${duration.days} jour${duration.days > 1 ? 's' : ''}`
+        : `${duration.days} day${duration.days > 1 ? 's' : ''}`;
+    }
+    return String(duration); // Fallback for legacy string format
+  }, [duration, currentLocale]);
 
   // Use new image management system if tourId is provided
   const { heroImage, loading: imageLoading } = useTourImages(tourId || '');
@@ -170,7 +185,7 @@ const TourCard = ({
             <MapPin className="h-3.5 w-3.5" /> {description}
           </span>
           <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-2 py-1 text-xs">
-            <Clock className="h-3.5 w-3.5" /> {duration}
+            <Clock className="h-3.5 w-3.5" /> {formattedDuration}
           </span>
           {group && (
             <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-2 py-1 text-xs">

@@ -3,10 +3,11 @@ import { useFeaturedTours } from "@/hooks/use-tours";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocale } from "@/contexts/LocaleContext";
+import { getLocalizedTourTitle, getLocalizedTourSlug } from "@/lib/tours";
 
 const Favorites = () => {
   const { data: favs = [], isLoading } = useFeaturedTours(3);
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   
   return (
     <section className="bg-accent/10" aria-labelledby="favorites-title">
@@ -32,17 +33,19 @@ const Favorites = () => {
             ))
           ) : (
             favs.map((tour) => (
-              <Link key={tour.id} to={`/tours/${tour.slug}`} aria-label={t('aria.tour_card', `View ${tour.title}`, { title: tour.title }) || `Voir ${tour.title}`}>
+              <Link key={tour.id} to={`/tours/${getLocalizedTourSlug(tour, locale)}`} aria-label={t('aria.tour_card', `View ${getLocalizedTourTitle(tour, locale)}`) || `Voir ${getLocalizedTourTitle(tour, locale)}`}>
                 <TourCard
                   imageRecord={tour.imageRecords?.[0]}
                   image={tour.images[0]}
-                  title={tour.title}
+                  title_en={tour.title_en}
+                  title_fr={tour.title_fr}
+                  slug_en={tour.slug_en}
+                  slug_fr={tour.slug_fr}
                   description={tour.location}
                   duration={tour.duration}
                   group={tour.group}
                   price={tour.price}
                   currency={tour.currency}
-                  slug={tour.slug}
                 />
               </Link>
             ))

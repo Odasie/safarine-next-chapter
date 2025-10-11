@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-import { Loader2, Eye, Edit, Trash2, Plus, RefreshCw } from 'lucide-react';
+import { Loader2, Eye, Edit, Trash2, Plus, RefreshCw, MoreVertical, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ToursDebugger from '@/components/admin/ToursDebugger';
 import { TourImagePreview } from '@/components/admin/TourImagePreview';
+import { getLocalizedTourSlug } from '@/lib/tours';
 
 interface Tour {
   id: string;
@@ -23,6 +25,8 @@ interface Tour {
   is_private?: boolean;
   published_at?: string;
   updated_at?: string;
+  slug_en?: string;
+  slug_fr?: string;
 }
 
 export default function ToursDashboard() {
@@ -43,7 +47,7 @@ export default function ToursDashboard() {
       // Fetch ALL tours without any filtering to see what's actually in the database
       const { data, error, count } = await supabase
         .from('tours')
-        .select('*, status, is_private, published_at, updated_at', { count: 'exact' })
+        .select('*, status, is_private, published_at, updated_at, slug_en, slug_fr', { count: 'exact' })
         .limit(1000)  // Explicit limit to bypass default pagination
         .order('title_en', { ascending: true });
 
@@ -85,6 +89,19 @@ export default function ToursDashboard() {
     await fetchAllTours();
     setRefreshing(false);
     toast.success('Tours refreshed successfully');
+  };
+
+  const handleEditTour = (tourId: string) => {
+    navigate(`/admin/tours/edit/${tourId}`);
+  };
+
+  const handleViewTour = (tour: Tour & { slug_en?: string; slug_fr?: string }) => {
+    const slug = getLocalizedTourSlug(tour, 'en');
+    if (slug) {
+      window.open(`/en/tours/${slug}`, '_blank');
+    } else {
+      toast.error("This tour doesn't have a slug configured yet.");
+    }
   };
 
   const updateTourVisibility = async (tourId: string, makePublic: boolean) => {
@@ -312,39 +329,41 @@ export default function ToursDashboard() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
-                          {((tour.status ?? (tour.is_private ? 'draft' : 'published')) === 'draft') ? (
-                            <Button
-                              size="sm"
-                              onClick={() => updateTourVisibility(tour.id, true)}
-                              className="bg-green-600 hover:bg-green-700"
-                            >
-                              Publish
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="w-4 h-4" />
                             </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => updateTourVisibility(tour.id, false)}
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
+                            <DropdownMenuItem onClick={() => handleEditTour(tour.id)}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleViewTour(tour)}>
+                              <Eye className="w-4 h-4 mr-2" />
+                              View
+                            </DropdownMenuItem>
+                            {((tour.status ?? (tour.is_private ? 'draft' : 'published')) === 'draft') ? (
+                              <DropdownMenuItem onClick={() => updateTourVisibility(tour.id, true)}>
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                Publish
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem onClick={() => updateTourVisibility(tour.id, false)}>
+                                <Eye className="w-4 h-4 mr-2" />
+                                Unpublish
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem 
+                              onClick={() => deleteTour(tour.id, tour.title_en)}
+                              className="text-destructive"
                             >
-                              Unpublish
-                            </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => navigate(`/tours/${tour.id}`)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => deleteTour(tour.id, tour.title_en)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}

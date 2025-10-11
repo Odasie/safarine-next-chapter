@@ -138,19 +138,19 @@ Please provide your preferred dates and number of participants.`;
       <Card>
         <CardHeader>
           <CardTitle className="text-center">
-            {t('booking.ready_to_book', 'Ready to Book?')}
+            {t('tours.detail.booking.title') || 'Ready to Book?'}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center mb-4">
             <p className="text-sm text-muted-foreground">
-              {t('booking.contact_details', 'Contact us to secure your spot on this amazing adventure!')}
+              {t('tours.detail.booking.description') || 'Contact us to secure your spot on this amazing adventure!'}
             </p>
           </div>
           {renderBookingButtons()}
           <div className="mt-4 p-3 bg-muted rounded-lg">
             <p className="text-xs text-muted-foreground text-center">
-              {t('booking.response_time', '✅ Quick response within 24 hours')}
+              {t('tours.detail.booking.response') || '✅ Quick response within 24 hours'}
             </p>
           </div>
         </CardContent>

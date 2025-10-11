@@ -473,7 +473,9 @@ const TourDetail = () => {
               {/* Description */}
               {description && (
                 <div className="prose prose-lg max-w-none">
-                  <h2 className="text-2xl font-semibold text-foreground mb-4">{t('tour.about_title') || 'About This Tour'}</h2>
+                  <h2 className="text-2xl font-semibold text-foreground mb-4">
+                    {locale === 'fr' ? 'À propos de ce circuit' : 'About This Tour'}
+                  </h2>
                   <div className="text-muted-foreground whitespace-pre-line">
                     {description}
                   </div>
@@ -508,14 +510,16 @@ const TourDetail = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Calendar className="h-5 w-5 text-primary" />
-                      {t('tour.itinerary') || 'Itinerary'}
+                      {locale === 'fr' ? 'Itinéraire' : 'Itinerary'}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       {Array.isArray(itinerary) ? itinerary.map((day, index) => (
                         <div key={index} className="border-l-2 border-primary/20 pl-4">
-                          <h4 className="font-semibold text-foreground">{t('tour.day') || 'Day'} {index + 1}</h4>
+                          <h4 className="font-semibold text-foreground">
+                            {locale === 'fr' ? 'Jour' : 'Day'} {index + 1}
+                          </h4>
                           <p className="text-muted-foreground">{String(day)}</p>
                         </div>
                       )) : typeof itinerary === 'string' ? (
@@ -529,7 +533,9 @@ const TourDetail = () => {
               {/* Image Gallery - Show only additional images */}
               {tourData?.id && (
                 <div className="space-y-4">
-                  <h2 className="text-2xl font-semibold text-foreground">{t('tour.more_images') || 'More Images'}</h2>
+                  <h2 className="text-2xl font-semibold text-foreground">
+                    {locale === 'fr' ? 'Plus d\'images' : 'More Images'}
+                  </h2>
                   <ImageGallery tourId={tourData.id} />
                 </div>
               )}
@@ -542,38 +548,49 @@ const TourDetail = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <DollarSign className="h-5 w-5 text-primary" />
-                    {t('tour.pricing') || 'Pricing'}
+                    {t('pricing') || 'Pricing'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {pricing.adult && (
                     <div className="p-4 bg-primary/5 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-muted-foreground">{t('tour.adult') || 'Adult'}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {locale === 'fr' ? 'Adulte' : 'Adult'}
+                        </span>
                         <span className="text-2xl font-bold text-primary">
                           {pricing.currency} {Number(pricing.adult).toLocaleString()}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">{t('tour.per_person') || 'Per person'}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t('tours.detail.price.label') || (locale === 'fr' ? 'Prix par adulte' : 'Price per adult')}
+                      </p>
                     </div>
                   )}
                   
                   {pricing.child && (
                     <div className="p-4 bg-muted/50 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-muted-foreground">{t('tour.child_under_12') || 'Child (under 12)'}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {locale === 'fr' ? 'Enfant (moins de 12 ans)' : 'Child (under 12)'}
+                        </span>
                         <span className="text-xl font-semibold text-foreground">
                           {pricing.currency} {Number(pricing.child).toLocaleString()}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">{t('tour.per_child') || 'Per child'}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {locale === 'fr' ? 'Par enfant' : 'Per child'}
+                      </p>
                     </div>
                   )}
                    
                    {/* Group Rate Message - NEVER show B2B pricing */}
                    <div className="bg-muted rounded-lg p-3">
                      <p className="text-sm text-muted-foreground text-center">
-                       {t('tour.group_rate_message') || '🎉 Contact us for group rates and special discounts'}
+                       {locale === 'fr' 
+                         ? '🎉 Contactez-nous pour les tarifs de groupe et les réductions spéciales'
+                         : '🎉 Contact us for group rates and special discounts'
+                       }
                      </p>
                    </div>
                 </CardContent>
@@ -585,7 +602,7 @@ const TourDetail = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <CheckCircle className="h-5 w-5 text-green-600" />
-                      {t('tour.whats_included') || "What's Included"}
+                      {t('tours.detail.included.title') || t('what.s.included') || "What's Included"}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -607,7 +624,7 @@ const TourDetail = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <X className="h-5 w-5 text-red-600" />
-                      {t('tour.whats_not_included') || "What's Not Included"}
+                      {t('tours.detail.excluded.title') || "What's Not Included"}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
